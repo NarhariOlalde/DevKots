@@ -48,7 +48,6 @@ fun LoginScreen() {
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        // Email TextField
         TextField(
             value = email,
             onValueChange = { email = it },
@@ -72,7 +71,7 @@ fun LoginScreen() {
                     Icons.Filled.Visibility
                 else Icons.Filled.VisibilityOff
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, contentDescription = "Toggle Password Visibility")
+                    Icon(imageVector = image, contentDescription = "Cambiar Visibilidad de la Contraseña")
                 }
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
@@ -83,14 +82,14 @@ fun LoginScreen() {
         // Login Button
         Button(
             onClick = {
-                loginMessage = null // Clear message before new login attempt
+                loginMessage = null
                 CoroutineScope(Dispatchers.IO).launch {
                     val success = checkCredentials(email, password)
                     withContext(Dispatchers.Main) {
                         loginMessage = if (success) {
-                            "Congratulations, you logged in"
+                            "Haz hecho un login exitoso"
                         } else {
-                            "Wrong user or password"
+                            "Usuario o contraseña incorrecto"
                         }
                     }
                 }
@@ -109,22 +108,19 @@ fun LoginScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Login Message
         if (loginMessage != null) {
             Text(
                 text = loginMessage!!,
-                color = if (loginMessage == "Congratulations, you logged in") Color.Green else Color.Red,
-                fontSize = 16.sp
+                color = if (loginMessage == "Haz hecho un login exitoso") Color.Green else Color.Red,
+                fontSize = 32.sp
             )
         }
     }
 }
 
 suspend fun checkCredentials(email: String, password: String): Boolean {
-    // Initialize HTTP Client
     val client = OkHttpClient()
 
-    // Make GET request to fetch account data by email
     val request = Request.Builder()
         .url("https://api-generator.retool.com/HCzRU7/accounts?email=$email")
         .build()
@@ -133,10 +129,8 @@ suspend fun checkCredentials(email: String, password: String): Boolean {
         val response = client.newCall(request).execute()
         val responseBody = response.body?.string()
 
-        // Log the raw response for debugging
         println("API Response: $responseBody")
 
-        // Ensure the response body is not null or empty
         if (responseBody.isNullOrEmpty()) {
             println("No data returned from API.")
             return false
@@ -144,14 +138,12 @@ suspend fun checkCredentials(email: String, password: String): Boolean {
 
         val jsonArray = JSONArray(responseBody)
 
-        // Check if we got a user record
         if (jsonArray.length() > 0) {
             val account = jsonArray.getJSONObject(0) // Assume only one user per email
             val storedPassword = account.getString("password")
 
             println("Stored password: $storedPassword, Entered password: $password")
 
-            // Validate password (convert both to string to avoid type mismatch)
             if (password == storedPassword) {
                 println("Login successful!")
                 return true // Login successful
@@ -162,10 +154,10 @@ suspend fun checkCredentials(email: String, password: String): Boolean {
             println("No user found with the given email.")
         }
 
-        false // Login failed if no user or wrong password
+        false
     } catch (e: Exception) {
         e.printStackTrace()
-        false // Handle network or parsing error
+        false
     }
 }
 @Preview(showBackground = true)
