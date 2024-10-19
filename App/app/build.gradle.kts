@@ -60,7 +60,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    api("io.realm.kotlin:library-base:1.9.0")
+    api(libs.library.base)
+    implementation(libs.androidx.espresso.core)
+    implementation(libs.androidx.constraintlayout.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,4 +70,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.okhttp)
+    implementation(libs.androidx.material.icons.extended)
 }
