@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">DevKots</string>
+    <string name="app_name">AWAQ-BIO</string>\
+    <string name="logo_description">Awaq Logo </string>
+    <string name="icon_description">Main page logo </string>
 </resources>

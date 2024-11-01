@@ -1,4 +1,4 @@
-package com.example.devkots.UILib
+package com.example.devkots.uiLib
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
