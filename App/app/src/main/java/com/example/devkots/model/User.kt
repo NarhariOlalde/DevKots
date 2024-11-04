@@ -1,8 +1,8 @@
-package com.example.devkots.models
+package com.example.devkots.model
 
 data class User(
     val id: Int,
-    val name: String,
     val mail: String,
+    val name: String,
     val password: String
 )

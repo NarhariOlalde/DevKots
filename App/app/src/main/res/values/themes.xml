@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <style name="Theme.DevKots" parent="android:Theme.Material.Light.NoActionBar" />
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.DevKots" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/Object_Green2</item>
+        <item name="colorPrimaryVariant">@color/Object_Green1</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorSecondary">@color/Object_Green3</item>
+        <item name="colorSurface">@color/Object_Green4</item>
+        <item name="colorOnSurface">@android:color/black</item>
+    </style>
 </resources>

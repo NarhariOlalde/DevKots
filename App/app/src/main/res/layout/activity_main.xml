@@ -1,69 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/Intro_Green">
+    android:orientation="vertical"
+    android:background="@color/Intro_Green"
+    android:padding="16dp">
 
-    <!-- App Title -->
+    <!-- Placeholder for future components -->
     <TextView
-        android:id="@+id/title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
+        android:text="Welcome to DevKots"
         android:textColor="@color/Object_Green1"
-        android:textSize="@dimen/title_text_size"
-        android:fontFamily="monospace"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/center_icon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.2" />
+        android:textSize="24sp"
+        android:padding="8dp"/>
 
-    <!-- Center Icon -->
-    <ImageView
-        android:id="@+id/center_icon"
-        android:layout_width="@dimen/icon_size"
-        android:layout_height="@dimen/icon_size"
-        android:src="@drawable/main_page"
-        android:contentDescription="@string/icon_description"
-        app:layout_constraintTop_toBottomOf="@id/title_text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/login_button"
-        app:layout_constraintVertical_bias="0.3" />
-
-    <!-- "Iniciar Sesión" Button -->
-    <Button
-        android:id="@+id/login_button"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/Object_Green1"
-        android:text="INICIAR SESIÓN"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/button_text_size"
-        app:layout_constraintTop_toBottomOf="@id/center_icon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/create_account_button"
-        app:layout_constraintVertical_bias="0.2"
-        tools:ignore="HardcodedText" />
-
-    <!-- "Crear una Cuenta" Button -->
-    <Button
-        android:id="@+id/create_account_button"
-        android:layout_width="@dimen/button_width"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/Object_Green1"
-        android:text="CREA UNA CUENTA"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/button_text_size"
-        app:layout_constraintTop_toBottomOf="@id/login_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.05"
-        tools:ignore="HardcodedText" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

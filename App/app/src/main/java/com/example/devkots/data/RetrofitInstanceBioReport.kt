@@ -1,15 +1,16 @@
-package com.example.devkots.api
+package com.example.devkots.data
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object RetrofitClient {
-    private const val BASE_URL = "https://retoolapi.dev/bSjEhX/"
+object RetrofitInstanceBioReport {
+    private const val BASE_URL = "https://retoolapi.dev/AH8DpX/"
 
-    val instance: Retrofit by lazy {
+    val api: BioReportService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+            .create(BioReportService::class.java)
     }
 }

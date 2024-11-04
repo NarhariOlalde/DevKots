@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/white" /> <!-- White background for the card -->
+
+    <corners android:radius="8dp" /> <!-- Rounded corners with 8dp radius -->
+
+    <padding
+        android:left="8dp"
+        android:top="8dp"
+        android:right="8dp"
+        android:bottom="8dp" />
+
+    <!-- Add a subtle shadow using elevation if API level supports it -->
+</shape>
