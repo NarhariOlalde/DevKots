@@ -111,31 +111,3 @@ fun DashboardScreen(
     }
 }
 
-@Composable
-fun BottomNavigationBar(navController: NavController) {
-    BottomNavigation(
-        backgroundColor = ObjectGreen2,
-        contentColor = Color.White
-    ) {
-        BottomNavigationItem(
-            selected = false,
-            onClick = { navController.navigate("dashboard") },
-            icon = { Text("Inicio", color = Color.White) }
-        )
-        BottomNavigationItem(
-            selected = false,
-            onClick = { navController.navigate("search") },
-            icon = { Text("Busqueda", color = Color.White) }
-        )
-        BottomNavigationItem(
-            selected = false,
-            onClick = { /* TODO: Navigate to settings screen */ },
-            icon = { Text("Configuracion", color = Color.White) }
-        )
-        BottomNavigationItem(
-            selected = false,
-            onClick = { /* TODO: Navigate to express capture screen */ },
-            icon = { Text("Toma Express", color = Color.White) }
-        )
-    }
-}

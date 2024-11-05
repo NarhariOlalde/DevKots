@@ -35,7 +35,6 @@ import com.example.devkots.uiLib.viewmodels.UserSessionViewModel
 fun SignupScreen(
     navController: NavController,
     signupViewModel: SignupViewModel,
-    userSessionViewModel: UserSessionViewModel
 ) {
     val name by signupViewModel.name.collectAsState()
     val email by signupViewModel.email.collectAsState()
@@ -44,11 +43,8 @@ fun SignupScreen(
     val errorMessage by signupViewModel.errorMessage.collectAsState()
 
     if (signupSuccess) {
-        // Navigate to DashboardScreen after successful signup
-        LaunchedEffect(Unit) {
-            navController.navigate("dashboard") {
-                popUpTo("login_signup") { inclusive = true }
-            }
+        navController.navigate("dashboard") { // Replace "main" with your actual destination for logged-in users
+            popUpTo("signup") { inclusive = true }
         }
     } else {
         Surface(
