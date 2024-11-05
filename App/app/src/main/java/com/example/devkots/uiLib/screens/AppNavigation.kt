@@ -51,16 +51,14 @@ fun AppNavigation(
         composable("report_selection") { ReportSelectionScreen(navController) }
 
         // Placeholder routes for report types
-        composable("fauna_transect_form/{date}/{time}/{weather}") { backStackEntry ->
-            val date = backStackEntry.arguments?.getString("date")
-            val time = backStackEntry.arguments?.getString("time")
+        composable("fauna_transect_form/{weather}/{season}") { backStackEntry ->
             val weather = backStackEntry.arguments?.getString("weather")
+            val season = backStackEntry.arguments?.getString("season")
             FaunaTransectoFormScreen(
                 navController,
                 userSessionViewModel.biomonitorId.collectAsState().value,
-                date ?: "Fecha no disponible",
-                time ?: "Hora no disponible",
-                weather ?: "Estado del tiempo no disponible"
+                weather ?: "Estado del tiempo no disponible",
+                season ?: "Temporada no disponible"
             )
         }
         composable("fauna_point_count_form") { PlaceholderFormScreen("Fauna en Punto de Conteo") }

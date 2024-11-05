@@ -15,5 +15,6 @@ data class FaunaTransectoReport(
     val gpsLocation: String,                 // GPS coordinates
     val weather: String,                     // Weather
     val status: Boolean = false,             // Status (always false for new entries)
-    val biomonitor_id: String                 // ID of the logged-in user
+    val biomonitor_id: String,                 // ID of the logged-in user
+    val season: String                       // Season
 )
