@@ -35,8 +35,6 @@ fun ReportSelectionScreen(navController: NavController,
     var selectedType by remember { mutableStateOf("") }
 
     // Options for each selection
-    val weatherOptions = listOf("Soleado", "Nublado", "Lluvioso")
-    val seasonOptions = listOf("Verano-Seco", "Invierno-Lluviosa")
     val typeOptions = listOf(
         "Fauna en Transecto",
         "Fauna en Punto de Conteo",

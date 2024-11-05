@@ -10,6 +10,7 @@ val ObjectGreen1 = Color(0xFF4E7029)
 val ObjectGreen2 = Color(0xFFA5BE00)
 val ObjectGreen3 = Color(0xFF6A994E)
 val ObjectGreen4 = Color(0xFFCDE4B4)
+val ObjectGreen5 = Color(0xFF058D56)
 
 private val LightColorPalette = lightColors(
     primary = ObjectGreen2,
