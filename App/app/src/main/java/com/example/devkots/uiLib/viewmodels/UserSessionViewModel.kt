@@ -34,6 +34,13 @@ class UserSessionViewModel : ViewModel() {
         _isLoggedIn.value = true
     }
 
+    fun signInUser(name: String, email: String, biomonitorId: String) {
+        _userName.value = name
+        _email.value = email
+        _biomonitorId.value = biomonitorId
+        _isLoggedIn.value = true
+    }
+
     /**
      * Updates the user's info in the session. This is typically called when user updates their profile.
      */

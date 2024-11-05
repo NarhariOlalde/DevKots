@@ -31,7 +31,7 @@ fun AppNavigation(
     NavHost(navController = navController, startDestination = "login_signup") {
         composable("login_signup") { LoginSignupScreen(navController) }
         composable("login") { LoginScreen(navController, LoginViewModel(userSessionViewModel), userSessionViewModel) }
-        composable("signup") { SignupScreen(navController, SignupViewModel(), userSessionViewModel) }
+        composable("signup") { SignupScreen( navController, SignupViewModel(userSessionViewModel) ) }
         composable("dashboard") {
             DashboardScreen(
                 navController = navController,
