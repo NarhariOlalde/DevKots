@@ -8,8 +8,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
@@ -18,15 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.uiLib.components.MainLayout
+import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen2
-import java.text.SimpleDateFormat
-import java.util.Calendar
 
 @Composable
 fun ReportSelectionScreen(navController: NavController,
@@ -38,7 +36,7 @@ fun ReportSelectionScreen(navController: NavController,
 
     // Options for each selection
     val weatherOptions = listOf("Soleado", "Nublado", "Lluvioso")
-    val seasonOptions = listOf("Verano/Seco", "Invierno/Lluviosa")
+    val seasonOptions = listOf("Verano-Seco", "Invierno-Lluviosa")
     val typeOptions = listOf(
         "Fauna en Transecto",
         "Fauna en Punto de Conteo",
@@ -49,25 +47,17 @@ fun ReportSelectionScreen(navController: NavController,
         "Variables Climaticas"
     )
 
-    val currentDate = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(Calendar.getInstance().time)
-    val currentTime = SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(Calendar.getInstance().time)
-
-    var name by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf(currentDate) }
-    var time by remember { mutableStateOf(currentTime) }
-    var location by remember { mutableStateOf("") }
-
     MainLayout(navController = navController) {
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
-                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF99CC66))
+                    .background(IntroGreen)
                     .padding(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -76,7 +66,7 @@ fun ReportSelectionScreen(navController: NavController,
                     navController.navigate("dashboard")
                 }) {
                     Icon(
-                        imageVector = Icons.Default.KeyboardArrowLeft,
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                         contentDescription = "Regresar",
                         tint = Color.Black,
                         modifier = Modifier.size(45.dp)
@@ -105,48 +95,6 @@ fun ReportSelectionScreen(navController: NavController,
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nombre", fontSize = 28.sp) },
-                    textStyle = TextStyle(fontSize = 28.sp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
-
-                OutlinedTextField(
-                    value = date,
-                    onValueChange = { date = it },
-                    label = { Text("Fecha", fontSize = 28.sp) },
-                    textStyle = TextStyle(fontSize = 28.sp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
-
-                OutlinedTextField(
-                    value = time,
-                    onValueChange = { time = it },
-                    label = { Text("Hora", fontSize = 28.sp) },
-                    textStyle = TextStyle(fontSize = 28.sp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
-
-                OutlinedTextField(
-                    value = location,
-                    onValueChange = { location = it },
-                    label = { Text("Localidad", fontSize = 28.sp) },
-                    textStyle = TextStyle(fontSize = 28.sp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                )
-
-                Spacer(modifier = Modifier.height(25.dp))
-
                 Text(
                     text = "Estado del tiempo:",
                     fontSize = 35.sp,
@@ -219,8 +167,8 @@ fun ReportSelectionScreen(navController: NavController,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
-                        selected = selectedSeason == "Verano/Seco",
-                        onClick = { selectedSeason = "Verano/Seco" }
+                        selected = selectedSeason == "Verano-Seco",
+                        onClick = { selectedSeason = "Verano-Seco" }
                     )
                     Text(
                         text = "Verano/Seco",
@@ -233,8 +181,8 @@ fun ReportSelectionScreen(navController: NavController,
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
-                        selected = selectedSeason == "Invierno/Lluviosa",
-                        onClick = { selectedSeason = "Invierno/Lluviosa" }
+                        selected = selectedSeason == "Invierno-Lluviosa",
+                        onClick = { selectedSeason = "Invierno-Lluviosa" }
                     )
                     Text(
                         text = "Invierno/Lluviosa",
@@ -273,16 +221,25 @@ fun ReportSelectionScreen(navController: NavController,
 
             Spacer(modifier = Modifier.height(50.dp))
 
+            // Next Button
             Button(
                 onClick = {
-                    navController.navigate("fauna_transect_form/$date/$time/$selectedWeather")
+                    when (selectedType) {
+                        "Fauna en Transecto" -> navController.navigate("fauna_transect_form/$selectedWeather/$selectedSeason")
+                        "Fauna en Punto de Conteo" -> navController.navigate("fauna_point_count_form")
+                        "Fauna Busqueda Libre" -> navController.navigate("fauna_free_search_form")
+                        "Validacion de Cobertura" -> navController.navigate("coverage_validation_form")
+                        "Parcela de Vegetacion" -> navController.navigate("vegetation_plot_form")
+                        "Camaras Trampa" -> navController.navigate("trap_cameras_form")
+                        "Variables Climaticas" -> navController.navigate("climatic_variables_form")
+                    }
                 },
-                enabled = selectedWeather.isNotEmpty() && selectedSeason.isNotEmpty() && selectedType.isNotEmpty() && name.isNotEmpty() && date.isNotEmpty() && time.isNotEmpty() && location.isNotEmpty(),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .height(60.dp)
+                    .height(60.dp),
+                enabled = selectedWeather.isNotEmpty() && selectedSeason.isNotEmpty() && selectedType.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2)
             ) {
                 Text(
                     text = "Siguiente",

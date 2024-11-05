@@ -19,9 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -56,11 +54,9 @@ import java.util.Locale
 @Composable
 fun FaunaTransectoFormScreen(
     navController: NavController,
-    date: String,
-    time: String,
-    weather: String,
     biomonitorID: String,
-    modifier: Modifier = Modifier
+    weather: String,
+    season: String
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -78,7 +74,7 @@ fun FaunaTransectoFormScreen(
     var observationType by remember { mutableStateOf("") }
     var photoPath by remember { mutableStateOf<Uri?>(null) }
     var observations by remember { mutableStateOf("") }
-    var submissionResult by remember { mutableStateOf<String?>(null) } // no usar
+    var submissionResult by remember { mutableStateOf<String?>(null) }
     val animals = listOf(
         Pair(R.drawable.mamifero, "Mamífero"),
         Pair(R.drawable.ave, "Ave"),
@@ -87,11 +83,9 @@ fun FaunaTransectoFormScreen(
         Pair(R.drawable.insecto, "Insecto")
     )
 
-
     // Static values
-    val currentDate = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(Calendar.getInstance().time)
-    val currentTime = SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(Calendar.getInstance().time)
-    val biomonitorId = biomonitorID
+    val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
+    val currentTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Calendar.getInstance().time)
 
     // Permission launcher for location
     val locationPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -153,11 +147,13 @@ fun FaunaTransectoFormScreen(
         }
     }
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState())
-    ) {
+            .background(IntroGreen)
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+    )
+    {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -170,12 +166,13 @@ fun FaunaTransectoFormScreen(
                 navController.popBackStack()
             }) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowLeft,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "Regresar",
                     tint = Color.Black,
                     modifier = Modifier.size(45.dp)
                 )
             }
+
             Text(
                 text = "Formulario",
                 fontSize = 35.sp,
@@ -204,14 +201,22 @@ fun FaunaTransectoFormScreen(
                     value = transectoNumber,
                     onValueChange = { transectoNumber = it },
                     label = {
-                        Text("Número de Transecto", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        Text(
+                            "Número de Transecto",
+                            fontSize = 28.sp,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
                     },
                     textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .height(100.dp),
-                    singleLine = true
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                )
                 )
             }
 
@@ -260,7 +265,7 @@ fun FaunaTransectoFormScreen(
         Spacer(modifier = Modifier.height(25.dp))
 
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
@@ -276,10 +281,13 @@ fun FaunaTransectoFormScreen(
                         .fillMaxWidth()
                         .padding(vertical = 12.dp)
                         .height(100.dp),
-                    singleLine = true
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
             }
-
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = scientificName,
@@ -292,10 +300,13 @@ fun FaunaTransectoFormScreen(
                         .fillMaxWidth()
                         .padding(vertical = 12.dp)
                         .height(100.dp),
-                    singleLine = true
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
             }
-
             Text(
                 text = "Opcional",
                 fontSize = 18.sp,
@@ -303,7 +314,6 @@ fun FaunaTransectoFormScreen(
                 modifier = Modifier
                     .padding(start = 8.dp)
             )
-
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = individualCount,
@@ -316,10 +326,13 @@ fun FaunaTransectoFormScreen(
                         .fillMaxWidth()
                         .padding(vertical = 12.dp)
                         .height(100.dp),
-                    singleLine = true
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
             }
-
             Spacer(modifier = Modifier.height(25.dp))
 
             Text(
@@ -330,7 +343,7 @@ fun FaunaTransectoFormScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Column() {
+            Column {
                 val registrationTypes = listOf("La Vió", "Huella", "Rastro", "Cacería", "Le dijeron")
                 registrationTypes.forEach { type ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -354,11 +367,13 @@ fun FaunaTransectoFormScreen(
                 fontSize = 35.sp,
                 color = colorResource(id = R.color.black)
             )
+
             Spacer(modifier = Modifier.height(15.dp))
 
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
-            ){
+            ) {
                 Button(
                     onClick = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -374,7 +389,7 @@ fun FaunaTransectoFormScreen(
                             galleryLauncher.launch("image/*")
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
                     modifier = Modifier
                         .padding(start = 70.dp)
                         .size(width = 250.dp, height = 50.dp)
@@ -385,6 +400,7 @@ fun FaunaTransectoFormScreen(
                         color = Color.White
                     )
                 }
+
                 Button(
                     onClick = {
                         handleCameraClick()
@@ -403,6 +419,7 @@ fun FaunaTransectoFormScreen(
             }
 
             Spacer(modifier = Modifier.height(30.dp))
+
             OutlinedTextField(
                 value = observations,
                 onValueChange = { observations = it },
@@ -416,7 +433,9 @@ fun FaunaTransectoFormScreen(
                     .height(200.dp),
                 singleLine = true
             )
+
             Spacer(modifier = Modifier.height(20.dp))
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -450,12 +469,13 @@ fun FaunaTransectoFormScreen(
                             observationType = observationType,
                             photoPath = photoPath?.toString(),
                             observations = observations,
-                            date = date,
-                            time = time,
+                            date = currentDate,
+                            time = currentTime,
                             gpsLocation = gpsLocation,
                             weather = weather,
                             status = false,
-                            biomonitor_id = biomonitorId
+                            season = season,
+                            biomonitor_id = biomonitorID
                         )
 
                         coroutineScope.launch {
@@ -470,17 +490,17 @@ fun FaunaTransectoFormScreen(
                                 scientificName = ""
                                 individualCount = ""
                                 observationType = ""
-                                photoPath = cameraUri.value
+                                photoPath = null
                                 observations = ""
                             }
                         }
                     },
-                    enabled = transectoNumber.isNotEmpty() && animalType.isNotEmpty() && commonName.isNotEmpty() && individualCount.isNotEmpty() && observationType.isNotEmpty() && weather.isNotEmpty(),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 8.dp)
-                        .height(60.dp)
+                        .height(60.dp),
+                    enabled = transectoNumber.isNotEmpty() && animalType.isNotEmpty() && commonName.isNotEmpty() && individualCount.isNotEmpty() && observationType.isNotEmpty() && weather.isNotEmpty(),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
 
                 ) {
                     Text(
@@ -496,7 +516,6 @@ fun FaunaTransectoFormScreen(
             Spacer(modifier = Modifier.height(20.dp))
         }
     }
-
 }
 
 fun createImageFile(context: Context): Uri? {
