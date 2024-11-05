@@ -5,6 +5,8 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+val Black = Color(0xFF000000)
+val White = Color(0xFFFFFFFF)
 val IntroGreen = Color(0xFFD6E5CC)
 val ObjectGreen1 = Color(0xFF4E7029)
 val ObjectGreen2 = Color(0xFFA5BE00)

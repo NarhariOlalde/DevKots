@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -22,7 +23,7 @@ fun LoginSignupScreen(navController: NavController) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(IntroGreen),
+            .background(White),
         color = IntroGreen
     ) {
         Column(
@@ -40,7 +41,7 @@ fun LoginSignupScreen(navController: NavController) {
             )
 
             Image(
-                painter = painterResource(id = R.drawable.awaq_logo),
+                painter = painterResource(id = R.drawable.introimage),
                 contentDescription = "Nature Image",
                 modifier = Modifier
                     .size(300.dp)
@@ -52,10 +53,10 @@ fun LoginSignupScreen(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                CustomButtonLS(text = "Login", backgroundColor = ObjectGreen2) {
+                CustomButtonLS(text = "Login", backgroundColor = ObjectGreen1) {
                     navController.navigate("login")
                 }
-                CustomButtonLS(text = "Signup", backgroundColor = ObjectGreen3) {
+                CustomButtonLS(text = "Signup", backgroundColor = ObjectGreen1) {
                     navController.navigate("signup")
                 }
             }
@@ -70,7 +71,7 @@ fun CustomButtonLS(text: String, backgroundColor: Color, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(30.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = backgroundColor)
     ) {
         Text(
