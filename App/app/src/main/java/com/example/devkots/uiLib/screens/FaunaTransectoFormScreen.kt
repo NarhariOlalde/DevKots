@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,12 +31,11 @@ import com.example.devkots.model.FaunaTransectoReport
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
-import com.example.devkots.uiLib.theme.ObjectGreen3
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -48,6 +47,10 @@ fun FaunaTransectoFormScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    // Location provider
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    var gpsLocation by remember { mutableStateOf("Fetching location...") }
 
     // Form fields
     var transectoNumber by remember { mutableStateOf("") }
@@ -63,7 +66,6 @@ fun FaunaTransectoFormScreen(
     // Static values
     val currentDate = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(Calendar.getInstance().time)
     val currentTime = SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(Calendar.getInstance().time)
-    val gpsLocation = "37.7749,-122.4194" // Placeholder for GPS (latitude,longitude)
     val biomonitorId = biomonitorID
     var weather by remember { mutableStateOf("") }
     val weatherOptions = listOf("Soleado", "Nublado", "Lluvioso")
@@ -71,6 +73,28 @@ fun FaunaTransectoFormScreen(
     // Dropdown options
     val animalTypeOptions = listOf("mammal", "bird", "reptile", "anfib", "insect")
     val observationTypeOptions = listOf("La vio", "Huella", "Rastro", "Caceria", "Le dijeron")
+
+    // Permission launcher for location
+    val locationPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            fetchLocation(fusedLocationClient, context) { location ->
+                gpsLocation = location
+            }
+        } else {
+            gpsLocation = "Location permission denied"
+        }
+    }
+
+    // Request location permission if needed
+    LaunchedEffect(Unit) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fetchLocation(fusedLocationClient, context) { location ->
+                gpsLocation = location
+            }
+        } else {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
 
     // File pickers
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -297,3 +321,34 @@ fun createImageFile(context: Context): Uri? {
     return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 }
 
+// Function to fetch location
+private fun fetchLocation(
+    fusedLocationClient: FusedLocationProviderClient,
+    context: Context,
+    onLocationFetched: (String) -> Unit
+) {
+    // Check if location permission is granted
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    val latitude = location.latitude
+                    val longitude = location.longitude
+                    onLocationFetched("$latitude,$longitude")
+                } else {
+                    onLocationFetched("Unable to fetch location")
+                }
+            }.addOnFailureListener {
+                Toast.makeText(context, "Failed to fetch location", Toast.LENGTH_SHORT).show()
+                onLocationFetched("Error fetching location")
+            }
+        } catch (e: SecurityException) {
+            Toast.makeText(context, "Location permission not granted", Toast.LENGTH_SHORT).show()
+            onLocationFetched("Permission denied")
+        }
+    } else {
+        // Permission not granted, notify the caller
+        Toast.makeText(context, "Location permission not granted", Toast.LENGTH_SHORT).show()
+        onLocationFetched("Permission denied")
+    }
+}

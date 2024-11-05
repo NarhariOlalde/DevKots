@@ -27,6 +27,7 @@ uiVersion = "1.4.0"
 viewpager2 = "1.1.0"
 material = "1.12.0"
 navigationCompose = "2.8.3"
+playServicesLocation = "21.3.0"
 
 [libraries]
 androidx-activity-compose-v161 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
@@ -63,6 +64,7 @@ androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", vers
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
