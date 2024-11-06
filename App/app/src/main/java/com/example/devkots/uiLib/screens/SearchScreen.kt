@@ -1,5 +1,6 @@
 package com.example.devkots.uiLib.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -122,26 +123,61 @@ fun SearchScreen(
                 .padding(paddingValues)
         ) {
             // Tabs for filtering
-            TabRow(selectedTabIndex = selectedTab) {
-                Tab(selected = selectedTab == 0, onClick = {
-                    selectedTab = 0
-                    filterReportsByTab(0)
-                }) {
-                    Text("Todos", modifier = Modifier.padding(16.dp))
+            TabRow(
+                selectedTabIndex = selectedTab,
+                backgroundColor = Color.White,
+                contentColor = Color(0xFF4E7029),
+            ) {
+                Tab(
+                    selected = selectedTab == 0,
+                    onClick = {
+                        selectedTab = 0
+                        filterReportsByTab(0)
+                    },
+                    selectedContentColor = Color(0xFF4E7029), // Verde si está seleccionada
+                    unselectedContentColor = Color.Gray, // Gris si no está seleccionada
+                ) {
+                    Text(
+                        "Todos",
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 18.sp // Tamaño de letra más grande
+                    )
                 }
-                Tab(selected = selectedTab == 1, onClick = {
-                    selectedTab = 1
-                    filterReportsByTab(1)
-                }) {
-                    Text("Guardados", modifier = Modifier.padding(16.dp))
+                Tab(
+                    selected = selectedTab == 1,
+                    onClick = {
+                        selectedTab = 1
+                        filterReportsByTab(1)
+                    },
+                    selectedContentColor = Color(0xFF4E7029), // Verde si está seleccionada
+                    unselectedContentColor = Color.Gray, // Gris si no está seleccionada
+                ) {
+                    Text(
+                        "Guardados",
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 18.sp // Tamaño de letra más grande
+                    )
                 }
-                Tab(selected = selectedTab == 2, onClick = {
-                    selectedTab = 2
-                    filterReportsByTab(2)
-                }) {
-                    Text("Subidos", modifier = Modifier.padding(16.dp))
+                Tab(
+                    selected = selectedTab == 2,
+                    onClick = {
+                        selectedTab = 2
+                        filterReportsByTab(2)
+                    },
+                    selectedContentColor = Color(0xFF4E7029), // Verde si está seleccionada
+                    unselectedContentColor = Color.Gray, // Gris si no está seleccionada
+                ) {
+                    Text(
+                        "Subidos",
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 18.sp // Tamaño de letra más grande
+                    )
                 }
             }
+
+
+
+
 
             if (loading) {
                 CircularProgressIndicator(modifier = Modifier.fillMaxSize())
@@ -152,7 +188,6 @@ fun SearchScreen(
                 ) {
                     filteredReports.forEach { report ->
 
-                        val backgroundColor = if (report.status) ObjectGreen5 else Color(0xFFFFCDD2)
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -160,7 +195,6 @@ fun SearchScreen(
                                 .clickable {
                                     navController.navigate("report_detail/${report.id}")
                                 },
-                            backgroundColor = backgroundColor
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text("Report ID: ${report.id}", fontSize = 16.sp)
