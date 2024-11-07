@@ -1,5 +1,7 @@
 package com.example.devkots.uiLib.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,10 +19,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.devkots.R
 import com.example.devkots.data.BioReportService
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.BioReport
@@ -76,7 +80,9 @@ fun SearchScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Search Reports") },
+                title = { Text("Búsqueda", fontSize = 24.sp, modifier = Modifier.padding(start = 40.dp))},
+                backgroundColor = Color(0xFFB4D68F),
+                modifier = Modifier.height(80.dp),
                 actions = {
                     IconButton(onClick = {
                         coroutineScope.launch {
@@ -111,7 +117,7 @@ fun SearchScreen(
                             }
                         }
                     }) {
-                        Text("Upload All", color = MaterialTheme.colors.onPrimary)
+                        Text("Subir todos", color = Color.Black, modifier = Modifier.padding(end = 20.dp), fontSize = 20.sp)
                     }
                 }
             )
@@ -187,7 +193,6 @@ fun SearchScreen(
                     .verticalScroll(rememberScrollState())
                 ) {
                     filteredReports.forEach { report ->
-
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -195,13 +200,26 @@ fun SearchScreen(
                                 .clickable {
                                     navController.navigate("report_detail/${report.id}")
                                 },
+                            backgroundColor = Color.White,
+                            elevation = 4.dp,
+                            border = BorderStroke(1.dp, Color.LightGray)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Report ID: ${report.id}", fontSize = 16.sp)
-                                Text("Type: ${report.type}", fontSize = 14.sp)
-                                Text("Date: ${report.date}", fontSize = 12.sp)
-                                Text("Status: ${if (report.status) "Uploaded" else "Pending"}", fontSize = 12.sp)
+                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically){
+                                Image(
+                                    painter = painterResource(
+                                        id = if (report.status) R.drawable.subido else R.drawable.guardado
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(75.dp)
+                                )
+                                Spacer(modifier = Modifier.width(30.dp))
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("#FM${report.id}", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                                    Text("${report.type}", fontSize = 25.sp)
+                                    Text("Date: ${report.date}", fontSize = 20.sp)
+                                }
                             }
+
                         }
                     }
                 }
