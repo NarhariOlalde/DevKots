@@ -208,9 +208,3 @@ fun GreenCircleAndBackButtonScreen() {
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun GreenCircleAndBackButtonScreenPreview() {
-    GreenCircleAndBackButtonScreen()
-}
