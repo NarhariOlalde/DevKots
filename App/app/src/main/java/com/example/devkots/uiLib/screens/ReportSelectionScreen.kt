@@ -217,7 +217,7 @@ fun ReportSelectionScreen(navController: NavController,
                 }
             }
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(25.dp))
 
             // Next Button
             Button(

@@ -1,15 +1,19 @@
 package com.example.devkots.uiLib.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.devkots.R
 import com.example.devkots.uiLib.components.MainLayout
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
@@ -38,59 +42,75 @@ fun DashboardScreen(
     MainLayout(navController = navController) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = IntroGreen
+            color = Color.White
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Greeting Text
-                Text(
-                    text = "Hola $userName",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = ObjectGreen1
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Placeholder Add Button
-                Button(
-                    onClick = { navController.navigate("report_selection") },
+            Box(
+                modifier = Modifier.fillMaxSize()
+            )
+            {
+                Image(
+                    painter = painterResource(id = R.drawable.vector_4_1),
+                    contentDescription = "vector_4.1",
                     modifier = Modifier
-                        .size(100.dp)
-                        .padding(bottom = 16.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2)
-                ) {
-                    Text("+", fontSize = 36.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.23f)
+                        .align(Alignment.TopCenter)
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .align(Alignment.TopStart),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                )
+                {
+                    // Greeting Text
+                    Text(
+                        text = "Hola $userName",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Placeholder Add Button
+                    Button(
+                        onClick = { navController.navigate("report_selection") },
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(bottom = 16.dp),
+                        shape = RoundedCornerShape(100.dp),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen1)
+                    ) {
+                        Text("+", fontSize = 36.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+
+                    // Dashboard Label
+                    Text(
+                        text = "Dashboard",
+                        fontSize = 24.sp,
+                        color = Color.Black,
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Percentage of True Reports
+                    Text(
+                        text = "${trueStatusPercentage.toInt()}% of reports are active",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = ObjectGreen1
+                    )
+
+                    // Report Stats
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Total Reports: $totalReports", fontSize = 18.sp, color = Color.Black)
+                    Text("Reports (Status = true): $trueReportsCount", fontSize = 18.sp, color = Color.Black)
+                    Text("Reports (Status = false): $falseReportsCount", fontSize = 18.sp, color = Color.Black)
                 }
-
-                // Dashboard Label
-                Text(
-                    text = "Dashboard",
-                    fontSize = 24.sp,
-                    color = ObjectGreen3,
-                    modifier = Modifier.align(Alignment.Start)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Percentage of True Reports
-                Text(
-                    text = "${trueStatusPercentage.toInt()}% of reports are active",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = ObjectGreen1
-                )
-
-                // Report Stats
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Total Reports: $totalReports", fontSize = 18.sp, color = Color.Black)
-                Text("Reports (Status = true): $trueReportsCount", fontSize = 18.sp, color = Color.Black)
-                Text("Reports (Status = false): $falseReportsCount", fontSize = 18.sp, color = Color.Black)
             }
         }
     }

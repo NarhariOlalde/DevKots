@@ -163,7 +163,7 @@ fun FaunaTransectoFormScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = {
-                navController.popBackStack()
+                navController.navigate("dashboard")
             }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -172,10 +172,9 @@ fun FaunaTransectoFormScreen(
                     modifier = Modifier.size(45.dp)
                 )
             }
-
             Text(
                 text = "Formulario",
-                fontSize = 35.sp,
+                fontSize = 48.sp,
                 lineHeight = 48.sp,
                 color = colorResource(id = R.color.black)
             )

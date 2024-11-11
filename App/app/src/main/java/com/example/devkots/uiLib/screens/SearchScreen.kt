@@ -1,32 +1,23 @@
 package com.example.devkots.uiLib.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.devkots.R
 import com.example.devkots.data.BioReportService
-import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.BioReport
-import com.example.devkots.uiLib.components.MainLayout
-import com.example.devkots.uiLib.viewmodels.BioReportViewModel
-import com.example.devkots.uiLib.theme.ObjectGreen2
-import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen5
 import kotlinx.coroutines.launch
 
@@ -75,7 +66,9 @@ fun SearchScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Search Reports") },
+                title = { Text("Búsqueda", fontSize = 24.sp, modifier = Modifier.padding(start = 40.dp))},
+                backgroundColor = Color(0xFFB4D68F),
+                modifier = Modifier.height(80.dp),
                 actions = {
                     IconButton(onClick = {
                         coroutineScope.launch {
@@ -110,7 +103,7 @@ fun SearchScreen(
                             }
                         }
                     }) {
-                        Text("Upload All", color = MaterialTheme.colors.onPrimary)
+                        Text("Subir todos", color = Color.Black, modifier = Modifier.padding(end = 20.dp), fontSize = 20.sp)
                     }
                 }
             )
@@ -122,24 +115,56 @@ fun SearchScreen(
                 .padding(paddingValues)
         ) {
             // Tabs for filtering
-            TabRow(selectedTabIndex = selectedTab) {
-                Tab(selected = selectedTab == 0, onClick = {
+            TabRow(selectedTabIndex = selectedTab,
+                backgroundColor = Color.White,
+                contentColor = Color(0xFF4E7029),
+                )
+            {
+                Tab(selected = selectedTab == 0,
+                    onClick = {
                     selectedTab = 0
                     filterReportsByTab(0)
-                }) {
-                    Text("Todos", modifier = Modifier.padding(16.dp))
+                },
+                    selectedContentColor = Color(0xFF4E7029),
+                    unselectedContentColor = Color.Gray,
+                ) {
+                    Text(
+                        "Todos",
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 18.sp
+                    )
                 }
-                Tab(selected = selectedTab == 1, onClick = {
-                    selectedTab = 1
-                    filterReportsByTab(1)
-                }) {
-                    Text("Guardados", modifier = Modifier.padding(16.dp))
+                Tab(
+                    selected = selectedTab == 1,
+                    onClick = {
+                        selectedTab = 1
+                        filterReportsByTab(1)
+                    },
+                    selectedContentColor = Color(0xFF4E7029),
+                    unselectedContentColor = Color.Gray,
+                )
+                {
+                    Text(
+                        "Guardados",
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 18.sp // Tamaño de letra más grande
+                    )
                 }
-                Tab(selected = selectedTab == 2, onClick = {
-                    selectedTab = 2
-                    filterReportsByTab(2)
-                }) {
-                    Text("Subidos", modifier = Modifier.padding(16.dp))
+                Tab(
+                    selected = selectedTab == 2,
+                    onClick = {
+                        selectedTab = 2
+                        filterReportsByTab(2)
+                    },
+                    selectedContentColor = Color(0xFF4E7029), // Verde si está seleccionada
+                    unselectedContentColor = Color.Gray, // Gris si no está seleccionada
+                )
+                {
+                    Text(
+                        "Subidos",
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 18.sp // Tamaño de letra más grande
+                    )
                 }
             }
 
@@ -160,13 +185,25 @@ fun SearchScreen(
                                 .clickable {
                                     navController.navigate("report_detail/${report.id}")
                                 },
-                            backgroundColor = backgroundColor
+                            backgroundColor = backgroundColor,
+                            elevation = 4.dp,
+                            border = BorderStroke(1.dp, Color.LightGray)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Report ID: ${report.id}", fontSize = 16.sp)
-                                Text("Type: ${report.type}", fontSize = 14.sp)
-                                Text("Date: ${report.date}", fontSize = 12.sp)
-                                Text("Status: ${if (report.status) "Uploaded" else "Pending"}", fontSize = 12.sp)
+                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically){
+                                Image(
+                                    painter = painterResource(
+                                        id = if (report.status) R.drawable.subido else R.drawable.guardado
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(75.dp)
+                                )
+                                Spacer(modifier = Modifier.width(30.dp))
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text("Report ID: ${report.id}", fontSize = 16.sp)
+                                    Text("Type: ${report.type}", fontSize = 14.sp)
+                                    Text("Date: ${report.date}", fontSize = 12.sp)
+                                    Text("Status: ${if (report.status) "Uploaded" else "Pending"}", fontSize = 12.sp)
+                                }
                             }
                         }
                     }
