@@ -157,13 +157,12 @@ fun FaunaTransectoFormScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color(0xFF99CC66))
                 .padding(4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = {
-                navController.popBackStack()
+                navController.navigate("dashboard")
             }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -172,10 +171,9 @@ fun FaunaTransectoFormScreen(
                     modifier = Modifier.size(45.dp)
                 )
             }
-
             Text(
                 text = "Formulario",
-                fontSize = 35.sp,
+                fontSize = 48.sp,
                 lineHeight = 48.sp,
                 color = colorResource(id = R.color.black)
             )
@@ -246,7 +244,7 @@ fun FaunaTransectoFormScreen(
                         painter = painterResource(id = animal.first),
                         contentDescription = animal.second,
                         modifier = Modifier
-                            .size(150.dp)
+                            .size(90.dp)
                             .background(
                                 if (animalType == animal.second) Color(0xFF99CC66) else Color.Transparent,
                                 shape = RoundedCornerShape(8.dp)
@@ -255,7 +253,7 @@ fun FaunaTransectoFormScreen(
                     )
                     Text(
                         text = animal.second,
-                        fontSize = 30.sp,
+                        fontSize = 18.sp,
                         color = Color.Black
                     )
                 }
@@ -391,12 +389,12 @@ fun FaunaTransectoFormScreen(
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
                     modifier = Modifier
-                        .padding(start = 70.dp)
-                        .size(width = 250.dp, height = 50.dp)
+                        .padding(start = 30.dp)
+                        .size(width = 170.dp, height = 50.dp)
                 ) {
                     Text(
                         text = "Elegir Archivo",
-                        fontSize = 20.sp,
+                        fontSize = 15.sp,
                         color = Color.White
                     )
                 }
@@ -407,12 +405,12 @@ fun FaunaTransectoFormScreen(
                     },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
                     modifier = Modifier
-                        .padding(start = 70.dp)
-                        .size(width = 250.dp, height = 50.dp)
+                        .padding(start = 30.dp)
+                        .size(width = 170.dp, height = 50.dp)
                 ) {
                     Text(
                         text = "Tomar foto",
-                        fontSize = 20.sp,
+                        fontSize = 15.sp,
                         color = Color.White
                     )
                 }
@@ -509,11 +507,11 @@ fun FaunaTransectoFormScreen(
                         color = Color.White
                     )
                 }
-                submissionResult?.let {
-                    Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
-                }
             }
             Spacer(modifier = Modifier.height(20.dp))
+            submissionResult?.let {
+                Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
+            }
         }
     }
 }

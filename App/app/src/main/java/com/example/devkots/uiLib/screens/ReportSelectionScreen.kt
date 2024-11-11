@@ -35,8 +35,6 @@ fun ReportSelectionScreen(navController: NavController,
     var selectedType by remember { mutableStateOf("") }
 
     // Options for each selection
-    val weatherOptions = listOf("Soleado", "Nublado", "Lluvioso")
-    val seasonOptions = listOf("Verano-Seco", "Invierno-Lluviosa")
     val typeOptions = listOf(
         "Fauna en Transecto",
         "Fauna en Punto de Conteo",
@@ -47,17 +45,16 @@ fun ReportSelectionScreen(navController: NavController,
         "Variables Climaticas"
     )
 
-    MainLayout(navController = navController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(IntroGreen)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(IntroGreen)
                     .padding(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -88,7 +85,7 @@ fun ReportSelectionScreen(navController: NavController,
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Column(
                 modifier = Modifier
@@ -102,7 +99,7 @@ fun ReportSelectionScreen(navController: NavController,
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             Row(
                 modifier = Modifier
@@ -150,7 +147,7 @@ fun ReportSelectionScreen(navController: NavController,
                 )
             }
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(45.dp))
 
             Text(
                 text = "Selecciona la estación:",
@@ -192,7 +189,7 @@ fun ReportSelectionScreen(navController: NavController,
                 }
             }
 
-            Spacer(modifier = Modifier.height(35.dp))
+            Spacer(modifier = Modifier.height(45.dp))
 
             Text(
                 text = "Tipo de registro:",
@@ -219,7 +216,7 @@ fun ReportSelectionScreen(navController: NavController,
                 }
             }
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(25.dp))
 
             // Next Button
             Button(
@@ -249,5 +246,4 @@ fun ReportSelectionScreen(navController: NavController,
             }
             Spacer(modifier = Modifier.height(25.dp))
         }
-    }
 }

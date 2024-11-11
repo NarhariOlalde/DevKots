@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class SignupViewModel : ViewModel() {
+class SignupViewModel (
+    private val userSessionViewModel: UserSessionViewModel
+): ViewModel() {
     private val _name = MutableStateFlow("")
     val name: StateFlow<String> = _name
 
@@ -39,6 +41,12 @@ class SignupViewModel : ViewModel() {
 
     fun register() {
         viewModelScope.launch {
+            // Check if required fields are filled
+            if (name.value.isBlank() || email.value.isBlank() || password.value.isBlank()) {
+                _errorMessage.value = "Please fill in all fields."
+                return@launch
+            }
+
             try {
                 // Hash the password before sending
                 val hashedPassword = HashUtil.sha256(password.value)
@@ -49,9 +57,33 @@ class SignupViewModel : ViewModel() {
                     password = hashedPassword
                 )
 
+                // Make API call to register user
                 val response = RetrofitInstance.api.registerUser(newUser)
                 if (response.isSuccessful) {
-                    _signupSuccess.value = true
+                    _signupSuccess.value = true // Registration was successful
+                    _errorMessage.value = null  // Clear any previous error
+
+                    val responseLogin = RetrofitInstance.api.getUsersByEmail(email.value)
+                    if (responseLogin.isSuccessful) {
+                        val user = responseLogin.body()?.firstOrNull()
+                        if (user != null) {
+                            if (user.password == hashedPassword) {
+                                println("Login successful")
+                                _signupSuccess.value = true
+                                // Update UserSessionViewModel with user info, passing name, email, and biomonitorId
+                                userSessionViewModel.loginUser(
+                                    name = user.name,
+                                    email = user.mail, // Pass the email here
+                                    biomonitorId = user.id.toString()
+                                )
+                            } else {
+                                _errorMessage.value = "Invalid email or password"
+                            }
+                        } else {
+                            _errorMessage.value = "User not found"
+                        }
+
+                    }
                 } else {
                     _errorMessage.value = "Failed to register user"
                 }

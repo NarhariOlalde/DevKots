@@ -12,6 +12,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.devkots.data.RetrofitInstanceBioReport
+import com.example.devkots.uiLib.components.MainLayout
 import com.example.devkots.uiLib.viewmodels.BioReportViewModel
 import com.example.devkots.uiLib.viewmodels.LoginViewModel
 import com.example.devkots.uiLib.viewmodels.SignupViewModel
@@ -23,10 +25,13 @@ fun AppNavigation(
     userSessionViewModel: UserSessionViewModel = UserSessionViewModel(),
     bioReportViewModel: BioReportViewModel = BioReportViewModel()
 ) {
+
+    val bioReportService = RetrofitInstanceBioReport.api
+
     NavHost(navController = navController, startDestination = "login_signup") {
         composable("login_signup") { LoginSignupScreen(navController) }
         composable("login") { LoginScreen(navController, LoginViewModel(userSessionViewModel), userSessionViewModel) }
-        composable("signup") { SignupScreen(navController, SignupViewModel(), userSessionViewModel) }
+        composable("signup") { SignupScreen( navController, SignupViewModel(userSessionViewModel) ) }
         composable("dashboard") {
             DashboardScreen(
                 navController = navController,
@@ -35,12 +40,26 @@ fun AppNavigation(
                 biomonitorId = userSessionViewModel.biomonitorId.collectAsState().value
             )
         }
+
+
         composable("search") {
-            SearchScreen(
-                navController = navController,
-                viewModel = bioReportViewModel,
-                biomonitorId = userSessionViewModel.biomonitorId.collectAsState().value
-            )
+            MainLayout(navController = navController) {
+                SearchScreen(
+                    navController = navController,
+                    bioReportService = bioReportService,
+                    biomonitorId = userSessionViewModel.biomonitorId.collectAsState().value
+                )
+            }
+        }
+        composable("report_detail/{reportId}") { backStackEntry ->
+            val reportId = backStackEntry.arguments?.getString("reportId")?.toIntOrNull()
+            if (reportId != null) {
+                ReportDetailScreen(
+                    navController = navController,
+                    reportId = reportId,
+                    bioReportService = bioReportService
+                )
+            }
         }
         composable("configuracion") {
             ConfigurationScreen(
