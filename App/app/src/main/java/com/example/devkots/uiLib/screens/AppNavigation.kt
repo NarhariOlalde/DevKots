@@ -80,7 +80,15 @@ fun AppNavigation(
                 season ?: "Temporada no disponible"
             )
         }
-        composable("fauna_point_count_form") { PlaceholderFormScreen("Fauna en Punto de Conteo") }
+        composable("fauna_point_count_form") { backStackEntry ->
+            val weather = backStackEntry.arguments?.getString("weather")
+            val season = backStackEntry.arguments?.getString("season")
+            FaunaPuntoConteoFormScreen(
+                navController,
+                userSessionViewModel.biomonitorId.collectAsState().value,
+                weather ?: "Estado del tiempo no disponible",
+                season ?: "Temporada no disponible"
+            ) }
         composable("fauna_free_search_form") { PlaceholderFormScreen("Fauna Busqueda Libre") }
         composable("coverage_validation_form") { PlaceholderFormScreen("Validacion de Cobertura") }
         composable("vegetation_plot_form") { PlaceholderFormScreen("Parcela de Vegetacion") }

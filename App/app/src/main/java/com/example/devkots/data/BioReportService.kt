@@ -1,6 +1,7 @@
 package com.example.devkots.data
 
 import com.example.devkots.model.BioReport
+import com.example.devkots.model.FaunaPuntoConteoReport
 import com.example.devkots.model.FaunaTransectoReport
 import retrofit2.Response
 import retrofit2.http.Body
@@ -22,6 +23,24 @@ interface BioReportService {
 
     @POST("basic_report") // Endpoint for shared report collection
     suspend fun submitFaunaTransectoReport(@Body report: FaunaTransectoReport): Response<FaunaTransectoReport>
+
+    @POST("basic_report")
+    suspend fun submitFaunaPuntoConteoReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+
+    @POST("basic_report")
+    suspend fun submitFaunaBusquedaReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+
+    @POST("basic_report")
+    suspend fun submitValidacionCoberturaReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+
+    @POST("basic_report")
+    suspend fun submitParcelaVegetacionReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+
+    @POST("basic_report")
+    suspend fun submitCamarasTrampaReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+
+    @POST("basic_report")
+    suspend fun submitVariablesClimaticasReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
 
     @GET("basic_report/{id}")
     suspend fun getReportById(@Path("id") id: Int): Response<BioReport>
