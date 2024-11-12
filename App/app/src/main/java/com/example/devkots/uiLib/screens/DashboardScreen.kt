@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -17,6 +18,20 @@ import com.example.devkots.uiLib.components.MainLayout
 import com.example.devkots.uiLib.theme.*
 import com.example.devkots.uiLib.viewmodels.BioReportViewModel
 import com.example.devkots.R
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import com.example.devkots.uiLib.theme.Black
+import com.example.devkots.uiLib.theme.ObjectGreen1
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.layout.ContentScale
+
 
 @Composable
 fun DashboardScreen(
@@ -44,31 +59,18 @@ fun DashboardScreen(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.vector_4_1),
-                    contentDescription = "vector_4.1",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.23f)
-                        .align(Alignment.TopCenter)
-                )
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
                         .align(Alignment.TopStart),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Greeting Text
-                    Text(
-                        text = "Hola, $userName",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Black
+                    TopBar(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(130.dp)
                     )
-
-                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Placeholder Add Button
                     Button(
@@ -84,30 +86,134 @@ fun DashboardScreen(
 
                     // Dashboard Label
                     Text(
-                        text = "Dashboard",
-                        fontSize = 24.sp,
-                        color = Black,
-                        modifier = Modifier.align(Alignment.Start) // Alinea el texto "Dashboard" a la izquierda
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .padding(top = 16.dp),
+                        text = "Reportes Activos",
+                        color = ObjectGreen1,
+                        fontSize = 60.sp,
+                        fontWeight = FontWeight.Bold
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Percentage of True Reports
-                    Text(
-                        text = "${trueStatusPercentage.toInt()}% of reports are active",
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = ObjectGreen1
+                    CircularProgressIndicatorWithNumber(
+                        percentage = trueStatusPercentage.toFloat(),
+                        modifier = Modifier.size(300.dp)
                     )
 
-                    // Report Stats
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text("Total Reports: $totalReports", fontSize = 24.sp, color = Color.Black)
-                    Text("Reports (Status = true): $trueReportsCount", fontSize = 24.sp, color = Color.Black)
-                    Text("Reports (Status = false): $falseReportsCount", fontSize = 24.sp, color = Color.Black)
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .padding(top = 40.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .width(200.dp)
+                        ) {
+                            Text("$trueReportsCount", fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                            Text("Subidos", fontSize = 40.sp, color = ObjectGreen2, fontWeight = FontWeight.Bold)
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .width(200.dp)
+                        ) {
+                            Text("$totalReports", fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                            Text("En total", fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .width(200.dp)
+                        ) {
+                            Text("$falseReportsCount", fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                            Text("Guardados", fontSize = 40.sp, color = Color.Red, fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
             }
         }
     }
 }
+@Composable
+fun TopBar(
+    modifier: Modifier = Modifier
+){
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ){
+        Image(
+            painter = painterResource(id = R.drawable.vector_4),
+            contentDescription = "Top Background",
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            contentScale = ContentScale.FillBounds,
+        )
+        //logo
+        Image(
+            painter = painterResource(id = R.drawable.awaq_logo_black),
+            contentDescription = "Logo",
+            modifier = Modifier
+                .size(100.dp)
+                .align(Alignment.TopStart)
+                .padding(start = 40.dp)
+        )
 
+
+        // Greeting Text
+        Text(
+            text = "Dashboard",
+            fontSize = 60.sp,
+            fontWeight = FontWeight.Black,
+            color = Black,
+            //center
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+fun CircularProgressIndicatorWithNumber(
+    percentage: Float,
+    modifier: Modifier = Modifier
+) {
+    val strokeWidth = 40.dp
+    val circleSize = 400.dp
+
+    Box(modifier = modifier.size(circleSize), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.size(circleSize)) {
+            // Draw the background circle
+            drawCircle(
+                color = IntroGreen,
+                radius = size.minDimension / 2,
+                style = Stroke(strokeWidth.toPx())
+            )
+
+            // Draw the progress arc
+            drawArc(
+                color = ObjectGreen1,
+                startAngle = -90f,
+                sweepAngle = percentage * 360f / 100f,
+                useCenter = false,
+                style = Stroke(strokeWidth.toPx(), cap = StrokeCap.Round),
+                size = Size(size.width, size.height),
+                topLeft = Offset(0f, 0f)
+            )
+        }
+
+        Text(
+            text = "${percentage.toInt()}%",
+            color = ObjectGreen1,
+            fontSize = 60.sp,
+            fontWeight = FontWeight.Black
+        )
+
+    }
+}
