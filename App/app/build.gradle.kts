@@ -92,4 +92,6 @@ dependencies {
     // UI
     implementation(libs.androidx.compose.ui.ui)
     implementation(libs.androidx.material)
+    implementation("androidx.compose.material3:material3:1.1.0-alpha08")
+
 }
