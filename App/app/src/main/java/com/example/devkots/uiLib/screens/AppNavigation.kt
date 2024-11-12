@@ -136,6 +136,13 @@ fun AppNavigation(
                 weather ?: "Estado del tiempo no disponible",
                 season ?: "Temporada no disponible"
             ) }
+
+        composable("profile") {
+            ProfileScreen(
+                navController = navController,
+                userSessionViewModel = userSessionViewModel
+            )
+        }
     }
 }
 

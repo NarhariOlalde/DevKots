@@ -20,6 +20,7 @@ import com.example.devkots.uiLib.viewmodels.BioReportViewModel
 import com.example.devkots.R
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import com.example.devkots.uiLib.theme.Black
@@ -30,6 +31,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 
 
@@ -69,7 +72,8 @@ fun DashboardScreen(
                 ) {
                     TopBar(modifier = Modifier
                         .fillMaxWidth()
-                        .height(130.dp)
+                        .height(130.dp),
+                        navController = navController
                     )
 
                     // Placeholder Add Button
@@ -141,7 +145,8 @@ fun DashboardScreen(
 }
 @Composable
 fun TopBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavController
 ){
     Box(
         modifier = modifier
@@ -166,16 +171,40 @@ fun TopBar(
                 .padding(start = 40.dp)
         )
 
-
         // Greeting Text
         Text(
             text = "Dashboard",
             fontSize = 60.sp,
             fontWeight = FontWeight.Black,
             color = Black,
-            //center
             modifier = Modifier.align(Alignment.Center)
         )
+
+        // Profile Icon
+        //rounded
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = 44.dp, top = 21.dp) // Apply padding to the container
+                .size(57.dp) // Set the base size
+                .aspectRatio(1f) // Ensures the content inside maintains a 1:1 aspect ratio
+        ) {
+            Card(
+                modifier = Modifier
+                    .clickable { navController.navigate("profile") }
+                    .align(Alignment.TopEnd),
+                shape = CircleShape
+            ) {
+                Image(
+                    //replace with profile image later
+                    painter = painterResource(id = R.drawable.profile_placeholder),
+                    contentDescription = "Profile Icon",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+
     }
 }
 

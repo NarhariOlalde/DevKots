@@ -14,11 +14,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.devkots.R // Asegúrate de que el paquete sea correcto para tu archivo R
 import com.example.devkots.uiLib.theme.ObjectGreen1 // Import the color from your theme
+import com.example.devkots.uiLib.viewmodels.UserSessionViewModel
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    navController: NavController,
+    userSessionViewModel: UserSessionViewModel
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
