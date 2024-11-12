@@ -3,7 +3,7 @@ package com.example.devkots.model
 data class VariablesClimaticasReport(
     val type: String = "Camaras Trampa",
     val zona: String,
-    val pluvosidad: String,
+    val pluviosidad: String,
     val tempmax: String,
     val humedadmax: String,
     val tempmin: String,

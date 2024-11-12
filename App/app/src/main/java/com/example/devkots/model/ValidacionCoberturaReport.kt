@@ -6,7 +6,7 @@ data class ValidacionCoberturaReport(
     val seguimiento: String,
     val cambio: String,
     val cobertura: String,
-    val tiposcultivos: String,
+    val tiposCultivo: String,
     val disturbio: String,
     val photoPath: String? = null,
     val observations: String,

@@ -40,7 +40,7 @@ fun ReportSelectionScreen(navController: NavController,
         "Fauna en Punto de Conteo",
         "Fauna Busqueda Libre",
         "Validacion de Cobertura",
-        "Parcela de Vegetación",
+        "Parcela de Vegetacion",
         "Camaras Trampa",
         "Variables Climaticas"
     )
@@ -223,12 +223,12 @@ fun ReportSelectionScreen(navController: NavController,
                 onClick = {
                     when (selectedType) {
                         "Fauna en Transecto" -> navController.navigate("fauna_transect_form/$selectedWeather/$selectedSeason")
-                        "Fauna en Punto de Conteo" -> navController.navigate("fauna_point_count_form")
-                        "Fauna Busqueda Libre" -> navController.navigate("fauna_free_search_form")
-                        "Validacion de Cobertura" -> navController.navigate("coverage_validation_form")
-                        "Parcela de Vegetacion" -> navController.navigate("vegetation_plot_form")
-                        "Camaras Trampa" -> navController.navigate("trap_cameras_form")
-                        "Variables Climaticas" -> navController.navigate("climatic_variables_form")
+                        "Fauna en Punto de Conteo" -> navController.navigate("fauna_point_count_form/$selectedWeather/$selectedSeason")
+                        "Fauna Busqueda Libre" -> navController.navigate("fauna_free_search_form/$selectedWeather/$selectedSeason")
+                        "Validacion de Cobertura" -> navController.navigate("coverage_validation_form/$selectedWeather/$selectedSeason")
+                        "Parcela de Vegetacion" -> navController.navigate("vegetation_plot_form/$selectedWeather/$selectedSeason")
+                        "Camaras Trampa" -> navController.navigate("trap_cameras_form/$selectedWeather/$selectedSeason")
+                        "Variables Climaticas" -> navController.navigate("climatic_variables_form/$selectedWeather/$selectedSeason")
                     }
                 },
                 modifier = Modifier

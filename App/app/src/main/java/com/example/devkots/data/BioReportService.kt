@@ -1,8 +1,13 @@
 package com.example.devkots.data
 
 import com.example.devkots.model.BioReport
+import com.example.devkots.model.CamarasTrampaReport
+import com.example.devkots.model.FaunaBusquedaReport
 import com.example.devkots.model.FaunaPuntoConteoReport
 import com.example.devkots.model.FaunaTransectoReport
+import com.example.devkots.model.ParcelaVegetacionReport
+import com.example.devkots.model.ValidacionCoberturaReport
+import com.example.devkots.model.VariablesClimaticasReport
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Field
@@ -28,19 +33,19 @@ interface BioReportService {
     suspend fun submitFaunaPuntoConteoReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
 
     @POST("basic_report")
-    suspend fun submitFaunaBusquedaReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+    suspend fun submitFaunaBusquedaReport(@Body report: FaunaBusquedaReport): Response<FaunaBusquedaReport>
 
     @POST("basic_report")
-    suspend fun submitValidacionCoberturaReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+    suspend fun submitValidacionCoberturaReport(@Body report: ValidacionCoberturaReport): Response<ValidacionCoberturaReport>
 
     @POST("basic_report")
-    suspend fun submitParcelaVegetacionReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+    suspend fun submitParcelaVegetacionReport(@Body report: ParcelaVegetacionReport): Response<ParcelaVegetacionReport>
 
     @POST("basic_report")
-    suspend fun submitCamarasTrampaReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+    suspend fun submitCamarasTrampaReport(@Body report: CamarasTrampaReport): Response<CamarasTrampaReport>
 
     @POST("basic_report")
-    suspend fun submitVariablesClimaticasReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+    suspend fun submitVariablesClimaticasReport(@Body report: VariablesClimaticasReport): Response<VariablesClimaticasReport>
 
     @GET("basic_report/{id}")
     suspend fun getReportById(@Path("id") id: Int): Response<BioReport>

@@ -80,7 +80,7 @@ fun AppNavigation(
                 season ?: "Temporada no disponible"
             )
         }
-        composable("fauna_point_count_form") { backStackEntry ->
+        composable("fauna_point_count_form/{weather}/{season}") { backStackEntry ->
             val weather = backStackEntry.arguments?.getString("weather")
             val season = backStackEntry.arguments?.getString("season")
             FaunaPuntoConteoFormScreen(
@@ -88,12 +88,54 @@ fun AppNavigation(
                 userSessionViewModel.biomonitorId.collectAsState().value,
                 weather ?: "Estado del tiempo no disponible",
                 season ?: "Temporada no disponible"
+            )
+        }
+        composable("fauna_free_search_form/{weather}/{season}") { backStackEntry ->
+            val weather = backStackEntry.arguments?.getString("weather")
+            val season = backStackEntry.arguments?.getString("season")
+            FaunaBusquedaLibreFormScreen(
+                navController,
+                userSessionViewModel.biomonitorId.collectAsState().value,
+                weather ?: "Estado del tiempo no disponible",
+                season ?: "Temporada no disponible"
+            )
+        }
+        composable("coverage_validation_form/{weather}/{season}") { backStackEntry ->
+            val weather = backStackEntry.arguments?.getString("weather")
+            val season = backStackEntry.arguments?.getString("season")
+            ValidacionCoberturaFormScreen(
+                navController,
+                userSessionViewModel.biomonitorId.collectAsState().value,
+                weather ?: "Estado del tiempo no disponible",
+                season ?: "Temporada no disponible"
+            )  }
+        composable("vegetation_plot_form/{weather}/{season}") { backStackEntry ->
+            val weather = backStackEntry.arguments?.getString("weather")
+            val season = backStackEntry.arguments?.getString("season")
+            ParcelaVegetacionFormScreen(
+                navController,
+                userSessionViewModel.biomonitorId.collectAsState().value,
+                weather ?: "Estado del tiempo no disponible",
+                season ?: "Temporada no disponible"
             ) }
-        composable("fauna_free_search_form") { PlaceholderFormScreen("Fauna Busqueda Libre") }
-        composable("coverage_validation_form") { PlaceholderFormScreen("Validacion de Cobertura") }
-        composable("vegetation_plot_form") { PlaceholderFormScreen("Parcela de Vegetacion") }
-        composable("trap_cameras_form") { PlaceholderFormScreen("Camaras Trampa") }
-        composable("climatic_variables_form") { PlaceholderFormScreen("Variables Climaticas") }
+        composable("trap_cameras_form/{weather}/{season}") { backStackEntry ->
+            val weather = backStackEntry.arguments?.getString("weather")
+            val season = backStackEntry.arguments?.getString("season")
+            CamarasTrampaFormScreen(
+                navController,
+                userSessionViewModel.biomonitorId.collectAsState().value,
+                weather ?: "Estado del tiempo no disponible",
+                season ?: "Temporada no disponible"
+            ) }
+        composable("climatic_variables_form/{weather}/{season}") { backStackEntry ->
+            val weather = backStackEntry.arguments?.getString("weather")
+            val season = backStackEntry.arguments?.getString("season")
+            VariablesClimaticasFormScreen(
+                navController,
+                userSessionViewModel.biomonitorId.collectAsState().value,
+                weather ?: "Estado del tiempo no disponible",
+                season ?: "Temporada no disponible"
+            ) }
     }
 }
 

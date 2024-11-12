@@ -13,16 +13,38 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.RadioButton
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,26 +57,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.FaunaPuntoConteoReport
-import com.example.devkots.model.FaunaTransectoReport
+import com.example.devkots.model.ValidacionCoberturaReport
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 @Composable
-fun FaunaPuntoConteoFormScreen(
+fun ValidacionCoberturaFormScreen(
     navController: NavController,
     biomonitorID: String,
     weather: String,
@@ -68,23 +87,15 @@ fun FaunaPuntoConteoFormScreen(
     var gpsLocation by remember { mutableStateOf("Fetching location...") }
 
     // Form fields
-    var zone by remember { mutableStateOf("") }
-    var animalType by remember { mutableStateOf("") }
-    var commonName by remember { mutableStateOf("") }
-    var scientificName by remember { mutableStateOf("") }
-    var individualCount by remember { mutableStateOf("") }
-    var observationType by remember { mutableStateOf("") }
-    var observationHeight by remember { mutableStateOf("") }
+    var code by remember { mutableStateOf("") }
+    var seguimiento by remember { mutableStateOf("") }
+    var cambio by remember { mutableStateOf("") }
+    var cobertura by remember { mutableStateOf("") }
+    var tiposCultivo by remember { mutableStateOf("") }
+    var disturbio by remember { mutableStateOf("") }
     var photoPath by remember { mutableStateOf<Uri?>(null) }
     var observations by remember { mutableStateOf("") }
     var submissionResult by remember { mutableStateOf<String?>(null) }
-    val animals = listOf(
-        Pair(R.drawable.mamifero, "Mamífero"),
-        Pair(R.drawable.ave, "Ave"),
-        Pair(R.drawable.reptil, "Reptil"),
-        Pair(R.drawable.anfibio, "Anfibio"),
-        Pair(R.drawable.insecto, "Insecto")
-    )
 
     // Static values
     val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
@@ -197,83 +208,117 @@ fun FaunaPuntoConteoFormScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-            Text(
-                text = "Zona:",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-            Column {
-                val registrationTypes1 = listOf("Bosque", "Arreglo Agroforestal", "Cultivos Transitorios", "Cultivos Permanentes")
-                registrationTypes1.forEach { type ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = zone == type,
-                            onClick = { zone = type }
-                        )
-                        Text(
-                            text = type,
-                            fontSize = 28.sp
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(30.dp))
-                }
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = code,
+                    onValueChange = { code = it },
+                    label = {
+                        Text("Código", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
+                )
             }
-            Text(
-                text = "Tipo de Animal:",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
         }
-
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            animals.forEachIndexed { index, animal ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.clickable { animalType = animal.second }
-                ) {
-                    Image(
-                        painter = painterResource(id = animal.first),
-                        contentDescription = animal.second,
-                        modifier = Modifier
-                            .size(90.dp)
-                            .background(
-                                if (animalType == animal.second) Color(0xFF99CC66) else Color.Transparent,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(8.dp)
+        Text(
+            text = "Seguimiento",
+            fontSize = 35.sp,
+            color = colorResource(id = R.color.black)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Column {
+            val registrationTypes1 = listOf("Si", "No")
+            registrationTypes1.forEach { type ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = seguimiento == type,
+                        onClick = { seguimiento = type }
                     )
                     Text(
-                        text = animal.second,
-                        fontSize = 18.sp,
-                        color = Color.Black
+                        text = type,
+                        fontSize = 28.sp
                     )
                 }
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
 
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(15.dp))
+
+        Text(
+            text = "Cambió",
+            fontSize = 35.sp,
+            color = colorResource(id = R.color.black)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Column {
+            val registrationTypes2 = listOf("Si", "No")
+            registrationTypes2.forEach { type ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = cambio == type,
+                        onClick = { cambio = type }
+                    )
+                    Text(
+                        text = type,
+                        fontSize = 28.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+
+        Text(
+            text = "Cobertura",
+            fontSize = 35.sp,
+            color = colorResource(id = R.color.black)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Column {
+            val registrationTypes3 = listOf("BD", "RA", "RB", "PA", "PL", "CP", "CT", "VH", "TD", "IF")
+            registrationTypes3.forEach { type ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = cobertura == type,
+                        onClick = { cobertura = type }
+                    )
+                    Text(
+                        text = type,
+                        fontSize = 28.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = commonName,
-                    onValueChange = { commonName = it },
+                    value = tiposCultivo,
+                    onValueChange = { tiposCultivo = it },
                     label = {
-                        Text("Nombre Común", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        Text("Tipos de Cultivo", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
                     },
                     textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
                     modifier = Modifier
@@ -287,105 +332,33 @@ fun FaunaPuntoConteoFormScreen(
                     )
                 )
             }
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = scientificName,
-                    onValueChange = { scientificName = it },
-                    label = {
-                        Text("Nombre Científico", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = "Disturbio",
+            fontSize = 35.sp,
+            color = colorResource(id = R.color.black)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Column {
+            val registrationTypes4 = listOf("Inundación", "Quema", "Tala", "Erupción", "Minería", "Carretera", "Más plantas acuáticas", "Otro")
+            registrationTypes4.forEach { type ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = disturbio == type,
+                        onClick = { disturbio = type }
                     )
-                )
-            }
-            Text(
-                text = "Opcional",
-                fontSize = 18.sp,
-                color = colorResource(id = R.color.black),
-                modifier = Modifier
-                    .padding(start = 8.dp)
-            )
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = individualCount,
-                    onValueChange = { individualCount = it },
-                    label = {
-                        Text("Número de Individuos", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
+                    Text(
+                        text = type,
+                        fontSize = 28.sp
                     )
-                )
-            }
-            Spacer(modifier = Modifier.height(25.dp))
-
-            Text(
-                text = "Tipo de Observación:",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Column {
-                val registrationTypes2 = listOf("La Vió", "Huella", "Rastro", "Cacería", "Le dijeron")
-                registrationTypes2.forEach { type ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = observationType == type,
-                            onClick = { observationType = type }
-                        )
-                        Text(
-                            text = type,
-                            fontSize = 28.sp
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
+                Spacer(modifier = Modifier.height(25.dp))
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "Altura de Observación:",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Column {
-                val registrationTypes3 = listOf("Baja <1mt", "Media 1-3mt", "Alta >3mt")
-                registrationTypes3.forEach { type ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = observationHeight == type,
-                            onClick = { observationHeight = type }
-                        )
-                        Text(
-                            text = type,
-                            fontSize = 28.sp
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-            }
-
+        }
             Text(
                 text = "Evidencias",
                 fontSize = 35.sp,
@@ -411,8 +384,7 @@ fun FaunaPuntoConteoFormScreen(
                         } else {
                             // No need for READ_MEDIA_IMAGES on older Android versions
                             galleryLauncher.launch("image/*")
-                        }
-                    },
+                        } },
                     colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
                     modifier = Modifier
                         .padding(start = 30.dp)
@@ -424,11 +396,9 @@ fun FaunaPuntoConteoFormScreen(
                         color = Color.White
                     )
                 }
-
                 Button(
                     onClick = {
-                        handleCameraClick()
-                    },
+                        handleCameraClick() },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
                     modifier = Modifier
                         .padding(start = 30.dp)
@@ -484,14 +454,13 @@ fun FaunaPuntoConteoFormScreen(
                 }
                 Button(
                     onClick = {
-                        val report = FaunaPuntoConteoReport(
-                            zone = zone,
-                            animalType = animalType,
-                            commonName = commonName,
-                            scientificName = scientificName.takeIf { it.isNotEmpty() },
-                            individualCount = individualCount.toIntOrNull() ?: 0,
-                            observationType = observationType,
-                            observationHeight = observationHeight,
+                        val report = ValidacionCoberturaReport(
+                            code = code,
+                            seguimiento = seguimiento,
+                            cambio = cambio,
+                            cobertura = cobertura,
+                            tiposCultivo = tiposCultivo,
+                            disturbio = disturbio,
                             photoPath = photoPath?.toString(),
                             observations = observations,
                             date = currentDate,
@@ -504,18 +473,17 @@ fun FaunaPuntoConteoFormScreen(
                         )
 
                         coroutineScope.launch {
-                            val response = RetrofitInstanceBioReport.api.submitFaunaPuntoConteoReport(report)
+                            val response = RetrofitInstanceBioReport.api.submitValidacionCoberturaReport(report)
                             submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
 
                             // Reset form on success
                             if (response.isSuccessful) {
-                                zone = ""
-                                animalType = ""
-                                commonName = ""
-                                scientificName = ""
-                                individualCount = ""
-                                observationType = ""
-                                observationHeight = ""
+                                code = ""
+                                seguimiento = ""
+                                cambio = ""
+                                cobertura = ""
+                                tiposCultivo = ""
+                                disturbio = ""
                                 photoPath = null
                                 observations = ""
                             }
@@ -525,7 +493,7 @@ fun FaunaPuntoConteoFormScreen(
                         .weight(1f)
                         .padding(start = 8.dp)
                         .height(60.dp),
-                    enabled = zone.isNotEmpty() && animalType.isNotEmpty() && commonName.isNotEmpty() && individualCount.isNotEmpty() && observationType.isNotEmpty() && weather.isNotEmpty() && observationHeight.isNotEmpty(),
+                    enabled = code.isNotEmpty() && seguimiento.isNotEmpty() && cambio.isNotEmpty() && cobertura.isNotEmpty() && tiposCultivo.isNotEmpty() && disturbio.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
 
                     ) {
@@ -542,7 +510,6 @@ fun FaunaPuntoConteoFormScreen(
             }
         }
     }
-}
 
 // Function to fetch location
 private fun fetchLocation(
