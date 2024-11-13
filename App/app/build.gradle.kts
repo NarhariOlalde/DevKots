@@ -68,7 +68,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.play.services.location)
-    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -91,4 +90,11 @@ dependencies {
     // UI
     implementation(libs.androidx.compose.ui.ui)
     implementation(libs.androidx.material)
+
+    // Test
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.inline.v4110)
+    testImplementation(libs.mockk)
 }
