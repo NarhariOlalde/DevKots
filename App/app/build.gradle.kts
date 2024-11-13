@@ -94,11 +94,4 @@ dependencies {
     implementation(libs.androidx.material)
     implementation("androidx.compose.material3:material3:1.1.0-alpha08")
 
-
-    // Test
-    testImplementation(libs.junit)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockito.inline.v4110)
-    testImplementation(libs.mockk)
 }
