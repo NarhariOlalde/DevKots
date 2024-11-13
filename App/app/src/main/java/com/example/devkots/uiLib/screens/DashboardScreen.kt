@@ -80,7 +80,7 @@ fun DashboardScreen(
                     Button(
                         onClick = { navController.navigate("report_selection") },
                         modifier = Modifier
-                            .size(100.dp)
+                            .size(80.dp)
                             .padding(bottom = 16.dp),
                         shape = RoundedCornerShape(100.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen1)
@@ -90,9 +90,7 @@ fun DashboardScreen(
 
                     // Dashboard Label
                     Text(
-                        modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .padding(top = 16.dp),
+                        modifier = Modifier,
                         text = "Reportes Activos",
                         color = ObjectGreen1,
                         fontSize = 60.sp,
@@ -104,7 +102,7 @@ fun DashboardScreen(
                     // Percentage of True Reports
                     CircularProgressIndicatorWithNumber(
                         percentage = trueStatusPercentage.toFloat(),
-                        modifier = Modifier.size(300.dp)
+                        modifier = Modifier.size(200.dp)
                     )
 
 
@@ -116,27 +114,25 @@ fun DashboardScreen(
                         horizontalArrangement = Arrangement.Center
                     ) {
 
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .width(200.dp)
-                        ) {
-                            Text("$trueReportsCount", fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-                            Text("Subidos", fontSize = 40.sp, color = ObjectGreen2, fontWeight = FontWeight.Bold)
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .width(200.dp)
-                        ) {
-                            Text("$totalReports", fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-                            Text("En total", fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .width(200.dp)
-                        ) {
-                            Text("$falseReportsCount", fontSize = 40.sp, color = Color.Black, fontWeight = FontWeight.Bold)
-                            Text("Guardados", fontSize = 40.sp, color = Color.Red, fontWeight = FontWeight.Bold)
-                        }
+
+                        BottomReportInfoPanel(
+                            totalReports = trueReportsCount,
+                            color = ObjectGreen2,
+                            text = "Subidos",
+                            fontSize = 35
+                        )
+                        BottomReportInfoPanel(
+                            totalReports = totalReports,
+                            color = Color.Black,
+                            text = "En total",
+                            fontSize = 35
+                        )
+                        BottomReportInfoPanel(
+                            totalReports = falseReportsCount,
+                            color = Color.Red,
+                            text = "Guardados",
+                            fontSize = 35
+                        )
                     }
                 }
             }
@@ -213,8 +209,8 @@ fun CircularProgressIndicatorWithNumber(
     percentage: Float,
     modifier: Modifier = Modifier
 ) {
-    val strokeWidth = 40.dp
-    val circleSize = 400.dp
+    val strokeWidth = 20.dp
+    val circleSize = 200.dp
 
     Box(modifier = modifier.size(circleSize), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.size(circleSize)) {
@@ -240,9 +236,27 @@ fun CircularProgressIndicatorWithNumber(
         Text(
             text = "${percentage.toInt()}%",
             color = ObjectGreen1,
-            fontSize = 60.sp,
+            fontSize = 50.sp,
             fontWeight = FontWeight.Black
         )
 
+    }
+}
+
+@Composable
+fun BottomReportInfoPanel(
+    modifier: Modifier = Modifier,
+    totalReports: Int,
+    color: Color,
+    text: String,
+    fontSize: Int
+){
+    Column(
+        modifier = modifier
+            .width(175.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "$totalReports", fontSize = fontSize.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+        Text(text, fontSize = fontSize.sp, color = color, fontWeight = FontWeight.Bold)
     }
 }
