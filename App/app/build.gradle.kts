@@ -94,4 +94,8 @@ dependencies {
     implementation(libs.androidx.material)
     implementation("androidx.compose.material3:material3:1.1.0-alpha08")
 
+    testImplementation("org.mockito:mockito-core:5.0.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
+
 }
