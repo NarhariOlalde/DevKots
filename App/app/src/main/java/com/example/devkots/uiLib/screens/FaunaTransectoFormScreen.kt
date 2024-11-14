@@ -13,15 +13,33 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.runtime.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.RadioButton
+import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +57,7 @@ import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.FaunaTransectoReport
+import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -146,291 +165,54 @@ fun FaunaTransectoFormScreen(
             }
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(IntroGreen)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-    )
-    {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = {
-                navController.navigate("dashboard")
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Regresar",
-                    tint = Color.Black,
-                    modifier = Modifier.size(45.dp)
-                )
-            }
-            Text(
-                text = "Formulario",
-                fontSize = 48.sp,
-                lineHeight = 48.sp,
-                color = colorResource(id = R.color.black)
-            )
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opciones",
-                    tint = Color.Black,
-                    modifier = Modifier.size(35.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = transectoNumber,
-                    onValueChange = { transectoNumber = it },
-                    label = {
-                        Text(
-                            "Número de Transecto",
-                            fontSize = 28.sp,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "Tipo de Animal:",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            animals.forEachIndexed { index, animal ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.clickable { animalType = animal.second }
-                ) {
-                    Image(
-                        painter = painterResource(id = animal.first),
-                        contentDescription = animal.second,
-                        modifier = Modifier
-                            .size(90.dp)
-                            .background(
-                                if (animalType == animal.second) Color(0xFF99CC66) else Color.Transparent,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(8.dp)
-                    )
-                    Text(
-                        text = animal.second,
-                        fontSize = 18.sp,
-                        color = Color.Black
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
+            FormLayout(navController = navController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = commonName,
-                    onValueChange = { commonName = it },
-                    label = {
-                        Text("Nombre Común", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = scientificName,
-                    onValueChange = { scientificName = it },
-                    label = {
-                        Text("Nombre Científico", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-            Text(
-                text = "Opcional",
-                fontSize = 18.sp,
-                color = colorResource(id = R.color.black),
-                modifier = Modifier
-                    .padding(start = 8.dp)
-            )
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = individualCount,
-                    onValueChange = { individualCount = it },
-                    label = {
-                        Text("Número de Individuos", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-            Spacer(modifier = Modifier.height(25.dp))
+                .background(IntroGreen)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+        )
+        {
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = "Tipo de Observación:",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Column {
-                val registrationTypes = listOf("La Vió", "Huella", "Rastro", "Cacería", "Le dijeron")
-                registrationTypes.forEach { type ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = observationType == type,
-                            onClick = { observationType = type }
-                        )
-                        Text(
-                            text = type,
-                            fontSize = 28.sp
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "Evidencias",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
-
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            // Check READ_MEDIA_IMAGES permission on Android 13+
-                            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
-                                galleryLauncher.launch("image/*")
-                            } else {
-                                // Request READ_MEDIA_IMAGES permission
-                                permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                            }
-                        } else {
-                            // No need for READ_MEDIA_IMAGES on older Android versions
-                            galleryLauncher.launch("image/*")
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
-                    modifier = Modifier
-                        .padding(start = 30.dp)
-                        .size(width = 170.dp, height = 50.dp)
-                ) {
-                    Text(
-                        text = "Elegir Archivo",
-                        fontSize = 15.sp,
-                        color = Color.White
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        handleCameraClick()
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
-                    modifier = Modifier
-                        .padding(start = 30.dp)
-                        .size(width = 170.dp, height = 50.dp)
-                ) {
-                    Text(
-                        text = "Tomar foto",
-                        fontSize = 15.sp,
-                        color = Color.White
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            OutlinedTextField(
-                value = observations,
-                onValueChange = { observations = it },
-                label = {
-                    Text("Observaciones", fontSize = 28.sp)
-                },
-                textStyle = TextStyle(fontSize = 28.sp),
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .height(200.dp),
-                singleLine = true
-            )
+                    .padding(horizontal = 16.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = transectoNumber,
+                        onValueChange = { transectoNumber = it },
+                        label = {
+                            Text(
+                                "Número de Transecto",
+                                fontSize = 28.sp,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = "Tipo de Animal:",
+                    fontSize = 35.sp,
+                    color = colorResource(id = R.color.black)
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -438,82 +220,289 @@ fun FaunaTransectoFormScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(
-                    onClick = {
-                        navController.navigate("report_selection")
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp)
-                        .height(60.dp)
-                ) {
-                    Text(
-                        text = "ATRAS",
-                        fontSize = 28.sp,
-                        color = Color.White
-                    )
-                }
-                Button(
-                    onClick = {
-                        val report = FaunaTransectoReport(
-                            transectoNumber = transectoNumber.toIntOrNull() ?: 0,
-                            animalType = animalType,
-                            commonName = commonName,
-                            scientificName = scientificName.takeIf { it.isNotEmpty() },
-                            individualCount = individualCount.toIntOrNull() ?: 0,
-                            observationType = observationType,
-                            photoPath = photoPath?.toString(),
-                            observations = observations,
-                            date = currentDate,
-                            time = currentTime,
-                            gpsLocation = gpsLocation,
-                            weather = weather,
-                            status = false,
-                            season = season,
-                            biomonitor_id = biomonitorID
+                animals.forEachIndexed { index, animal ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable { animalType = animal.second }
+                    ) {
+                        Image(
+                            painter = painterResource(id = animal.first),
+                            contentDescription = animal.second,
+                            modifier = Modifier
+                                .size(90.dp)
+                                .background(
+                                    if (animalType == animal.second) Color(0xFF99CC66) else Color.Transparent,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(8.dp)
                         )
-
-                        coroutineScope.launch {
-                            val response = RetrofitInstanceBioReport.api.submitFaunaTransectoReport(report)
-                            submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
-
-                            // Reset form on success
-                            if (response.isSuccessful) {
-                                transectoNumber = ""
-                                animalType = ""
-                                commonName = ""
-                                scientificName = ""
-                                individualCount = ""
-                                observationType = ""
-                                photoPath = null
-                                observations = ""
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp)
-                        .height(60.dp),
-                    enabled = transectoNumber.isNotEmpty() && animalType.isNotEmpty() && commonName.isNotEmpty() && individualCount.isNotEmpty() && observationType.isNotEmpty() && weather.isNotEmpty(),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
-
-                ) {
-                    Text(
-                        text = "ENVIAR",
-                        fontSize = 28.sp,
-                        color = Color.White
-                    )
+                        Text(
+                            text = animal.second,
+                            fontSize = 18.sp,
+                            color = Color.Black
+                        )
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(20.dp))
-            submissionResult?.let {
-                Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = commonName,
+                        onValueChange = { commonName = it },
+                        label = {
+                            Text("Nombre Común", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = scientificName,
+                        onValueChange = { scientificName = it },
+                        label = {
+                            Text("Nombre Científico", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+                Text(
+                    text = "Opcional",
+                    fontSize = 18.sp,
+                    color = colorResource(id = R.color.black),
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = individualCount,
+                        onValueChange = { individualCount = it },
+                        label = {
+                            Text("Número de Individuos", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+                Spacer(modifier = Modifier.height(25.dp))
+
+                Text(
+                    text = "Tipo de Observación:",
+                    fontSize = 35.sp,
+                    color = colorResource(id = R.color.black)
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Column {
+                    val registrationTypes = listOf("La Vió", "Huella", "Rastro", "Cacería", "Le dijeron")
+                    registrationTypes.forEach { type ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = observationType == type,
+                                onClick = { observationType = type }
+                            )
+                            Text(
+                                text = type,
+                                fontSize = 28.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = "Evidencias",
+                    fontSize = 35.sp,
+                    color = colorResource(id = R.color.black)
+                )
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(
+                        onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                // Check READ_MEDIA_IMAGES permission on Android 13+
+                                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
+                                    galleryLauncher.launch("image/*")
+                                } else {
+                                    // Request READ_MEDIA_IMAGES permission
+                                    permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                                }
+                            } else {
+                                // No need for READ_MEDIA_IMAGES on older Android versions
+                                galleryLauncher.launch("image/*")
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .size(width = 170.dp, height = 50.dp)
+                    ) {
+                        Text(
+                            text = "Elegir Archivo",
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            handleCameraClick()
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .size(width = 170.dp, height = 50.dp)
+                    ) {
+                        Text(
+                            text = "Tomar foto",
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(30.dp))
+
+                OutlinedTextField(
+                    value = observations,
+                    onValueChange = { observations = it },
+                    label = {
+                        Text("Observaciones", fontSize = 28.sp)
+                    },
+                    textStyle = TextStyle(fontSize = 28.sp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .height(200.dp),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = {
+                            navController.navigate("report_selection")
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
+                            .height(60.dp)
+                    ) {
+                        Text(
+                            text = "ATRAS",
+                            fontSize = 28.sp,
+                            color = Color.White
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            val report = FaunaTransectoReport(
+                                transectoNumber = transectoNumber.toIntOrNull() ?: 0,
+                                animalType = animalType,
+                                commonName = commonName,
+                                scientificName = scientificName.takeIf { it.isNotEmpty() },
+                                individualCount = individualCount.toIntOrNull() ?: 0,
+                                observationType = observationType,
+                                photoPath = photoPath?.toString(),
+                                observations = observations,
+                                date = currentDate,
+                                time = currentTime,
+                                gpsLocation = gpsLocation,
+                                weather = weather,
+                                status = false,
+                                season = season,
+                                biomonitor_id = biomonitorID
+                            )
+
+                            coroutineScope.launch {
+                                val response = RetrofitInstanceBioReport.api.submitFaunaTransectoReport(report)
+                                submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
+
+                                // Reset form on success
+                                if (response.isSuccessful) {
+                                    transectoNumber = ""
+                                    animalType = ""
+                                    commonName = ""
+                                    scientificName = ""
+                                    individualCount = ""
+                                    observationType = ""
+                                    photoPath = null
+                                    observations = ""
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                            .height(60.dp),
+                        enabled = transectoNumber.isNotEmpty() && animalType.isNotEmpty() && commonName.isNotEmpty() && individualCount.isNotEmpty() && observationType.isNotEmpty() && weather.isNotEmpty(),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+
+                        ) {
+                        Text(
+                            text = "ENVIAR",
+                            fontSize = 28.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+                submissionResult?.let {
+                    Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
+                }
             }
         }
     }
+
 }
 
 fun createImageFile(context: Context): Uri? {

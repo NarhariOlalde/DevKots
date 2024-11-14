@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.components.MainLayout
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -44,7 +45,7 @@ fun ReportSelectionScreen(navController: NavController,
         "Camaras Trampa",
         "Variables Climaticas"
     )
-
+    FormLayout(navController = navController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -52,41 +53,6 @@ fun ReportSelectionScreen(navController: NavController,
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = {
-                    navController.navigate("dashboard")
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "Regresar",
-                        tint = Color.Black,
-                        modifier = Modifier.size(45.dp)
-                    )
-                }
-                Text(
-                    text = "Formulario",
-                    fontSize = 48.sp,
-                    lineHeight = 48.sp,
-                    color = colorResource(id = R.color.black)
-                )
-                IconButton(onClick = { }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Opciones",
-                        tint = Color.Black,
-                        modifier = Modifier.size(35.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -246,4 +212,6 @@ fun ReportSelectionScreen(navController: NavController,
             }
             Spacer(modifier = Modifier.height(25.dp))
         }
+    }
+
 }

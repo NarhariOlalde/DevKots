@@ -41,7 +41,6 @@ fun AppNavigation(
             )
         }
 
-
         composable("search") {
             MainLayout(navController = navController) {
                 SearchScreen(
@@ -54,7 +53,7 @@ fun AppNavigation(
         composable("report_detail/{reportId}") { backStackEntry ->
             val reportId = backStackEntry.arguments?.getString("reportId")?.toIntOrNull()
             if (reportId != null) {
-                ReportDetailScreen(
+                ReportFaunaTransectoDetailScreen(
                     navController = navController,
                     reportId = reportId,
                     bioReportService = bioReportService

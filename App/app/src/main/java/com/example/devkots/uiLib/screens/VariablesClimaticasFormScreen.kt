@@ -62,6 +62,7 @@ import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.FaunaPuntoConteoReport
 import com.example.devkots.model.VariablesClimaticasReport
+import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -160,184 +161,152 @@ fun VariablesClimaticasFormScreen(
             }
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(IntroGreen)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-    )
-    {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = {
-                navController.navigate("dashboard")
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Regresar",
-                    tint = Color.Black,
-                    modifier = Modifier.size(45.dp)
-                )
-            }
-            Text(
-                text = "Formulario",
-                fontSize = 48.sp,
-                lineHeight = 48.sp,
-                color = colorResource(id = R.color.black)
-            )
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opciones",
-                    tint = Color.Black,
-                    modifier = Modifier.size(35.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
+    FormLayout(navController = navController){
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Text(
-                text = "Zona:",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
+                .fillMaxSize()
+                .background(IntroGreen)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+        )
+        {
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text(
+                    text = "Zona:",
+                    fontSize = 35.sp,
+                    color = colorResource(id = R.color.black)
+                )
 
-            Column {
-                val registrationTypes1 = listOf("Bosque", "Arreglo Agroforestal", "Cultivos Transitorios", "Cultivos Permanentes")
-                registrationTypes1.forEach { type ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = zone == type,
-                            onClick = { zone = type }
-                        )
-                        Text(
-                            text = type,
-                            fontSize = 28.sp
-                        )
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Column {
+                    val registrationTypes1 = listOf("Bosque", "Arreglo Agroforestal", "Cultivos Transitorios", "Cultivos Permanentes")
+                    registrationTypes1.forEach { type ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = zone == type,
+                                onClick = { zone = type }
+                            )
+                            Text(
+                                text = type,
+                                fontSize = 28.sp
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = pluviosidad,
-                onValueChange = { pluviosidad = it },
-                label = {
-                    Text("Pluviosidad en mm", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = pluviosidad,
+                    onValueChange = { pluviosidad = it },
+                    label = {
+                        Text("Pluviosidad en mm", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
+            }
+            Spacer(modifier = Modifier.height(15.dp))
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = tempmax,
-                onValueChange = { tempmax = it },
-                label = {
-                    Text("Temperatura máxima", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = tempmax,
+                    onValueChange = { tempmax = it },
+                    label = {
+                        Text("Temperatura máxima", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
+            }
+            Spacer(modifier = Modifier.height(15.dp))
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = humedadmax,
-                onValueChange = { humedadmax = it },
-                label = {
-                    Text("Humedad máxima", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = humedadmax,
+                    onValueChange = { humedadmax = it },
+                    label = {
+                        Text("Humedad máxima", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
+            }
+            Spacer(modifier = Modifier.height(15.dp))
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = tempmin,
-                onValueChange = { tempmin = it },
-                label = {
-                    Text("Temperatura mínima", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = tempmin,
+                    onValueChange = { tempmin = it },
+                    label = {
+                        Text("Temperatura mínima", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
+            }
+            Spacer(modifier = Modifier.height(15.dp))
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = nivelquebrada,
-                onValueChange = { nivelquebrada = it },
-                label = {
-                    Text("Nivel de Quebrada en mts", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = nivelquebrada,
+                    onValueChange = { nivelquebrada = it },
+                    label = {
+                        Text("Nivel de Quebrada en mts", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
-            )
-        }
+            }
             Spacer(modifier = Modifier.height(15.dp))
 
             Row(
@@ -420,6 +389,8 @@ fun VariablesClimaticasFormScreen(
             }
         }
     }
+}
+
 
 // Function to fetch location
 private fun fetchLocation(
