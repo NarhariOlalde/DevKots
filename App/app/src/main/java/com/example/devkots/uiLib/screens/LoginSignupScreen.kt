@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.devkots.R
 import com.example.devkots.uiLib.theme.*
 
@@ -35,7 +36,7 @@ fun LoginSignupScreen(navController: NavController) {
         ) {
             Text(
                 text = "AWAQ-BIO",
-                fontSize = 36.sp,
+                fontSize = 82.sp,
                 fontWeight = FontWeight.Bold,
                 color = ObjectGreen1
             )
@@ -44,14 +45,14 @@ fun LoginSignupScreen(navController: NavController) {
                 painter = painterResource(id = R.drawable.introimage),
                 contentDescription = "Nature Image",
                 modifier = Modifier
-                    .size(300.dp)
+                    .size(500.dp)
                     .padding(16.dp)
             )
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(40.dp)
             ) {
                 CustomButtonLS(text = "Login", backgroundColor = ObjectGreen1) {
                     navController.navigate("login")
@@ -70,15 +71,24 @@ fun CustomButtonLS(text: String, backgroundColor: Color, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp),
-        shape = RoundedCornerShape(30.dp),
+            .height(80.dp),
+        shape = RoundedCornerShape(50.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = backgroundColor)
     ) {
         Text(
             text = text,
-            fontSize = 20.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color.White
         )
     }
+}
+
+@Preview(showBackground = true,
+         widthDp = 800,
+         heightDp = 1200)
+@Composable
+fun LoginSignupScreenPreview() {
+    val navController = rememberNavController()
+    LoginSignupScreen(navController)
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -18,15 +17,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.devkots.R
 import com.example.devkots.uiLib.components.BackButton
 import com.example.devkots.uiLib.theme.Black
-import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
-import com.example.devkots.uiLib.theme.ObjectGreen2
 import com.example.devkots.uiLib.theme.White
 import com.example.devkots.uiLib.viewmodels.SignupViewModel
 import com.example.devkots.uiLib.viewmodels.UserSessionViewModel
@@ -57,7 +56,7 @@ fun SignupScreen(
                     contentDescription = "vector_3",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.175f)
+                        .fillMaxHeight(0.237f)
                         .align(Alignment.TopCenter)
                         .graphicsLayer(rotationZ = 180f)
                 )
@@ -66,7 +65,7 @@ fun SignupScreen(
                     contentDescription = "vector_3",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.175f)
+                        .fillMaxHeight(0.237f)
                         .align(Alignment.BottomCenter)
                 )
                 Image(
@@ -85,7 +84,7 @@ fun SignupScreen(
                     contentDescription = "vector_6",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.3f)
+                        .fillMaxHeight(0.4069999f)
                         .align(Alignment.TopCenter)
                 )
                 Column(
@@ -100,7 +99,7 @@ fun SignupScreen(
                             .fillMaxSize()
                             .padding(32.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(13.dp)
+                        verticalArrangement = Arrangement.spacedBy(35.dp)
                     ) {
                         // Back Button
                         Box(
@@ -117,13 +116,13 @@ fun SignupScreen(
                         ) {
                             Text(
                                 text = "Crea una cuenta",
-                                fontSize = 32.sp,
+                                fontSize = 64.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Black
                             )
                             Text(
                                 text = "Regístrate",
-                                fontSize = 24.sp,
+                                fontSize = 48.sp,
                                 color = White
                             )
                         }
@@ -169,15 +168,44 @@ fun SignupScreen(
                             onClick = { signupViewModel.register() },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(56.dp),
-                            shape = RoundedCornerShape(30.dp),
+                                .height(80.dp),
+                            shape = RoundedCornerShape(50.dp),
                             colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen1)
                         ) {
-                            Text("Register", color = Color.White, fontSize = 18.sp)
+                            Text("Register", color = Color.White, fontSize = 28.sp)
                         }
                     }
                 }
             }
         }
     }
+}
+
+// Preview
+class UserSessionViewModelFake : UserSessionViewModel() {
+    // Simula las propiedades necesarias
+    var fakeUserName = "Test User"
+    var fakeUserEmail = "test@example.com"
+    var fakeBiomonitorId = "12345"
+
+    // Simula el método que usa SignupViewModel
+    override fun loginUser(name: String, email: String, biomonitorId: String) {
+        // Simulación del comportamiento de loginUser
+        fakeUserName = name
+        fakeUserEmail = email
+        fakeBiomonitorId = biomonitorId
+    }
+}
+
+@Preview(showBackground = true, widthDp = 800, heightDp = 1200)
+@Composable
+fun SignupScreenPreview() {
+    val navController = rememberNavController()
+    val userSessionViewModel = UserSessionViewModelFake()
+    val signupViewModel = SignupViewModel(userSessionViewModel)
+
+    SignupScreen(
+        navController = navController,
+        signupViewModel = signupViewModel
+    )
 }
