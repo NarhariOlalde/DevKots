@@ -71,7 +71,7 @@ fun DashboardScreen(
                 ) {
                     TopBar(modifier = Modifier
                         .fillMaxWidth()
-                        .height(225.dp),
+                        .height(175.dp),
                         navController = navController
                     )
 
@@ -152,8 +152,7 @@ fun TopBar(
             painter = painterResource(id = R.drawable.vector_4),
             contentDescription = "Top Background",
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
+                .fillMaxWidth(),
             contentScale = ContentScale.FillBounds,
         )
         //logo

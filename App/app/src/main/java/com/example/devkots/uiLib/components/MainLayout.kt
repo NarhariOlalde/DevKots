@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
@@ -34,6 +35,7 @@ import com.example.devkots.R
 import com.example.devkots.uiLib.screens.createImageFile
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen2
+import com.example.devkots.uiLib.theme.ObjectGreen3
 
 @Composable
 fun MainLayout(navController: NavController, content: @Composable () -> Unit) {
@@ -68,11 +70,14 @@ fun FormLayout(navController: NavController, content: @Composable () -> Unit) {
 
 
 @Composable
-fun TopNavigationBar(navController: NavController) {
+fun TopNavigationBar(
+    navController: NavController,
+    topText : String = "Formulario"
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(IntroGreen)
+            .background(Color(0xFFB4D68F))
             .padding(16.dp)
     ) {
         Row(
@@ -92,9 +97,10 @@ fun TopNavigationBar(navController: NavController) {
                 )
             }
             Text(
-                text = "Formulario",
+                text = topText,
                 fontSize = 48.sp,
                 lineHeight = 48.sp,
+                fontWeight = FontWeight.SemiBold,
                 color = colorResource(id = R.color.black)
             )
             IconButton(onClick = { }) {
