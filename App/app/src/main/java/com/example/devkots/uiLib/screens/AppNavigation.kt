@@ -41,7 +41,6 @@ fun AppNavigation(
             )
         }
 
-
         composable("search") {
             MainLayout(navController = navController) {
                 SearchScreen(

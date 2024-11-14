@@ -29,15 +29,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.RadioButton
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,8 +55,8 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
-import com.example.devkots.model.FaunaPuntoConteoReport
 import com.example.devkots.model.ParcelaVegetacionReport
+import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -174,65 +168,194 @@ fun ParcelaVegetacionFormScreen(
             }
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(IntroGreen)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-    )
-    {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = {
-                navController.navigate("dashboard")
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Regresar",
-                    tint = Color.Black,
-                    modifier = Modifier.size(45.dp)
-                )
-            }
-            Text(
-                text = "Formulario",
-                fontSize = 48.sp,
-                lineHeight = 48.sp,
-                color = colorResource(id = R.color.black)
-            )
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opciones",
-                    tint = Color.Black,
-                    modifier = Modifier.size(35.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
+    FormLayout(navController = navController){
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
+                .fillMaxSize()
+                .background(IntroGreen)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+        )
+        {
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = code,
+                        onValueChange = { code = it },
+                        label = {
+                            Text("Código", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Cuadrante",
+                fontSize = 35.sp,
+                color = colorResource(id = R.color.black)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 40.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val cuadrante1 = listOf("A", "B")
+                val cuadrante2 = listOf("C", "D", "E", "F", "G")
+                Column{
+                    cuadrante1.forEachIndexed { index, cuadr ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .clickable { cuadranteuno = cuadr}
+                                .background(
+                                    color = if (cuadranteuno == cuadr) Color(0xFF99CC66) else Color.White,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 45.dp, vertical = 45.dp)
+                        ) {
+                            Text(
+                                text = cuadr,
+                                fontSize = 50.sp,
+                                color = Color.Black
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.width(20.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.guion),
+                    contentDescription = "Guion"
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                Column{
+                    cuadrante2.forEachIndexed { index, cuadr ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .clickable { cuadrantedos = cuadr}
+                                .background(
+                                    color = if (cuadrantedos == cuadr) Color(0xFF99CC66) else Color.White,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 60.dp, vertical = 12.dp)
+                        ) {
+                            Text(
+                                text = cuadr,
+                                fontSize = 24.sp,
+                                color = Color.Black
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+                cuadrante = cuadranteuno + "-" + cuadrantedos
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "Sub-Cuadrante",
+                fontSize = 35.sp,
+                color = colorResource(id = R.color.black)
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                val subcuadrantelist = listOf("1", "2", "3", "4")
+                subcuadrantelist.forEachIndexed { index, subcuadr ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .clickable { subcuadrante = subcuadr.toString() }
+                            .background(
+                                color = if (subcuadrante == subcuadr.toString()) Color(0xFF99CC66) else Color.White,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 40.dp, vertical = 16.dp)
+                    ) {
+                        Text(
+                            text = subcuadr.toString(),
+                            fontSize = 24.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(25.dp))
+            Text(
+                text = "Hábito de crecimiento",
+                fontSize = 35.sp,
+                color = colorResource(id = R.color.black)
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                habito.forEachIndexed { index, habit ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.clickable { habitoCrecimiento = habit.second }
+                    ) {
+                        Image(
+                            painter = painterResource(id = habit.first),
+                            contentDescription = habit.second,
+                            modifier = Modifier
+                                .size(125.dp)
+                                .background(
+                                    if (habitoCrecimiento == habit.second) Color(0xFF99CC66) else Color.Transparent,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .padding(8.dp)
+                        )
+                        Text(
+                            text = habit.second,
+                            fontSize = 18.sp,
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = code,
-                    onValueChange = { code = it },
+                    value = nombreComun,
+                    onValueChange = { nombreComun = it },
                     label = {
-                        Text("Código", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        Text("Nombre Común", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
                     },
                     textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 12.dp)
+                        .padding(vertical = 6.dp)
                         .height(100.dp),
                     singleLine = true,
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -241,295 +364,134 @@ fun ParcelaVegetacionFormScreen(
                     )
                 )
             }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Text(
-            text = "Cuadrante",
-            fontSize = 35.sp,
-            color = colorResource(id = R.color.black)
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 40.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val cuadrante1 = listOf("A", "B")
-            val cuadrante2 = listOf("C", "D", "E", "F", "G")
-            Column{
-                cuadrante1.forEachIndexed { index, cuadr ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .clickable { cuadranteuno = cuadr}
-                            .background(
-                                color = if (cuadranteuno == cuadr) Color(0xFF99CC66) else Color.White,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(horizontal = 45.dp, vertical = 45.dp)
-                    ) {
-                        Text(
-                            text = cuadr,
-                            fontSize = 50.sp,
-                            color = Color.Black
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-            }
-            Spacer(modifier = Modifier.width(20.dp))
-            Image(
-                painter = painterResource(id = R.drawable.guion),
-                contentDescription = "Guion"
-            )
-            Spacer(modifier = Modifier.width(20.dp))
-            Column{
-                cuadrante2.forEachIndexed { index, cuadr ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .clickable { cuadrantedos = cuadr}
-                            .background(
-                                color = if (cuadrantedos == cuadr) Color(0xFF99CC66) else Color.White,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(horizontal = 60.dp, vertical = 12.dp)
-                    ) {
-                        Text(
-                            text = cuadr,
-                            fontSize = 24.sp,
-                            color = Color.Black
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-            }
-            cuadrante = cuadranteuno + "-" + cuadrantedos
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = "Sub-Cuadrante",
-            fontSize = 35.sp,
-            color = colorResource(id = R.color.black)
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            val subcuadrantelist = listOf("1", "2", "3", "4")
-            subcuadrantelist.forEachIndexed { index, subcuadr ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
+            Spacer(modifier = Modifier.height(15.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = nombreCientifico,
+                    onValueChange = { nombreCientifico = it },
+                    label = {
+                        Text("Nombre Científico", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
                     modifier = Modifier
-                        .clickable { subcuadrante = subcuadr.toString() }
-                        .background(
-                            color = if (subcuadrante == subcuadr.toString()) Color(0xFF99CC66) else Color.White,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 40.dp, vertical = 16.dp)
-                ) {
-                    Text(
-                        text = subcuadr.toString(),
-                        fontSize = 24.sp,
-                        color = Color.Black
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
                     )
-                }
+                )
             }
-        }
-        Spacer(modifier = Modifier.height(25.dp))
-        Text(
-            text = "Hábito de crecimiento",
-            fontSize = 35.sp,
-            color = colorResource(id = R.color.black)
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            habito.forEachIndexed { index, habit ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.clickable { habitoCrecimiento = habit.second }
-                ) {
-                    Image(
-                        painter = painterResource(id = habit.first),
-                        contentDescription = habit.second,
-                        modifier = Modifier
-                            .size(125.dp)
-                            .background(
-                                if (habitoCrecimiento == habit.second) Color(0xFF99CC66) else Color.Transparent,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .padding(8.dp)
+            Text(
+                text = "Opcional",
+                fontSize = 18.sp,
+                color = colorResource(id = R.color.black),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+            )
+            Spacer(modifier = Modifier.height(15.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = placa,
+                    onValueChange = { placa = it },
+                    label = {
+                        Text("Placa", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
                     )
-                    Text(
-                        text = habit.second,
-                        fontSize = 18.sp,
-                        color = Color.Black
-                    )
-                }
+                )
             }
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = nombreComun,
-                onValueChange = { nombreComun = it },
-                label = {
-                    Text("Nombre Común", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
+            Spacer(modifier = Modifier.height(15.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = circunferencia,
+                    onValueChange = { circunferencia = it },
+                    label = {
+                        Text("Circunferencia en cm", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = nombreCientifico,
-                onValueChange = { nombreCientifico = it },
-                label = {
-                    Text("Nombre Científico", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = distancia,
+                    onValueChange = { distancia = it },
+                    label = {
+                        Text("Distancia en mt", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
-            )
-        }
-        Text(
-            text = "Opcional",
-            fontSize = 18.sp,
-            color = colorResource(id = R.color.black),
-            modifier = Modifier
-                .padding(start = 8.dp)
-        )
-        Spacer(modifier = Modifier.height(15.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = placa,
-                onValueChange = { placa = it },
-                label = {
-                    Text("Placa", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = estaturabio,
+                    onValueChange = { estaturabio = it },
+                    label = {
+                        Text("Estatura del biomonitor en mt", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = circunferencia,
-                onValueChange = { circunferencia = it },
-                label = {
-                    Text("Circunferencia en cm", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = altura,
+                    onValueChange = { altura = it },
+                    label = {
+                        Text("Altura en mt", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
+                    },
+                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .height(100.dp),
+                    singleLine = true,
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = ObjectGreen2,
+                        unfocusedBorderColor = ObjectGreen1
+                    )
                 )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = distancia,
-                onValueChange = { distancia = it },
-                label = {
-                    Text("Distancia en mt", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
-                )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = estaturabio,
-                onValueChange = { estaturabio = it },
-                label = {
-                    Text("Estatura del biomonitor en mt", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
-                )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = altura,
-                onValueChange = { altura = it },
-                label = {
-                    Text("Altura en mt", fontSize = 24.sp, modifier = Modifier.align(Alignment.Center))
-                },
-                textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp)
-                    .height(100.dp),
-                singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = ObjectGreen2,
-                    unfocusedBorderColor = ObjectGreen1
-                )
-            )
-        }
-        Spacer(modifier = Modifier.height(15.dp))
+            }
+            Spacer(modifier = Modifier.height(15.dp))
 
             Text(
                 text = "Evidencias",
@@ -695,6 +657,8 @@ fun ParcelaVegetacionFormScreen(
             }
         }
     }
+}
+
 
 
 // Function to fetch location

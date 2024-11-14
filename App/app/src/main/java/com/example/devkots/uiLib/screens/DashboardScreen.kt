@@ -62,7 +62,6 @@ fun DashboardScreen(
             Box(
                 modifier = Modifier.fillMaxSize()
             ) {
-
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -72,7 +71,7 @@ fun DashboardScreen(
                 ) {
                     TopBar(modifier = Modifier
                         .fillMaxWidth()
-                        .height(130.dp),
+                        .height(225.dp),
                         navController = navController
                     )
 

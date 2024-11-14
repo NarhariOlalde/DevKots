@@ -7,10 +7,13 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,6 +32,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.uiLib.screens.createImageFile
+import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen2
 
 @Composable
@@ -45,8 +50,65 @@ fun MainLayout(navController: NavController, content: @Composable () -> Unit) {
     }
 }
 
+@Composable
+fun FormLayout(navController: NavController, content: @Composable () -> Unit) {
+    Scaffold(
+        backgroundColor = IntroGreen,
+        topBar = { TopNavigationBar(navController)}
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            content()
+        }
+    }
+}
 
-// Camera button onClick handler
+
+@Composable
+fun TopNavigationBar(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(IntroGreen)
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .padding(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(onClick = {
+                navController.navigate("dashboard")
+            }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = "Regresar",
+                    tint = Color.Black,
+                    modifier = Modifier.size(45.dp)
+                )
+            }
+            Text(
+                text = "Formulario",
+                fontSize = 48.sp,
+                lineHeight = 48.sp,
+                color = colorResource(id = R.color.black)
+            )
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Opciones",
+                    tint = Color.Black,
+                    modifier = Modifier.size(35.dp)
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {

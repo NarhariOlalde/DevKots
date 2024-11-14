@@ -10,9 +10,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,22 +22,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Checkbox
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -65,7 +55,7 @@ import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.CamarasTrampaReport
-import com.example.devkots.model.FaunaPuntoConteoReport
+import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -177,275 +167,243 @@ fun CamarasTrampaFormScreen(
             }
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(IntroGreen)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-    )
-    {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = {
-                navController.navigate("dashboard")
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Regresar",
-                    tint = Color.Black,
-                    modifier = Modifier.size(45.dp)
-                )
-            }
-            Text(
-                text = "Formulario",
-                fontSize = 48.sp,
-                lineHeight = 48.sp,
-                color = colorResource(id = R.color.black)
-            )
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opciones",
-                    tint = Color.Black,
-                    modifier = Modifier.size(35.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
+    FormLayout(navController = navController){
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(20.dp))
+                .fillMaxSize()
+                .background(IntroGreen)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+        )
+        {
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = code,
-                    onValueChange = { code = it },
-                    label = {
-                        Text("Código", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = code,
+                        onValueChange = { code = it },
+                        label = {
+                            Text("Código", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
                     )
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Zona",
+                    fontSize = 35.sp,
+                    color = colorResource(id = R.color.black)
                 )
+                Spacer(modifier = Modifier.height(20.dp))
+                Column {
+                    val registrationTypes1 = listOf("Bosque", "Arreglo Agroforestal", "Cultivos Transitorios", "Cultivos Permanentes")
+                    registrationTypes1.forEach { type ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = zone == type,
+                                onClick = { zone = type }
+                            )
+                            Text(
+                                text = type,
+                                fontSize = 28.sp
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = nombreCamara,
+                        onValueChange = { nombreCamara = it },
+                        label = {
+                            Text("Nombre Cámara", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = placaCamara,
+                        onValueChange = { placaCamara = it },
+                        label = {
+                            Text("Placa Cámara", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = placaGuaya,
+                        onValueChange = { placaGuaya = it },
+                        label = {
+                            Text("Placa Guaya", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = anchoCamino,
+                        onValueChange = { anchoCamino = it },
+                        label = {
+                            Text("Ancho del Camino en mts", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = fechainstalacion,
+                        onValueChange = { fechainstalacion = it },
+                        label = {
+                            Text("Fecha de Instalación", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = distanciaobj,
+                        onValueChange = { distanciaobj = it },
+                        label = {
+                            Text("Distancia al objetivo en mts", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
+
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = altura,
+                        onValueChange = { altura = it },
+                        label = {
+                            Text("Altura del lente en mts", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
             }
+
             Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text = "Zona",
+                text = "Lista de chequeo",
                 fontSize = 35.sp,
                 color = colorResource(id = R.color.black)
             )
-            Spacer(modifier = Modifier.height(20.dp))
-            Column {
-                val registrationTypes1 = listOf("Bosque", "Arreglo Agroforestal", "Cultivos Transitorios", "Cultivos Permanentes")
-                registrationTypes1.forEach { type ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RadioButton(
-                            selected = zone == type,
-                            onClick = { zone = type }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Listachequeo.forEachIndexed { index, item ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Checkbox(
+                            checked = checkedStates[index],
+                            onCheckedChange = { isChecked ->
+                                checkedStates[index] = isChecked
+                            }
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = type,
-                            fontSize = 28.sp
+                            text = item,
+                            fontSize = 28.sp,
+                            color = Color.Black
                         )
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(15.dp))
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = nombreCamara,
-                    onValueChange = { nombreCamara = it },
-                    label = {
-                        Text("Nombre Cámara", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = placaCamara,
-                    onValueChange = { placaCamara = it },
-                    label = {
-                        Text("Placa Cámara", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = placaGuaya,
-                    onValueChange = { placaGuaya = it },
-                    label = {
-                        Text("Placa Guaya", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = anchoCamino,
-                    onValueChange = { anchoCamino = it },
-                    label = {
-                        Text("Ancho del Camino en mts", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = fechainstalacion,
-                    onValueChange = { fechainstalacion = it },
-                    label = {
-                        Text("Fecha de Instalación", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = distanciaobj,
-                    onValueChange = { distanciaobj = it },
-                    label = {
-                        Text("Distancia al objetivo en mts", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = altura,
-                    onValueChange = { altura = it },
-                    label = {
-                        Text("Altura del lente en mts", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = "Lista de chequeo",
-            fontSize = 35.sp,
-            color = colorResource(id = R.color.black)
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Listachequeo.forEachIndexed { index, item ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                ) {
-                    Checkbox(
-                        checked = checkedStates[index],
-                        onCheckedChange = { isChecked ->
-                            checkedStates[index] = isChecked
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = item,
-                        fontSize = 28.sp,
-                        color = Color.Black
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "Evidencias",
                 fontSize = 35.sp,
@@ -608,6 +566,8 @@ fun CamarasTrampaFormScreen(
             }
         }
     }
+}
+
 
 
 // Function to fetch location

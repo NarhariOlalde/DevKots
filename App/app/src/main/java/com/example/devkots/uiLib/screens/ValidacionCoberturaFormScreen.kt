@@ -10,9 +10,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,19 +22,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -60,8 +51,8 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
-import com.example.devkots.model.FaunaPuntoConteoReport
 import com.example.devkots.model.ValidacionCoberturaReport
+import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -160,205 +151,173 @@ fun ValidacionCoberturaFormScreen(
             }
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(IntroGreen)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-    )
-    {
-        Row(
+    FormLayout(navController = navController){
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(onClick = {
-                navController.navigate("dashboard")
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Regresar",
-                    tint = Color.Black,
-                    modifier = Modifier.size(45.dp)
-                )
+                .fillMaxSize()
+                .background(IntroGreen)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+        )
+        {
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = code,
+                        onValueChange = { code = it },
+                        label = {
+                            Text("Código", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
             Text(
-                text = "Formulario",
-                fontSize = 48.sp,
-                lineHeight = 48.sp,
+                text = "Seguimiento",
+                fontSize = 35.sp,
                 color = colorResource(id = R.color.black)
             )
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Opciones",
-                    tint = Color.Black,
-                    modifier = Modifier.size(35.dp)
-                )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column {
+                val registrationTypes1 = listOf("Si", "No")
+                registrationTypes1.forEach { type ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = seguimiento == type,
+                            onClick = { seguimiento = type }
+                        )
+                        Text(
+                            text = type,
+                            fontSize = 28.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = code,
-                    onValueChange = { code = it },
-                    label = {
-                        Text("Código", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
+            Text(
+                text = "Cambió",
+                fontSize = 35.sp,
+                color = colorResource(id = R.color.black)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column {
+                val registrationTypes2 = listOf("Si", "No")
+                registrationTypes2.forEach { type ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = cambio == type,
+                            onClick = { cambio = type }
+                        )
+                        Text(
+                            text = type,
+                            fontSize = 28.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "Cobertura",
+                fontSize = 35.sp,
+                color = colorResource(id = R.color.black)
+            )
 
-        Text(
-            text = "Seguimiento",
-            fontSize = 35.sp,
-            color = colorResource(id = R.color.black)
-        )
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Column {
+                val registrationTypes3 = listOf("BD", "RA", "RB", "PA", "PL", "CP", "CT", "VH", "TD", "IF")
+                registrationTypes3.forEach { type ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = cobertura == type,
+                            onClick = { cobertura = type }
+                        )
+                        Text(
+                            text = type,
+                            fontSize = 28.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
 
-        Column {
-            val registrationTypes1 = listOf("Si", "No")
-            registrationTypes1.forEach { type ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = seguimiento == type,
-                        onClick = { seguimiento = type }
-                    )
-                    Text(
-                        text = type,
-                        fontSize = 28.sp
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = tiposCultivo,
+                        onValueChange = { tiposCultivo = it },
+                        label = {
+                            Text("Tipos de Cultivo", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
                     )
                 }
-                Spacer(modifier = Modifier.height(20.dp))
             }
-        }
 
-        Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "Disturbio",
+                fontSize = 35.sp,
+                color = colorResource(id = R.color.black)
+            )
 
-        Text(
-            text = "Cambió",
-            fontSize = 35.sp,
-            color = colorResource(id = R.color.black)
-        )
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Column {
-            val registrationTypes2 = listOf("Si", "No")
-            registrationTypes2.forEach { type ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = cambio == type,
-                        onClick = { cambio = type }
-                    )
-                    Text(
-                        text = type,
-                        fontSize = 28.sp
-                    )
+            Column {
+                val registrationTypes4 = listOf("Inundación", "Quema", "Tala", "Erupción", "Minería", "Carretera", "Más plantas acuáticas", "Otro")
+                registrationTypes4.forEach { type ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = disturbio == type,
+                            onClick = { disturbio = type }
+                        )
+                        Text(
+                            text = type,
+                            fontSize = 28.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(25.dp))
                 }
-                Spacer(modifier = Modifier.height(20.dp))
             }
-        }
-
-        Text(
-            text = "Cobertura",
-            fontSize = 35.sp,
-            color = colorResource(id = R.color.black)
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Column {
-            val registrationTypes3 = listOf("BD", "RA", "RB", "PA", "PL", "CP", "CT", "VH", "TD", "IF")
-            registrationTypes3.forEach { type ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = cobertura == type,
-                        onClick = { cobertura = type }
-                    )
-                    Text(
-                        text = type,
-                        fontSize = 28.sp
-                    )
-                }
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = tiposCultivo,
-                    onValueChange = { tiposCultivo = it },
-                    label = {
-                        Text("Tipos de Cultivo", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                    },
-                    textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .height(100.dp),
-                    singleLine = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = ObjectGreen2,
-                        unfocusedBorderColor = ObjectGreen1
-                    )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = "Disturbio",
-            fontSize = 35.sp,
-            color = colorResource(id = R.color.black)
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Column {
-            val registrationTypes4 = listOf("Inundación", "Quema", "Tala", "Erupción", "Minería", "Carretera", "Más plantas acuáticas", "Otro")
-            registrationTypes4.forEach { type ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = disturbio == type,
-                        onClick = { disturbio = type }
-                    )
-                    Text(
-                        text = type,
-                        fontSize = 28.sp
-                    )
-                }
-                Spacer(modifier = Modifier.height(25.dp))
-            }
-        }
             Text(
                 text = "Evidencias",
                 fontSize = 35.sp,
@@ -510,6 +469,8 @@ fun ValidacionCoberturaFormScreen(
             }
         }
     }
+}
+
 
 // Function to fetch location
 private fun fetchLocation(
