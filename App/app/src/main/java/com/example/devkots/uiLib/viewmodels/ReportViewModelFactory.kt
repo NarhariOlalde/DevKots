@@ -13,6 +13,15 @@ class ReportViewModelFactory(
             modelClass.isAssignableFrom(ReportFaunaTransectoViewModel::class.java) -> {
                 ReportFaunaTransectoViewModel(reportService as BioReportService) as T
             }
+            modelClass.isAssignableFrom(ReportFaunaPuntoConteoViewModel::class.java) -> {
+                ReportFaunaPuntoConteoViewModel(reportService as BioReportService) as T
+            }
+            modelClass.isAssignableFrom(ReportFaunaBusquedaLibreViewModel::class.java) -> {
+                ReportFaunaBusquedaLibreViewModel(reportService as BioReportService) as T
+            }
+            modelClass.isAssignableFrom(ReportValidacionCoberturaViewModel::class.java) -> {
+                ReportValidacionCoberturaViewModel(reportService as BioReportService) as T
+            }
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
     }

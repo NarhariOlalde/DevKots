@@ -1,43 +1,55 @@
 package com.example.devkots.uiLib.screens
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.Image
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.navigation.NavController
-import com.example.devkots.data.BioReportService
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.RadioButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.ViewModelProvider
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
-import com.example.devkots.uiLib.viewmodels.ReportFaunaTransectoViewModel
+import com.example.devkots.uiLib.viewmodels.ReportFaunaBusquedaLibreViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
 @Composable
-fun ReportFaunaTransectoDetailScreen(
+fun ReportFaunaBusquedaLibreDetailScreen(
     navController: NavController,
     reportId: Int,
     bioReportService: BioReportService
 ) {
-    val viewModel: ReportFaunaTransectoViewModel = viewModel(
+    val viewModel: ReportFaunaBusquedaLibreViewModel = viewModel(
         factory = ReportViewModelFactory(bioReportService)
     )
 
@@ -74,9 +86,28 @@ fun ReportFaunaTransectoDetailScreen(
             ) {
                 Text("#FM$reportId", fontSize = 32.sp, color = Color(0xFF4E7029))
 
-                EditableField("Número de Transecto", viewModel.report!!.transectoNumber.toString(), viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(transectoNumber = it.toIntOrNull() ?: viewModel.report!!.transectoNumber)
+                Text(
+                    text = "Zona",
+                    fontSize = 24.sp
+                )
+
+                Column {
+                    val zoneTypes = listOf("Bosque", "Arreglo Forestal", "Cultivos Transitorios", "Cultivos Permanentes")
+                    zoneTypes.forEach { type ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = viewModel.report!!.zone == type,
+                                onClick = {
+                                    viewModel.report = viewModel.report?.copy(zone = type)
+                                }
+                            )
+                            Text(
+                                text = type,
+                            )
+                        }
+                    }
                 }
+
                 Text(
                     text = "Tipo de Animal",
                     fontSize = 24.sp,
@@ -154,6 +185,29 @@ fun ReportFaunaTransectoDetailScreen(
                         }
                     }
                 }
+
+                Text(
+                    text = "Altura de Observación",
+                    fontSize = 24.sp,
+                )
+
+                Column {
+                    val heightTypes = listOf("Baja <1mt", "Media 1-3mt", "Alta >3mt")
+                    heightTypes.forEach { type ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = viewModel.report!!.observationHeight == type,
+                                onClick = {
+                                    viewModel.report = viewModel.report?.copy(observationHeight = type)
+                                }
+                            )
+                            Text(
+                                text = type,
+                            )
+                        }
+                    }
+                }
+
                 Text(
                     text = "Estado del Tiempo",
                     fontSize = 24.sp,

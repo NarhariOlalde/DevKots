@@ -16,6 +16,7 @@ import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.uiLib.components.MainLayout
 import com.example.devkots.uiLib.viewmodels.BioReportViewModel
 import com.example.devkots.uiLib.viewmodels.LoginViewModel
+import com.example.devkots.uiLib.viewmodels.ReportFaunaBusquedaLibreViewModel
 import com.example.devkots.uiLib.viewmodels.SignupViewModel
 import com.example.devkots.uiLib.viewmodels.UserSessionViewModel
 
@@ -56,6 +57,21 @@ fun AppNavigation(
             if (reportId != null && reportType != null) {
                 when (reportType) {
                     "Fauna en Transecto" -> ReportFaunaTransectoDetailScreen(
+                        navController = navController,
+                        reportId = reportId,
+                        bioReportService = bioReportService
+                    )
+                    "Fauna en Punto de Conteo" -> ReportFaunaPuntoConteoDetailScreen(
+                        navController = navController,
+                        reportId = reportId,
+                        bioReportService = bioReportService
+                    )
+                    "Fauna Busqueda Libre" -> ReportFaunaBusquedaLibreDetailScreen(
+                        navController = navController,
+                        reportId = reportId,
+                        bioReportService = bioReportService
+                    )
+                    "Validacion de cobertura" -> ReportValidacionCoberturaDetailScreen(
                         navController = navController,
                         reportId = reportId,
                         bioReportService = bioReportService

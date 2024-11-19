@@ -1,43 +1,55 @@
 package com.example.devkots.uiLib.screens
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.Image
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.navigation.NavController
-import com.example.devkots.data.BioReportService
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.RadioButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.ViewModelProvider
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
-import com.example.devkots.uiLib.viewmodels.ReportFaunaTransectoViewModel
+import com.example.devkots.uiLib.viewmodels.ReportValidacionCoberturaViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
 @Composable
-fun ReportFaunaTransectoDetailScreen(
+fun ReportValidacionCoberturaDetailScreen(
     navController: NavController,
     reportId: Int,
     bioReportService: BioReportService
 ) {
-    val viewModel: ReportFaunaTransectoViewModel = viewModel(
+    val viewModel: ReportValidacionCoberturaViewModel = viewModel(
         factory = ReportViewModelFactory(bioReportService)
     )
 
@@ -74,78 +86,22 @@ fun ReportFaunaTransectoDetailScreen(
             ) {
                 Text("#FM$reportId", fontSize = 32.sp, color = Color(0xFF4E7029))
 
-                EditableField("Número de Transecto", viewModel.report!!.transectoNumber.toString(), viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(transectoNumber = it.toIntOrNull() ?: viewModel.report!!.transectoNumber)
+                EditableField("Código", viewModel.report!!.code, viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(code = it)
                 }
+
                 Text(
-                    text = "Tipo de Animal",
-                    fontSize = 24.sp,
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    val animals = listOf(
-                        R.drawable.mamifero to "Mamífero",
-                        R.drawable.ave to "Ave",
-                        R.drawable.reptil to "Reptil",
-                        R.drawable.anfibio to "Anfibio",
-                        R.drawable.insecto to "Insecto"
-                    )
-
-                    animals.forEachIndexed { index, animal ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.clickable {
-                                viewModel.report = viewModel.report?.copy(animalType = animal.second)
-                            }
-                        ) {
-                            Image(
-                                painter = painterResource(id = animal.first),
-                                contentDescription = animal.second,
-                                modifier = Modifier
-                                    .size(90.dp)
-                                    .background(
-                                        if (viewModel.report!!.animalType == animal.second) Color(0xFF99CC66) else Color.Transparent,
-                                        shape = RoundedCornerShape(8.dp)
-                                    )
-                                    .padding(8.dp)
-                            )
-                            Text(
-                                text = animal.second,
-                                fontSize = 18.sp,
-                                color = Color.Black
-                            )
-                        }
-                    }
-                }
-
-
-                EditableField("Nombre Común", viewModel.report!!.commonName, viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(commonName = it)
-                }
-
-                EditableField("Nombre Científico", viewModel.report!!.scientificName ?: "", viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(scientificName = it.takeIf { it.isNotEmpty() })
-                }
-
-                EditableField("Número de Individuos", viewModel.report!!.individualCount.toString(), viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(individualCount = it.toIntOrNull() ?: viewModel.report!!.individualCount)
-                }
-                Text(
-                    text = "Tipo de Registro",
+                    text = "Seguimiento",
                     fontSize = 24.sp,
                 )
                 Column {
-                    val observationTypes = listOf("La Vió", "Huella", "Rastro", "Cacería", "Le dijeron")
-                    observationTypes.forEach { type ->
+                    val seguimientoTypes = listOf("Si", "No")
+                    seguimientoTypes.forEach { type ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
-                                selected = viewModel.report!!.observationType == type,
+                                selected = viewModel.report!!.seguimiento == type,
                                 onClick = {
-                                    viewModel.report = viewModel.report?.copy(observationType = type)
+                                    viewModel.report = viewModel.report?.copy(seguimiento = type)
                                 }
                             )
                             Text(
@@ -154,6 +110,74 @@ fun ReportFaunaTransectoDetailScreen(
                         }
                     }
                 }
+
+                Text(
+                    text = "Cambió",
+                    fontSize = 24.sp,
+                )
+                Column {
+                    val cambioTypes = listOf("Si", "No")
+                    cambioTypes.forEach { type ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = viewModel.report!!.cambio == type,
+                                onClick = {
+                                    viewModel.report = viewModel.report?.copy(cambio = type)
+                                }
+                            )
+                            Text(
+                                text = type,
+                            )
+                        }
+                    }
+                }
+
+                Text(
+                    text = "Cobertura",
+                    fontSize = 24.sp,
+                )
+                Column {
+                    val coberturaTypes = listOf("BD", "RA", "RB", "PA", "PL", "CP", "CT", "VH", "TD", "IF")
+                    coberturaTypes.forEach { type ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = viewModel.report!!.cobertura == type,
+                                onClick = {
+                                    viewModel.report = viewModel.report?.copy(cobertura = type)
+                                }
+                            )
+                            Text(
+                                text = type,
+                            )
+                        }
+                    }
+                }
+
+                EditableField("Tipos de Cultivo", viewModel.report!!.tiposCultivo, viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(tiposCultivo = it)
+                }
+
+                Text(
+                    text = "Distrubio",
+                    fontSize = 24.sp,
+                )
+                Column {
+                    val disturbioTypes = listOf("Inundación", "Quema", "Tala", "Erupción", "Minería", "Carretera", "Más plantas acuáticas", "Otro")
+                    disturbioTypes.forEach { type ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = viewModel.report!!.disturbio == type,
+                                onClick = {
+                                    viewModel.report = viewModel.report?.copy(disturbio = type)
+                                }
+                            )
+                            Text(
+                                text = type,
+                            )
+                        }
+                    }
+                }
+
                 Text(
                     text = "Estado del Tiempo",
                     fontSize = 24.sp,
