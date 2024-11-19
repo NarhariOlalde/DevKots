@@ -7,11 +7,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.testing.TestNavHostController
 import com.example.devkots.uiLib.components.MainLayout
 import com.example.devkots.uiLib.components.TopNavigationBar
 import com.example.devkots.uiLib.theme.ObjectGreen1
@@ -19,6 +22,8 @@ import com.example.devkots.uiLib.theme.ObjectGreen2
 import com.example.devkots.uiLib.theme.ObjectGreen4
 import com.example.devkots.uiLib.viewmodels.UserSessionViewModel
 import com.example.devkots.util.HashUtil
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun ConfigurationScreen(
@@ -94,7 +99,7 @@ fun ConfigurationScreen(
                     .fillMaxWidth()
                     .padding(12.dp),
                 enabled = isSaveEnabled,
-                colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen1)
+                colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2)
             ) {
                 Text("Guardar Cambios", color = Color.White, fontSize = 30.sp)
             }

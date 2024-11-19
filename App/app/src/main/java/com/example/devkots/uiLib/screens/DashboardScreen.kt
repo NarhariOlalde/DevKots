@@ -26,8 +26,6 @@ import androidx.compose.ui.geometry.Size
 import com.example.devkots.uiLib.theme.Black
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.layout.Box
