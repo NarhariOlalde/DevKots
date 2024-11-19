@@ -157,9 +157,11 @@ fun AppNavigation(
 
         composable("profile") {
             ProfileScreen(
-                navController = navController,
-                userSessionViewModel = userSessionViewModel
-            )
+                userSessionViewModel = userSessionViewModel, navController = navController)
+        }
+
+        composable("editprofile") {
+            EditProfile(userSessionViewModel = userSessionViewModel,)
         }
     }
 }

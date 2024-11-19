@@ -1,6 +1,6 @@
 package com.example.devkots.uiLib.screens
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -9,20 +9,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.devkots.R // Asegúrate de que el paquete sea correcto para tu archivo R
-import com.example.devkots.uiLib.theme.ObjectGreen1 // Import the color from your theme
+import com.example.devkots.R
+import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.viewmodels.UserSessionViewModel
+import androidx.navigation.testing.TestNavHostController
+import androidx.navigation.compose.rememberNavController
+
 
 @Composable
 fun ProfileScreen(
-    navController: NavController,
-    userSessionViewModel: UserSessionViewModel
+    userSessionViewModel: UserSessionViewModel,
+    navController: NavController
 ) {
     Box(
         modifier = Modifier
@@ -33,26 +37,26 @@ fun ProfileScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp)
+                .height(290.dp)
                 .align(Alignment.TopCenter)
-                .background(ObjectGreen1) // Use ObjectGreen1 for background
+                .background(ObjectGreen1)
         )
 
         // Back button at the top left corner, in front of the green rectangle
         IconButton(
             onClick = { /* Define back action */ },
             modifier = Modifier
-                .padding(8.dp)
-                .size(48.dp)
+                .padding(16.dp)
+                .size(80.dp)
                 .align(Alignment.TopStart)
                 .clip(CircleShape)
-                .background(ObjectGreen1) // Background color of the button
+                .background(ObjectGreen1)
         ) {
             Text(
                 text = "<-",
-                fontSize = 32.sp,
+                fontSize = 60.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White // Set the color of the symbol to white
+                color = Color.White
             )
         }
 
@@ -60,7 +64,7 @@ fun ProfileScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp), // Elevate both elements by adjusting this padding
+                .padding(10.dp, 115.dp),
             contentAlignment = Alignment.Center
         ) {
             // Row with circle on the left and texts on the right
@@ -70,22 +74,23 @@ fun ProfileScreen(
                 // White circle on the left
                 Box(
                     modifier = Modifier
-                        .size(120.dp) // Size of the circle
+                        .size(250.dp)
                         .clip(CircleShape)
                         .background(Color.White)
                 )
 
-                Spacer(modifier = Modifier.width(16.dp)) // Space between the circle and the text
+                Spacer(modifier = Modifier.width(16.dp))
 
                 // Column with main text and smaller text below it
                 Column(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
+
                 ) {
                     // Main text
                     Text(
                         text = "Profile User",
-                        fontSize = 24.sp,
+                        fontSize = 70.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
@@ -93,8 +98,8 @@ fun ProfileScreen(
                     // Smaller text below
                     Text(
                         text = "Active since: ",
-                        fontSize = 18.sp,
-                        color = Color.Black // Color for the smaller text
+                        fontSize = 25.sp,
+                        color = Color.Black
                     )
                 }
             }
@@ -104,62 +109,70 @@ fun ProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 160.dp) // Position the input fields below the green rectangle
+                .padding(top = 350.dp)
                 .padding(horizontal = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp) // Space between the fields
+            verticalArrangement = Arrangement.spacedBy(24.dp) // Increase space between fields
         ) {
             // States for email and password fields
             var email by remember { mutableStateOf("") }
             var password by remember { mutableStateOf("") }
 
-            // Email TextField with email.png icon
+            // Email TextField with increased size
             TextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text(text = "Email") },
+                placeholder = { Text(text = "Email", fontSize = 50.sp) },
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.email), // Replace with email.png
+                        painter = painterResource(id = R.drawable.email),
                         contentDescription = "Email Icon",
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Unspecified // Preserve the original image color
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(end = 15.dp),
+                        tint = Color.Unspecified
                     )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, CircleShape),
+                    .background(Color.White, CircleShape)
+                    .height(90.dp), // Adjust the height of the TextField
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.White,
                     focusedIndicatorColor = ObjectGreen1,
                     unfocusedIndicatorColor = Color.Gray
-                )
+                ),
+                textStyle = LocalTextStyle.current.copy(fontSize = 50.sp) // Increase text input size
             )
 
-            // Password TextField with password_eye.png icon
+            // Password TextField with increased size
             TextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text(text = "Password") },
+                placeholder = { Text(text = "Password", fontSize = 50.sp) },
                 leadingIcon = {
                     Icon(
-                        painter = painterResource(id = R.drawable.password_eye), // Replace with password_eye.png
+                        painter = painterResource(id = R.drawable.password_eye),
                         contentDescription = "Password Icon",
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Unspecified // Preserve the original image color
+                        modifier = Modifier
+                            .size(60.dp)
+                            .padding(end = 15.dp),
+                        tint = Color.Unspecified
                     )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, CircleShape),
+                    .background(Color.White, CircleShape)
+                    .height(90.dp),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.White,
                     focusedIndicatorColor = ObjectGreen1,
                     unfocusedIndicatorColor = Color.Gray
-                )
+                ),
+                textStyle = LocalTextStyle.current.copy(fontSize = 50.sp)
             )
         }
 
-        // Circular "Editar" button at the bottom
+        // Circular "Editar" card at the bottom
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -167,18 +180,20 @@ fun ProfileScreen(
                 .padding(16.dp, 70.dp),
             contentAlignment = Alignment.Center
         ) {
-            Button(
-                onClick = { /* Add edit action */ },
+            Card(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .padding(horizontal = 10.dp, vertical = 10.dp), // Adjust padding for text
-                colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen1)
+                    .clickable {navController.navigate("editProfile")} // Handle navigation
+                    .padding(horizontal = 10.dp, vertical = 10.dp),
+                backgroundColor = ObjectGreen1,
+                elevation = 8.dp
             ) {
                 Text(
                     text = "Editar",
-                    fontSize = 42.sp,
+                    fontSize = 90.sp,
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(16.dp) // Padding inside the card
                 )
             }
         }
