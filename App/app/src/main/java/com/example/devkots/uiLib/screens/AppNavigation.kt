@@ -58,16 +58,8 @@ fun AppNavigation(
                     "Fauna en Transecto" -> ReportFaunaTransectoDetailScreen(
                         navController = navController,
                         reportId = reportId,
-                        bioReportService = bioReportService,
-                        reportType = reportType
+                        bioReportService = bioReportService
                     )
-                    "Fauna en Punto de Conteo" -> ReportFaunaPuntoConteoDetailScreen(
-                        navController = navController,
-                        reportId = reportId,
-                        bioReportService = bioReportService,
-                        reportType = reportType
-                    )
-
                 }
             }
         }

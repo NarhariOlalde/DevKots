@@ -198,7 +198,7 @@ fun SearchScreen(
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
                                 .clickable {
-                                    navController.navigate("report_detail/${report.id}")
+                                    navController.navigate("report_detail/${report.id}/${report.type}")
                                 },
                             backgroundColor = Color.White,
                             elevation = 4.dp,
