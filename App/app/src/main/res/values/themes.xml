@@ -7,5 +7,6 @@
         <item name="colorSecondary">@color/Object_Green3</item>
         <item name="colorSurface">@color/Object_Green4</item>
         <item name="colorOnSurface">@android:color/black</item>
+        <item name="android:windowBackground">@color/Object_Green4</item>
     </style>
 </resources>

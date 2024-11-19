@@ -158,7 +158,7 @@ fun ReportValidacionCoberturaDetailScreen(
                 }
 
                 Text(
-                    text = "Distrubio",
+                    text = "Disturbio",
                     fontSize = 24.sp,
                 )
                 Column {

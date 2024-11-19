@@ -54,35 +54,18 @@ fun LoginScreen(
             Box(modifier = Modifier.fillMaxSize()
                 .fillMaxWidth()) {
                 Image(
-                    painter = painterResource(id = R.drawable.vector_1),
-                    contentDescription = "vector_3",
+                    painter = painterResource(id = R.drawable.vectorarriba),
+                    contentDescription = "vectorarriba",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .size(380.dp)
                 )
                 Image(
                     painter = painterResource(id = R.drawable.vector_3),
                     contentDescription = "vector_3",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.204f)
-                        .align(Alignment.BottomCenter)
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.vector_5),
-                    contentDescription = "vector_5",
-                    modifier = Modifier
-                        .fillMaxWidth(0.6f)
-                        .align(Alignment.TopStart)
-                        .width(200.dp),
-                    contentScale = ContentScale.Crop
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.vector_6),
-                    contentDescription = "vector_6",
-                    modifier = Modifier
-                        .fillMaxWidth()
-
+                        .align(Alignment.BottomCenter),
+                    contentScale = ContentScale.FillWidth
                 )
                 Column(
                     modifier = Modifier
