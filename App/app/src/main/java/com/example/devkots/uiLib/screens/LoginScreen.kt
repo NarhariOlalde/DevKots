@@ -51,33 +51,30 @@ fun LoginScreen(
             color = White
         )
         {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize()
+                .fillMaxWidth()) {
                 Image(
-                    painter = painterResource(id = R.drawable.vector_3),
+                    painter = painterResource(id = R.drawable.vector_1),
                     contentDescription = "vector_3",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.175f)
-                        .align(Alignment.TopCenter)
-                        .graphicsLayer(rotationZ = 180f)
+                        .size(380.dp)
                 )
                 Image(
                     painter = painterResource(id = R.drawable.vector_3),
                     contentDescription = "vector_3",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.175f)
+                        .fillMaxHeight(0.204f)
                         .align(Alignment.BottomCenter)
                 )
                 Image(
                     painter = painterResource(id = R.drawable.vector_5),
                     contentDescription = "vector_5",
                     modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .fillMaxHeight(0.24f)
+                        .fillMaxWidth(0.6f)
                         .align(Alignment.TopStart)
-                        .width(200.dp)
-                        .clip(RectangleShape),
+                        .width(200.dp),
                     contentScale = ContentScale.Crop
                 )
                 Image(
@@ -85,8 +82,7 @@ fun LoginScreen(
                     contentDescription = "vector_6",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.3f)
-                        .align(Alignment.TopCenter)
+
                 )
                 Column(
                     modifier = Modifier
@@ -96,29 +92,32 @@ fun LoginScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // Back Button
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopStart) {
+                    Box(modifier = Modifier.padding(end = 500.dp)) {
                         BackButton(navController)
                     }
 
+                    Spacer(modifier = Modifier.height(50.dp))
                     // Welcome Text
                     Column(
                         horizontalAlignment = Alignment.Start,
                         modifier = Modifier.fillMaxWidth()
+                            .padding(top = 16.dp)
                     ) {
                         Text(
                             text = "Bienvenido",
-                            fontSize = 32.sp,
+                            fontSize = 60.sp,
                             fontWeight = FontWeight.Bold,
                             color = White
                         )
+                        Spacer(modifier = Modifier.height(200.dp))
                         Text(
                             text = "Inicia Sesión",
-                            fontSize = 24.sp,
-                            color = Black
+                            fontSize = 40.sp,
+                            color = Black,
+                            fontWeight = FontWeight.Bold
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(32.dp))
 
                     // Email and Password Inputs
                     OutlinedTextField(
@@ -143,17 +142,17 @@ fun LoginScreen(
                             modifier = Modifier.padding(top = 8.dp)
                         )
                     }
-
+                    Spacer(modifier = Modifier.height(50.dp))
                     // Login Button
                     Button(
                         onClick = { loginViewModel.login() },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
+                            .height(56.dp)
+                            .width(200.dp),
                         shape = RoundedCornerShape(30.dp),
                         colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen1)
                     ) {
-                        Text("Enter", color = Color.White, fontSize = 18.sp)
+                        Text("Entrar", color = Color.White, fontSize = 30.sp)
                     }
                 }
             }

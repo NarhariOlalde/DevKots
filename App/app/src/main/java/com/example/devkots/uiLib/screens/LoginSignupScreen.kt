@@ -57,9 +57,6 @@ fun LoginSignupScreen(navController: NavController) {
                 CustomButtonLS(text = "Login", backgroundColor = ObjectGreen1) {
                     navController.navigate("login")
                 }
-                CustomButtonLS(text = "Signup", backgroundColor = ObjectGreen1) {
-                    navController.navigate("signup")
-                }
             }
         }
     }

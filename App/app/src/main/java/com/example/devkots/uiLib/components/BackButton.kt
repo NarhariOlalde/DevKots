@@ -1,6 +1,8 @@
 package com.example.devkots.uiLib.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
@@ -13,13 +15,12 @@ import androidx.navigation.NavController
 
 @Composable
 fun BackButton(navController: NavController) {
-    IconButton(
-        onClick = { navController.popBackStack() },
-        modifier = Modifier.padding(16.dp)
-    ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back"
-        )
-    }
+    Icon(
+        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+        contentDescription = "Back",
+        modifier = Modifier
+            .size(32.dp)
+            .clickable { navController.popBackStack() },
+
+    )
 }

@@ -180,32 +180,3 @@ fun SignupScreen(
         }
     }
 }
-
-// Preview
-class UserSessionViewModelFake : UserSessionViewModel() {
-    // Simula las propiedades necesarias
-    var fakeUserName = "Test User"
-    var fakeUserEmail = "test@example.com"
-    var fakeBiomonitorId = "12345"
-
-    // Simula el método que usa SignupViewModel
-    override fun loginUser(name: String, email: String, biomonitorId: String) {
-        // Simulación del comportamiento de loginUser
-        fakeUserName = name
-        fakeUserEmail = email
-        fakeBiomonitorId = biomonitorId
-    }
-}
-
-@Preview(showBackground = true, widthDp = 800, heightDp = 1200)
-@Composable
-fun SignupScreenPreview() {
-    val navController = rememberNavController()
-    val userSessionViewModel = UserSessionViewModelFake()
-    val signupViewModel = SignupViewModel(userSessionViewModel)
-
-    SignupScreen(
-        navController = navController,
-        signupViewModel = signupViewModel
-    )
-}

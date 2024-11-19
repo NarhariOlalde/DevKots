@@ -38,3 +38,4 @@ class ReportFaunaTransectoViewModel(private val bioReportService: BioReportServi
         }
     }
 }
+

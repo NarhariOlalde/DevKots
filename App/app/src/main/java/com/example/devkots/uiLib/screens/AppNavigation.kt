@@ -50,14 +50,25 @@ fun AppNavigation(
                 )
             }
         }
-        composable("report_detail/{reportId}") { backStackEntry ->
+        composable("report_detail/{reportId}/{reportType}") { backStackEntry ->
             val reportId = backStackEntry.arguments?.getString("reportId")?.toIntOrNull()
-            if (reportId != null) {
-                ReportFaunaTransectoDetailScreen(
-                    navController = navController,
-                    reportId = reportId,
-                    bioReportService = bioReportService
-                )
+            val reportType = backStackEntry.arguments?.getString("reportType")
+            if (reportId != null && reportType != null) {
+                when (reportType) {
+                    "Fauna en Transecto" -> ReportFaunaTransectoDetailScreen(
+                        navController = navController,
+                        reportId = reportId,
+                        bioReportService = bioReportService,
+                        reportType = reportType
+                    )
+                    "Fauna en Punto de Conteo" -> ReportFaunaPuntoConteoDetailScreen(
+                        navController = navController,
+                        reportId = reportId,
+                        bioReportService = bioReportService,
+                        reportType = reportType
+                    )
+
+                }
             }
         }
         composable("configuracion") {

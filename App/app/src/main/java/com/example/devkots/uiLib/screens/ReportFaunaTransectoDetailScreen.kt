@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.devkots.R
+import com.example.devkots.uiLib.components.EditableField
 import com.example.devkots.uiLib.viewmodels.ReportFaunaTransectoViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
@@ -230,41 +231,6 @@ fun ReportFaunaTransectoDetailScreen(
                     Text(it, color = MaterialTheme.colors.error)
                 }
             }
-        }
-    }
-}
-
-
-@Composable
-fun EditableField(
-    label: String,
-    value: String,
-    isEditable: Boolean,
-    onValueChange: (String) -> Unit
-) {
-    Column {
-        Text(label, color = Color(0xFF4E7029), fontSize = 16.sp)
-        if (isEditable) {
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                colors = TextFieldDefaults.outlinedTextFieldColors(
-                    focusedBorderColor = Color(0xFFA5BE00),
-                    unfocusedBorderColor = Color(0xFF6A994E)
-                )
-            )
-        } else {
-            Text(
-                text = value,
-                fontSize = 16.sp,
-                color = Color(0xFF6A994E),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-            )
         }
     }
 }

@@ -54,9 +54,16 @@ interface BioReportService {
     @GET("basic_report/{id}")
     suspend fun getFaunaTransectoReport(@Path("id") id: Int): Response<FaunaTransectoReport>
 
+    @GET("basic_report/{id}")
+    suspend fun getFaunaPuntoConteoReport(@Path("id") id: Int): Response<FaunaPuntoConteoReport>
+
     // Update a Fauna en Transecto report
     @PUT("basic_report/{id}")
     suspend fun updateFaunaTransectoReport(@Path("id") id: Int, @Body report: FaunaTransectoReport): Response<FaunaTransectoReport>
+
+    @PUT("basic_report/{id}")
+    suspend fun updateFaunaPuntoConteoReport(@Path("id") id: Int, @Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+
 
     @PATCH("basic_report/{id}")
     suspend fun updateReportStatusById(
