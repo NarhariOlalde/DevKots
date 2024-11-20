@@ -2,8 +2,14 @@ package com.example.devkots.uiLib.components
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,10 +36,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import com.example.devkots.R
-import com.example.devkots.uiLib.screens.FormScreen.createImageFile
 import com.example.devkots.uiLib.theme.IntroGreen
+import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun MainLayout(navController: NavController, content: @Composable () -> Unit) {
@@ -121,12 +132,21 @@ fun BottomNavigationBar(navController: NavController) {
     val cameraUri = remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
+            // Notificar a la galería sobre la nueva imagen
+            cameraUri.value?.let { uri ->
+                Toast.makeText(context, "Imagen guardada en Fotos.", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Si la captura falla, elimina la entrada en MediaStore
+            cameraUri.value?.let { uri ->
+                context.contentResolver.delete(uri, null, null)
+                Toast.makeText(context, "Error al capturar imagen", Toast.LENGTH_SHORT).show()
+            }
         }
     }
-
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (!isGranted) {
-            Toast.makeText(context, "Permission is required for images is required to access the gallery.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Se necesita permiso para acceder a la galería", Toast.LENGTH_SHORT).show()
         }
     }
     BottomNavigation(
@@ -200,15 +220,20 @@ fun BottomNavigationBar(navController: NavController) {
                         context,
                         Manifest.permission.CAMERA
                     ) == PackageManager.PERMISSION_GRANTED -> {
-                        cameraUri.value = createImageFile(context)
-                        cameraUri.value?.let { cameraLauncher.launch(it) }
+                        val photoUri = createMediaStoreImageUri(context)
+                        if (photoUri != null) {
+                            cameraUri.value = photoUri
+                            cameraLauncher.launch(photoUri)
+                        } else {
+                            Toast.makeText(context, "Error al crear entrada para la foto.", Toast.LENGTH_SHORT).show()
+                        }
                     }
 
                     ActivityCompat.shouldShowRequestPermissionRationale(
                         context as Activity,
                         Manifest.permission.CAMERA
                     ) -> {
-                        submissionResult = "Please allow camera access to take photos."
+                        Toast.makeText(context, "Se necesita permiso para tomar fotos", Toast.LENGTH_SHORT).show()
                     }
 
                     else -> {
@@ -234,6 +259,45 @@ fun BottomNavigationBar(navController: NavController) {
         )
     }
 }
+
+fun createMediaStoreImageUri(context: Context): Uri? {
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    val customName = "IMG_$timeStamp"
+
+    val contentValues = ContentValues().apply {
+        put(MediaStore.Images.Media.DISPLAY_NAME, "$customName.jpg")
+        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+    }
+
+    return context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+}
+
+fun getFileNameFromUri(context: Context, uri: Uri): String? {
+    var fileName: String? = null
+
+    // Si la URI es de tipo 'content://', obtenemos el nombre de la base de datos de contenido
+    if (uri.scheme.equals("content", ignoreCase = true)) {
+        val cursor = context.contentResolver.query(uri, null, null, null, null)
+        cursor?.use {
+            val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (it.moveToFirst()) {
+                fileName = it.getString(nameIndex) // Extraemos el nombre del archivo
+            }
+        }
+    }
+    // Si la URI es de tipo 'file://', intentamos obtener el nombre del archivo desde la ruta del archivo
+    else if (uri.scheme.equals("file", ignoreCase = true)) {
+        fileName = uri.path?.let { path ->
+            File(path).name // Extraemos el nombre directamente desde la ruta
+        }
+    }
+
+    return fileName
+}
+
+
+
 
 @Composable
 fun EditableField(

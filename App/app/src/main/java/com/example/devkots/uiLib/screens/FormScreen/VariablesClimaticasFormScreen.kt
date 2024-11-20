@@ -51,6 +51,7 @@ import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.VariablesClimaticasReport
 import com.example.devkots.uiLib.components.FormLayout
+import com.example.devkots.uiLib.components.createMediaStoreImageUri
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -136,7 +137,7 @@ fun VariablesClimaticasFormScreen(
         when {
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
                 // Permission is already granted, proceed with taking a photo
-                cameraUri.value = createImageFile(context)
+                cameraUri.value = createMediaStoreImageUri(context)
                 cameraUri.value?.let { cameraLauncher.launch(it) }
             }
             ActivityCompat.shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.CAMERA) -> {

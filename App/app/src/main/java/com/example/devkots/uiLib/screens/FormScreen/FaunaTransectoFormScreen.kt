@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
@@ -47,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,6 +60,8 @@ import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.FaunaTransectoReport
 import com.example.devkots.uiLib.components.FormLayout
+import com.example.devkots.uiLib.components.createMediaStoreImageUri
+import com.example.devkots.uiLib.components.getFileNameFromUri
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -91,7 +95,6 @@ fun FaunaTransectoFormScreen(
     var scientificName by remember { mutableStateOf("") }
     var individualCount by remember { mutableStateOf("") }
     var observationType by remember { mutableStateOf("") }
-    var photoPath by remember { mutableStateOf<Uri?>(null) }
     var observations by remember { mutableStateOf("") }
     var submissionResult by remember { mutableStateOf<String?>(null) }
     val animals = listOf(
@@ -101,6 +104,8 @@ fun FaunaTransectoFormScreen(
         Pair(R.drawable.anfibio, "Anfibio"),
         Pair(R.drawable.insecto, "Insecto")
     )
+    val fileNameState = remember { mutableStateOf<String?>(null) }
+    var photoPath by remember { mutableStateOf<Uri?>(null) }
 
     // Static values
     val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
@@ -128,18 +133,32 @@ fun FaunaTransectoFormScreen(
         }
     }
 
-    // File pickers
+    // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        photoPath = uri
+        uri?.let {
+            val fileName = getFileNameFromUri(context, it)
+            fileName?.let {
+                fileNameState.value = it
+            }
+            photoPath = it
+        }
     }
 
-    // Camera launcher
+// Camera launcher
     val cameraUri = remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            photoPath = cameraUri.value // Set the captured image URI as the photoPath
+            cameraUri.value?.let {
+                val fileName = getFileNameFromUri(context, it)
+                fileName?.let {
+                    fileNameState.value = it
+                }
+                photoPath = it
+            }
         }
     }
+
+
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (!isGranted) {
@@ -152,7 +171,7 @@ fun FaunaTransectoFormScreen(
         when {
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
                 // Permission is already granted, proceed with taking a photo
-                cameraUri.value = createImageFile(context)
+                cameraUri.value = createMediaStoreImageUri(context)
                 cameraUri.value?.let { cameraLauncher.launch(it) }
             }
             ActivityCompat.shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.CAMERA) -> {
@@ -165,7 +184,7 @@ fun FaunaTransectoFormScreen(
             }
         }
     }
-            FormLayout(navController = navController) {
+    FormLayout(navController = navController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -402,6 +421,36 @@ fun FaunaTransectoFormScreen(
                         )
                     }
                 }
+                Column(
+                    modifier = Modifier.padding(top = 16.dp),
+                ) {
+                    Row() {
+                        Text(
+                            text = if (!fileNameState.value.isNullOrEmpty())
+                                "${fileNameState.value}"
+                            else
+                                "No se ha seleccionado archivo",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        if (!fileNameState.value.isNullOrEmpty()) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.x_circle),
+                                contentDescription = "Eliminar archivo",
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clickable {
+                                        fileNameState.value = ""
+                                    },
+                                tint = Color.Red
+                            )
+                        }
+                    }
+                }
+
 
                 Spacer(modifier = Modifier.height(30.dp))
 
@@ -503,12 +552,6 @@ fun FaunaTransectoFormScreen(
         }
     }
 
-}
-
-fun createImageFile(context: Context): Uri? {
-    val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val file = File(context.getExternalFilesDir(null), "JPEG_${timestamp}.jpg")
-    return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 }
 
 // Function to fetch location
