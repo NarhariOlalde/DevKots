@@ -1,4 +1,4 @@
-package com.example.devkots.uiLib.screens
+package com.example.devkots.uiLib.screens.FormScreen
 
 import android.Manifest
 import android.app.Activity
@@ -31,8 +31,8 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
+import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,10 +52,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
-import com.example.devkots.model.FaunaPuntoConteoReport
+import com.example.devkots.model.FaunaTransectoReport
 import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
@@ -63,12 +64,14 @@ import com.example.devkots.uiLib.theme.ObjectGreen2
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 @Composable
-fun FaunaPuntoConteoFormScreen(
+fun FaunaTransectoFormScreen(
     navController: NavController,
     biomonitorID: String,
     weather: String,
@@ -82,13 +85,12 @@ fun FaunaPuntoConteoFormScreen(
     var gpsLocation by remember { mutableStateOf("Fetching location...") }
 
     // Form fields
-    var zone by remember { mutableStateOf("") }
+    var transectoNumber by remember { mutableStateOf("") }
     var animalType by remember { mutableStateOf("") }
     var commonName by remember { mutableStateOf("") }
     var scientificName by remember { mutableStateOf("") }
     var individualCount by remember { mutableStateOf("") }
     var observationType by remember { mutableStateOf("") }
-    var observationHeight by remember { mutableStateOf("") }
     var photoPath by remember { mutableStateOf<Uri?>(null) }
     var observations by remember { mutableStateOf("") }
     var submissionResult by remember { mutableStateOf<String?>(null) }
@@ -163,7 +165,7 @@ fun FaunaPuntoConteoFormScreen(
             }
         }
     }
-    FormLayout(navController = navController){
+            FormLayout(navController = navController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -179,36 +181,38 @@ fun FaunaPuntoConteoFormScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                Text(
-                    text = "Zona:",
-                    fontSize = 35.sp,
-                    color = colorResource(id = R.color.black)
-                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = transectoNumber,
+                        onValueChange = { transectoNumber = it },
+                        label = {
+                            Text(
+                                "Número de Transecto",
+                                fontSize = 28.sp,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        },
+                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .height(100.dp),
+                        singleLine = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = ObjectGreen2,
+                            unfocusedBorderColor = ObjectGreen1
+                        )
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Column {
-                    val registrationTypes1 = listOf("Bosque", "Arreglo Agroforestal", "Cultivos Transitorios", "Cultivos Permanentes")
-                    registrationTypes1.forEach { type ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = zone == type,
-                                onClick = { zone = type }
-                            )
-                            Text(
-                                text = type,
-                                fontSize = 28.sp
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(30.dp))
-                    }
-                }
+
                 Text(
                     text = "Tipo de Animal:",
                     fontSize = 35.sp,
                     color = colorResource(id = R.color.black)
                 )
             }
-
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -325,8 +329,8 @@ fun FaunaPuntoConteoFormScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Column {
-                    val registrationTypes2 = listOf("La Vió", "Huella", "Rastro", "Cacería", "Le dijeron")
-                    registrationTypes2.forEach { type ->
+                    val registrationTypes = listOf("La Vió", "Huella", "Rastro", "Cacería", "Le dijeron")
+                    registrationTypes.forEach { type ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
                                 selected = observationType == type,
@@ -344,37 +348,12 @@ fun FaunaPuntoConteoFormScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "Altura de Observación:",
-                    fontSize = 35.sp,
-                    color = colorResource(id = R.color.black)
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Column {
-                    val registrationTypes3 = listOf("Baja <1mt", "Media 1-3mt", "Alta >3mt")
-                    registrationTypes3.forEach { type ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = observationHeight == type,
-                                onClick = { observationHeight = type }
-                            )
-                            Text(
-                                text = type,
-                                fontSize = 28.sp
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(20.dp))
-                    }
-                }
-
-                Text(
                     text = "Evidencias",
                     fontSize = 35.sp,
                     color = colorResource(id = R.color.black)
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(15.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -466,14 +445,13 @@ fun FaunaPuntoConteoFormScreen(
                     }
                     Button(
                         onClick = {
-                            val report = FaunaPuntoConteoReport(
-                                zone = zone,
+                            val report = FaunaTransectoReport(
+                                transectoNumber = transectoNumber.toIntOrNull() ?: 0,
                                 animalType = animalType,
                                 commonName = commonName,
                                 scientificName = scientificName.takeIf { it.isNotEmpty() },
                                 individualCount = individualCount.toIntOrNull() ?: 0,
                                 observationType = observationType,
-                                observationHeight = observationHeight,
                                 photoPath = photoPath?.toString(),
                                 observations = observations,
                                 date = currentDate,
@@ -486,18 +464,17 @@ fun FaunaPuntoConteoFormScreen(
                             )
 
                             coroutineScope.launch {
-                                val response = RetrofitInstanceBioReport.api.submitFaunaPuntoConteoReport(report)
+                                val response = RetrofitInstanceBioReport.api.submitFaunaTransectoReport(report)
                                 submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
 
                                 // Reset form on success
                                 if (response.isSuccessful) {
-                                    zone = ""
+                                    transectoNumber = ""
                                     animalType = ""
                                     commonName = ""
                                     scientificName = ""
                                     individualCount = ""
                                     observationType = ""
-                                    observationHeight = ""
                                     photoPath = null
                                     observations = ""
                                 }
@@ -507,7 +484,7 @@ fun FaunaPuntoConteoFormScreen(
                             .weight(1f)
                             .padding(start = 8.dp)
                             .height(60.dp),
-                        enabled = zone.isNotEmpty() && animalType.isNotEmpty() && commonName.isNotEmpty() && individualCount.isNotEmpty() && observationType.isNotEmpty() && weather.isNotEmpty() && observationHeight.isNotEmpty(),
+                        enabled = transectoNumber.isNotEmpty() && animalType.isNotEmpty() && commonName.isNotEmpty() && individualCount.isNotEmpty() && observationType.isNotEmpty() && weather.isNotEmpty(),
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
 
                         ) {
@@ -526,6 +503,12 @@ fun FaunaPuntoConteoFormScreen(
         }
     }
 
+}
+
+fun createImageFile(context: Context): Uri? {
+    val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    val file = File(context.getExternalFilesDir(null), "JPEG_${timestamp}.jpg")
+    return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 }
 
 // Function to fetch location

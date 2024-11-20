@@ -3,6 +3,13 @@ package com.example.devkots.uiLib.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.devkots.data.BioReportService
+import com.example.devkots.uiLib.viewmodels.Report.ReportCamarasTrampaViewModel
+import com.example.devkots.uiLib.viewmodels.Report.ReportFaunaBusquedaLibreViewModel
+import com.example.devkots.uiLib.viewmodels.Report.ReportFaunaPuntoConteoViewModel
+import com.example.devkots.uiLib.viewmodels.Report.ReportFaunaTransectoViewModel
+import com.example.devkots.uiLib.viewmodels.Report.ReportParcelaVegetacionViewModel
+import com.example.devkots.uiLib.viewmodels.Report.ReportValidacionCoberturaViewModel
+import com.example.devkots.uiLib.viewmodels.Report.ReportVariablesClimaticasViewModel
 
 class ReportViewModelFactory(
     private val reportService: Any
@@ -21,6 +28,15 @@ class ReportViewModelFactory(
             }
             modelClass.isAssignableFrom(ReportValidacionCoberturaViewModel::class.java) -> {
                 ReportValidacionCoberturaViewModel(reportService as BioReportService) as T
+            }
+            modelClass.isAssignableFrom(ReportParcelaVegetacionViewModel::class.java) -> {
+                ReportParcelaVegetacionViewModel(reportService as BioReportService) as T
+            }
+            modelClass.isAssignableFrom(ReportCamarasTrampaViewModel::class.java) -> {
+                ReportCamarasTrampaViewModel(reportService as BioReportService) as T
+            }
+            modelClass.isAssignableFrom(ReportVariablesClimaticasViewModel::class.java) -> {
+                ReportVariablesClimaticasViewModel(reportService as BioReportService) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }

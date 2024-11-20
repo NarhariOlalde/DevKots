@@ -1,24 +1,21 @@
-package com.example.devkots.uiLib.viewmodels
+package com.example.devkots.uiLib.viewmodels.Report
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.*
 import com.example.devkots.data.BioReportService
-import com.example.devkots.model.FaunaBusquedaReport
-import com.example.devkots.model.ParcelaVegetacionReport
+import com.example.devkots.model.FaunaTransectoReport
 import kotlinx.coroutines.launch
 
-class ReportParcelaVegetacionViewModel(private val bioReportService: BioReportService) : ViewModel() {
-    var report by mutableStateOf<ParcelaVegetacionReport?>(null)
+class ReportFaunaTransectoViewModel(private val bioReportService: BioReportService) : ViewModel() {
+    var report by mutableStateOf<FaunaTransectoReport?>(null)
     var isEditable by mutableStateOf(false)
     var loading by mutableStateOf(true)
     var errorMessage by mutableStateOf<String?>(null)
 
     fun loadReport(reportId: Int) {
         viewModelScope.launch {
-            val response = bioReportService.getParcelaVegetacionReport(reportId)
+            val response = bioReportService.getFaunaTransectoReport(reportId)
             if (response.isSuccessful) {
                 report = response.body()
                 isEditable = report?.status == false
@@ -30,9 +27,9 @@ class ReportParcelaVegetacionViewModel(private val bioReportService: BioReportSe
         }
     }
 
-    fun updateReport(reportId: Int, updatedReport: ParcelaVegetacionReport) {
+    fun updateReport(reportId: Int, updatedReport: FaunaTransectoReport) {
         viewModelScope.launch {
-            val response = bioReportService.updateParcelaVegetacionReport(reportId, updatedReport)
+            val response = bioReportService.updateFaunaTransectoReport(reportId, updatedReport)
             if (response.isSuccessful) {
                 report = updatedReport
             } else {
@@ -41,3 +38,4 @@ class ReportParcelaVegetacionViewModel(private val bioReportService: BioReportSe
         }
     }
 }
+

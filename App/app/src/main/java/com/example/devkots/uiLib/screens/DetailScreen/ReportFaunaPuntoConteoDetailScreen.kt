@@ -1,4 +1,4 @@
-package com.example.devkots.uiLib.screens
+package com.example.devkots.uiLib.screens.DetailScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,16 +40,16 @@ import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
-import com.example.devkots.uiLib.viewmodels.ReportValidacionCoberturaViewModel
+import com.example.devkots.uiLib.viewmodels.Report.ReportFaunaPuntoConteoViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
 @Composable
-fun ReportValidacionCoberturaDetailScreen(
+fun ReportFaunaPuntoConteoDetailScreen(
     navController: NavController,
     reportId: Int,
     bioReportService: BioReportService
 ) {
-    val viewModel: ReportValidacionCoberturaViewModel = viewModel(
+    val viewModel: ReportFaunaPuntoConteoViewModel = viewModel(
         factory = ReportViewModelFactory(bioReportService)
     )
 
@@ -86,22 +86,19 @@ fun ReportValidacionCoberturaDetailScreen(
             ) {
                 Text("#FM$reportId", fontSize = 32.sp, color = Color(0xFF4E7029))
 
-                EditableField("Código", viewModel.report!!.code, viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(code = it)
-                }
-
                 Text(
-                    text = "Seguimiento",
-                    fontSize = 24.sp,
+                    text = "Zona",
+                    fontSize = 24.sp
                 )
+
                 Column {
-                    val seguimientoTypes = listOf("Si", "No")
-                    seguimientoTypes.forEach { type ->
+                    val zoneTypes = listOf("Bosque", "Arreglo Forestal", "Cultivos Transitorios", "Cultivos Permanentes")
+                    zoneTypes.forEach { type ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
-                                selected = viewModel.report!!.seguimiento == type,
+                                selected = viewModel.report!!.zone == type,
                                 onClick = {
-                                    viewModel.report = viewModel.report?.copy(seguimiento = type)
+                                    viewModel.report = viewModel.report?.copy(zone = type)
                                 }
                             )
                             Text(
@@ -112,17 +109,74 @@ fun ReportValidacionCoberturaDetailScreen(
                 }
 
                 Text(
-                    text = "Cambió",
+                    text = "Tipo de Animal",
+                    fontSize = 24.sp,
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    val animals = listOf(
+                        R.drawable.mamifero to "Mamífero",
+                        R.drawable.ave to "Ave",
+                        R.drawable.reptil to "Reptil",
+                        R.drawable.anfibio to "Anfibio",
+                        R.drawable.insecto to "Insecto"
+                    )
+
+                    animals.forEachIndexed { index, animal ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.clickable {
+                                viewModel.report = viewModel.report?.copy(animalType = animal.second)
+                            }
+                        ) {
+                            Image(
+                                painter = painterResource(id = animal.first),
+                                contentDescription = animal.second,
+                                modifier = Modifier
+                                    .size(90.dp)
+                                    .background(
+                                        if (viewModel.report!!.animalType == animal.second) Color(0xFF99CC66) else Color.Transparent,
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(8.dp)
+                            )
+                            Text(
+                                text = animal.second,
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                        }
+                    }
+                }
+
+
+                EditableField("Nombre Común", viewModel.report!!.commonName, viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(commonName = it)
+                }
+
+                EditableField("Nombre Científico", viewModel.report!!.scientificName ?: "", viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(scientificName = it.takeIf { it.isNotEmpty() })
+                }
+
+                EditableField("Número de Individuos", viewModel.report!!.individualCount.toString(), viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(individualCount = it.toIntOrNull() ?: viewModel.report!!.individualCount)
+                }
+                Text(
+                    text = "Tipo de Registro",
                     fontSize = 24.sp,
                 )
                 Column {
-                    val cambioTypes = listOf("Si", "No")
-                    cambioTypes.forEach { type ->
+                    val observationTypes = listOf("La Vió", "Huella", "Rastro", "Cacería", "Le dijeron")
+                    observationTypes.forEach { type ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
-                                selected = viewModel.report!!.cambio == type,
+                                selected = viewModel.report!!.observationType == type,
                                 onClick = {
-                                    viewModel.report = viewModel.report?.copy(cambio = type)
+                                    viewModel.report = viewModel.report?.copy(observationType = type)
                                 }
                             )
                             Text(
@@ -133,42 +187,18 @@ fun ReportValidacionCoberturaDetailScreen(
                 }
 
                 Text(
-                    text = "Cobertura",
+                    text = "Altura de Observación",
                     fontSize = 24.sp,
                 )
+
                 Column {
-                    val coberturaTypes = listOf("BD", "RA", "RB", "PA", "PL", "CP", "CT", "VH", "TD", "IF")
-                    coberturaTypes.forEach { type ->
+                    val heightTypes = listOf("Baja <1mt", "Media 1-3mt", "Alta >3mt")
+                    heightTypes.forEach { type ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
-                                selected = viewModel.report!!.cobertura == type,
+                                selected = viewModel.report!!.observationHeight == type,
                                 onClick = {
-                                    viewModel.report = viewModel.report?.copy(cobertura = type)
-                                }
-                            )
-                            Text(
-                                text = type,
-                            )
-                        }
-                    }
-                }
-
-                EditableField("Tipos de Cultivo", viewModel.report!!.tiposCultivo, viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(tiposCultivo = it)
-                }
-
-                Text(
-                    text = "Disturbio",
-                    fontSize = 24.sp,
-                )
-                Column {
-                    val disturbioTypes = listOf("Inundación", "Quema", "Tala", "Erupción", "Minería", "Carretera", "Más plantas acuáticas", "Otro")
-                    disturbioTypes.forEach { type ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = viewModel.report!!.disturbio == type,
-                                onClick = {
-                                    viewModel.report = viewModel.report?.copy(disturbio = type)
+                                    viewModel.report = viewModel.report?.copy(observationHeight = type)
                                 }
                             )
                             Text(

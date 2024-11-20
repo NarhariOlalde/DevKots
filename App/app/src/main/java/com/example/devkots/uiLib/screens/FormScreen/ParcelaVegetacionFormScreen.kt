@@ -1,4 +1,4 @@
-package com.example.devkots.uiLib.screens
+package com.example.devkots.uiLib.screens.FormScreen
 
 import android.Manifest
 import android.app.Activity

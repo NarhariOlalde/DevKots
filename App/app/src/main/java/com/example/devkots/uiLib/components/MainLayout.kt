@@ -32,10 +32,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
-import com.example.devkots.uiLib.screens.createImageFile
+import com.example.devkots.uiLib.screens.FormScreen.createImageFile
 import com.example.devkots.uiLib.theme.IntroGreen
-import com.example.devkots.uiLib.theme.ObjectGreen2
-import com.example.devkots.uiLib.theme.ObjectGreen3
 
 @Composable
 fun MainLayout(navController: NavController, content: @Composable () -> Unit) {

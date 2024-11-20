@@ -1,4 +1,4 @@
-package com.example.devkots.uiLib.screens
+package com.example.devkots.uiLib.screens.FormScreen
 
 import android.Manifest
 import android.app.Activity
@@ -55,7 +55,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.RetrofitInstanceBioReport
-import com.example.devkots.model.FaunaBusquedaReport
+import com.example.devkots.model.FaunaPuntoConteoReport
 import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
@@ -68,7 +68,7 @@ import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun FaunaBusquedaLibreFormScreen(
+fun FaunaPuntoConteoFormScreen(
     navController: NavController,
     biomonitorID: String,
     weather: String,
@@ -186,7 +186,6 @@ fun FaunaBusquedaLibreFormScreen(
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
-
                 Column {
                     val registrationTypes1 = listOf("Bosque", "Arreglo Agroforestal", "Cultivos Transitorios", "Cultivos Permanentes")
                     registrationTypes1.forEach { type ->
@@ -209,6 +208,7 @@ fun FaunaBusquedaLibreFormScreen(
                     color = colorResource(id = R.color.black)
                 )
             }
+
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -274,8 +274,7 @@ fun FaunaBusquedaLibreFormScreen(
                         value = scientificName,
                         onValueChange = { scientificName = it },
                         label = {
-                            Text("Nombre Científico", fontSize = 28.sp, modifier = Modifier.align(
-                                Alignment.Center))
+                            Text("Nombre Científico", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
                         },
                         textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
                         modifier = Modifier
@@ -301,8 +300,7 @@ fun FaunaBusquedaLibreFormScreen(
                         value = individualCount,
                         onValueChange = { individualCount = it },
                         label = {
-                            Text("Número de Individuos", fontSize = 28.sp, modifier = Modifier.align(
-                                Alignment.Center))
+                            Text("Número de Individuos", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
                         },
                         textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
                         modifier = Modifier
@@ -468,7 +466,7 @@ fun FaunaBusquedaLibreFormScreen(
                     }
                     Button(
                         onClick = {
-                            val report = FaunaBusquedaReport(
+                            val report = FaunaPuntoConteoReport(
                                 zone = zone,
                                 animalType = animalType,
                                 commonName = commonName,
@@ -488,7 +486,7 @@ fun FaunaBusquedaLibreFormScreen(
                             )
 
                             coroutineScope.launch {
-                                val response = RetrofitInstanceBioReport.api.submitFaunaBusquedaReport(report)
+                                val response = RetrofitInstanceBioReport.api.submitFaunaPuntoConteoReport(report)
                                 submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
 
                                 // Reset form on success

@@ -1,4 +1,4 @@
-package com.example.devkots.uiLib.screens
+package com.example.devkots.uiLib.screens.FormScreen
 
 import android.Manifest
 import android.app.Activity
@@ -172,12 +172,9 @@ fun CamarasTrampaFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(IntroGreen)
-                .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
         )
         {
-            Spacer(modifier = Modifier.height(12.dp))
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -368,201 +365,201 @@ fun CamarasTrampaFormScreen(
                         )
                     )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = "Lista de chequeo",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                Listachequeo.forEachIndexed { index, item ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                    ) {
-                        Checkbox(
-                            checked = checkedStates[index],
-                            onCheckedChange = { isChecked ->
-                                checkedStates[index] = isChecked
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Lista de chequeo",
+                    fontSize = 35.sp,
+                    color = colorResource(id = R.color.black)
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    Listachequeo.forEachIndexed { index, item ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Checkbox(
+                                checked = checkedStates[index],
+                                onCheckedChange = { isChecked ->
+                                    checkedStates[index] = isChecked
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = item,
+                                fontSize = 28.sp,
+                                color = Color.Black
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = "Evidencias",
+                    fontSize = 35.sp,
+                    color = colorResource(id = R.color.black)
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(
+                        onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                // Check READ_MEDIA_IMAGES permission on Android 13+
+                                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
+                                    galleryLauncher.launch("image/*")
+                                } else {
+                                    // Request READ_MEDIA_IMAGES permission
+                                    permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+                                }
+                            } else {
+                                // No need for READ_MEDIA_IMAGES on older Android versions
+                                galleryLauncher.launch("image/*")
                             }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .size(width = 170.dp, height = 50.dp)
+                    ) {
                         Text(
-                            text = item,
-                            fontSize = 28.sp,
-                            color = Color.Black
+                            text = "Elegir Archivo",
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            handleCameraClick()
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .size(width = 170.dp, height = 50.dp)
+                    ) {
+                        Text(
+                            text = "Tomar foto",
+                            fontSize = 15.sp,
+                            color = Color.White
                         )
                     }
                 }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = "Evidencias",
-                fontSize = 35.sp,
-                color = colorResource(id = R.color.black)
-            )
 
-            Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            // Check READ_MEDIA_IMAGES permission on Android 13+
-                            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
-                                galleryLauncher.launch("image/*")
-                            } else {
-                                // Request READ_MEDIA_IMAGES permission
-                                permissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-                            }
-                        } else {
-                            // No need for READ_MEDIA_IMAGES on older Android versions
-                            galleryLauncher.launch("image/*")
-                        }
+                OutlinedTextField(
+                    value = observations,
+                    onValueChange = { observations = it },
+                    label = {
+                        Text("Observaciones", fontSize = 28.sp)
                     },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
+                    textStyle = TextStyle(fontSize = 28.sp),
                     modifier = Modifier
-                        .padding(start = 30.dp)
-                        .size(width = 170.dp, height = 50.dp)
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .height(200.dp),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = "Elegir Archivo",
-                        fontSize = 15.sp,
-                        color = Color.White
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        handleCameraClick()
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
-                    modifier = Modifier
-                        .padding(start = 30.dp)
-                        .size(width = 170.dp, height = 50.dp)
-                ) {
-                    Text(
-                        text = "Tomar foto",
-                        fontSize = 15.sp,
-                        color = Color.White
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            OutlinedTextField(
-                value = observations,
-                onValueChange = { observations = it },
-                label = {
-                    Text("Observaciones", fontSize = 28.sp)
-                },
-                textStyle = TextStyle(fontSize = 28.sp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .height(200.dp),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Button(
-                    onClick = {
-                        navController.navigate("report_selection")
-                    },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp)
-                        .height(60.dp)
-                ) {
-                    Text(
-                        text = "ATRAS",
-                        fontSize = 28.sp,
-                        color = Color.White
-                    )
-                }
-                Button(
-                    onClick = {
-                        val report = CamarasTrampaReport(
-                            code = code,
-                            zona = zone,
-                            nombrecamara = nombreCamara,
-                            placacamara = placaCamara,
-                            placaguaya = placaGuaya,
-                            anchocamino = anchoCamino.toIntOrNull() ?: 0,
-                            fechainstalacion = fechainstalacion,
-                            distancia = distanciaobj.toIntOrNull() ?: 0,
-                            altura = altura.toIntOrNull() ?: 0,
-                            //listachequeo = checkedStates.mapIndexedNotNull { index, isChecked -> if (isChecked) Listachequeo[index] else null },
-                            photoPath = photoPath?.toString(),
-                            observations = observations,
-                            date = currentDate,
-                            time = currentTime,
-                            gpsLocation = gpsLocation,
-                            weather = weather,
-                            status = false,
-                            season = season,
-                            biomonitor_id = biomonitorID
-                        )
-
-                        coroutineScope.launch {
-                            val response = RetrofitInstanceBioReport.api.submitCamarasTrampaReport(report)
-                            submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
-
-                            // Reset form on success
-                            if (response.isSuccessful) {
-                                code = ""
-                                zone = ""
-                                nombreCamara = ""
-                                placaCamara = ""
-                                placaGuaya = ""
-                                anchoCamino = ""
-                                fechainstalacion = ""
-                                distanciaobj = ""
-                                altura = ""
-                                listachequeo = ""
-                                photoPath = null
-                                observations = ""
-                            }
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp)
-                        .height(60.dp),
-                    enabled = zone.isNotEmpty() && code.isNotEmpty() && nombreCamara.isNotEmpty() && placaCamara.isNotEmpty() && placaGuaya.isNotEmpty() && anchoCamino.isNotEmpty() && fechainstalacion.isNotEmpty() && distanciaobj.isNotEmpty() && altura.isNotEmpty(),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
-
+                    Button(
+                        onClick = {
+                            navController.navigate("report_selection")
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
+                            .height(60.dp)
                     ) {
-                    Text(
-                        text = "ENVIAR",
-                        fontSize = 28.sp,
-                        color = Color.White
-                    )
+                        Text(
+                            text = "ATRAS",
+                            fontSize = 28.sp,
+                            color = Color.White
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            val report = CamarasTrampaReport(
+                                code = code,
+                                zona = zone,
+                                nombrecamara = nombreCamara,
+                                placacamara = placaCamara,
+                                placaguaya = placaGuaya,
+                                anchocamino = anchoCamino.toIntOrNull() ?: 0,
+                                fechainstalacion = fechainstalacion,
+                                distancia = distanciaobj.toIntOrNull() ?: 0,
+                                altura = altura.toIntOrNull() ?: 0,
+                                listachequeo = checkedStates.mapIndexedNotNull { index, isChecked -> if (isChecked) Listachequeo[index] else null },
+                                photoPath = photoPath?.toString(),
+                                observations = observations,
+                                date = currentDate,
+                                time = currentTime,
+                                gpsLocation = gpsLocation,
+                                weather = weather,
+                                status = false,
+                                season = season,
+                                biomonitor_id = biomonitorID
+                            )
+
+                            coroutineScope.launch {
+                                val response = RetrofitInstanceBioReport.api.submitCamarasTrampaReport(report)
+                                submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
+
+                                // Reset form on success
+                                if (response.isSuccessful) {
+                                    code = ""
+                                    zone = ""
+                                    nombreCamara = ""
+                                    placaCamara = ""
+                                    placaGuaya = ""
+                                    anchoCamino = ""
+                                    fechainstalacion = ""
+                                    distanciaobj = ""
+                                    altura = ""
+                                    listachequeo = ""
+                                    photoPath = null
+                                    observations = ""
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                            .height(60.dp),
+                        enabled = zone.isNotEmpty() && code.isNotEmpty() && nombreCamara.isNotEmpty() && placaCamara.isNotEmpty() && placaGuaya.isNotEmpty() && anchoCamino.isNotEmpty() && fechainstalacion.isNotEmpty() && distanciaobj.isNotEmpty() && altura.isNotEmpty(),
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+
+                        ) {
+                        Text(
+                            text = "ENVIAR",
+                            fontSize = 28.sp,
+                            color = Color.White
+                        )
+                    }
                 }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            submissionResult?.let {
-                Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
+                Spacer(modifier = Modifier.height(20.dp))
+                submissionResult?.let {
+                    Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
+                }
             }
         }
     }

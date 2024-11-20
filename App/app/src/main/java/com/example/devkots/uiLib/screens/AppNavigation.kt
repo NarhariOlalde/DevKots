@@ -8,15 +8,27 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.uiLib.components.MainLayout
+import com.example.devkots.uiLib.screens.DetailScreen.ReportCamarasTrampaDetailScreen
+import com.example.devkots.uiLib.screens.DetailScreen.ReportFaunaBusquedaLibreDetailScreen
+import com.example.devkots.uiLib.screens.DetailScreen.ReportFaunaPuntoConteoDetailScreen
+import com.example.devkots.uiLib.screens.DetailScreen.ReportFaunaTransectoDetailScreen
+import com.example.devkots.uiLib.screens.DetailScreen.ReportParcelaVegetacionDetailScreen
+import com.example.devkots.uiLib.screens.DetailScreen.ReportValidacionCoberturaDetailScreen
+import com.example.devkots.uiLib.screens.DetailScreen.ReportVariablesClimaticasDetailScreen
+import com.example.devkots.uiLib.screens.FormScreen.CamarasTrampaFormScreen
+import com.example.devkots.uiLib.screens.FormScreen.FaunaBusquedaLibreFormScreen
+import com.example.devkots.uiLib.screens.FormScreen.FaunaPuntoConteoFormScreen
+import com.example.devkots.uiLib.screens.FormScreen.FaunaTransectoFormScreen
+import com.example.devkots.uiLib.screens.FormScreen.ParcelaVegetacionFormScreen
+import com.example.devkots.uiLib.screens.FormScreen.ValidacionCoberturaFormScreen
+import com.example.devkots.uiLib.screens.FormScreen.VariablesClimaticasFormScreen
 import com.example.devkots.uiLib.viewmodels.BioReportViewModel
 import com.example.devkots.uiLib.viewmodels.LoginViewModel
-import com.example.devkots.uiLib.viewmodels.ReportFaunaBusquedaLibreViewModel
 import com.example.devkots.uiLib.viewmodels.SignupViewModel
 import com.example.devkots.uiLib.viewmodels.UserSessionViewModel
 
@@ -72,6 +84,21 @@ fun AppNavigation(
                         bioReportService = bioReportService
                     )
                     "Validacion de cobertura" -> ReportValidacionCoberturaDetailScreen(
+                        navController = navController,
+                        reportId = reportId,
+                        bioReportService = bioReportService
+                    )
+                    "Parcela de Vegetacion" -> ReportParcelaVegetacionDetailScreen(
+                        navController = navController,
+                        reportId = reportId,
+                        bioReportService = bioReportService
+                    )
+                    "Camaras Trampa" -> ReportCamarasTrampaDetailScreen(
+                        navController = navController,
+                        reportId = reportId,
+                        bioReportService = bioReportService
+                    )
+                    "Variables Climaticas" -> ReportVariablesClimaticasDetailScreen(
                         navController = navController,
                         reportId = reportId,
                         bioReportService = bioReportService

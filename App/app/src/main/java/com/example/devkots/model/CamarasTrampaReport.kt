@@ -11,7 +11,7 @@ data class CamarasTrampaReport(
     val fechainstalacion: String,
     val distancia: Int,
     val altura: Int,
-    //val listachequeo: List<String>,
+    val listachequeo: List<String>,
     val photoPath: String? = null,
     val observations: String,
     val date: String,
