@@ -41,6 +41,7 @@ fun ConfigurationScreen(
     // Local variables for name and email based on collected states
     var name by remember { mutableStateOf(nameState.value) }
     var email by remember { mutableStateOf(emailState.value) }
+    var imageBase64 : String? by remember { mutableStateOf(userSessionViewModel.imageBase64.value) }
 
     // Enable save button only when all fields are non-blank
     val isSaveEnabled = name.isNotBlank() && email.isNotBlank() && password.isNotBlank()
@@ -93,7 +94,7 @@ fun ConfigurationScreen(
             Button(
                 onClick = {
                     val hashedPassword = HashUtil.sha256(password)
-                    userSessionViewModel.updateUserInfo(name, email, hashedPassword)
+                    userSessionViewModel.updateUserInfo(name, email, hashedPassword, imageBase64)
                 },
                 modifier = Modifier
                     .fillMaxWidth()

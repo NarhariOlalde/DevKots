@@ -42,13 +42,16 @@ class LoginViewModel(
                         val hashedPassword = HashUtil.sha256(password.value)
                         if (user.password == hashedPassword) {
                             println("Login successful")
+                            println("User logged in: name=$user.name, email=$user.email, biomonitorId=$user.biomonitorId, imageBase64=$user.imageBase64")
                             _loginSuccess.value = true
                             // Update UserSessionViewModel with user info, passing name, email, and biomonitorId
                             userSessionViewModel.loginUser(
                                 name = user.name,
                                 email = user.mail, // Pass the email here
-                                biomonitorId = user.id.toString()
+                                biomonitorId = user.id.toString(),
+                                imageBase64 = user.imageBase64
                             )
+                            println("User logged in: name=$user.name, email=$user.email, biomonitorId=$user.biomonitorId, imageBase64=$user.imageBase64")
                         } else {
                             _errorMessage.value = "Invalid email or password"
                         }

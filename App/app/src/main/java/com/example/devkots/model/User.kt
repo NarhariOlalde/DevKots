@@ -4,5 +4,6 @@ data class User(
     val id: Int,
     val mail: String,
     val name: String,
-    val password: String
+    val password: String,
+    val imageBase64 : String?
 )
