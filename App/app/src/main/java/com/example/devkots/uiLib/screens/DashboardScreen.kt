@@ -1,5 +1,6 @@
 package com.example.devkots.uiLib.screens
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +33,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import android.util.Base64
+import coil3.compose.rememberAsyncImagePainter
 
 
 @Composable
@@ -39,6 +42,7 @@ fun DashboardScreen(
     navController: NavController,
     viewModel: BioReportViewModel,
     userName: String,
+    userProfilePicture: String?,
     biomonitorId: String
 ) {
     // Trigger data fetch on screen load
@@ -70,7 +74,8 @@ fun DashboardScreen(
                     TopBar(modifier = Modifier
                         .fillMaxWidth()
                         .height(175.dp),
-                        navController = navController
+                        navController = navController,
+                        userProfilePicture = userProfilePicture
                     )
 
                     // Placeholder Add Button
@@ -139,7 +144,8 @@ fun DashboardScreen(
 @Composable
 fun TopBar(
     modifier: Modifier = Modifier,
-    navController: NavController
+    navController: NavController,
+    userProfilePicture: String? = null
 ){
     Box(
         modifier = modifier
@@ -183,13 +189,20 @@ fun TopBar(
         ) {
             Card(
                 modifier = Modifier
-                    .clickable { navController.navigate("profile") }
+                    .clickable { navController.navigate("configuracion") }
                     .align(Alignment.TopEnd),
                 shape = CircleShape
             ) {
+                val painter = if (userProfilePicture.isNullOrEmpty()) {
+                    painterResource(id = R.drawable.profile_placeholder)
+                } else {
+                    val decodedBytes = Base64.decode(userProfilePicture, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                    rememberAsyncImagePainter(bitmap)
+                }
                 Image(
                     //replace with profile image later
-                    painter = painterResource(id = R.drawable.profile_placeholder),
+                    painter = painter,
                     contentDescription = "Profile Icon",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()

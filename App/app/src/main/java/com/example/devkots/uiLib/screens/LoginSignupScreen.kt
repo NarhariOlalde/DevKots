@@ -54,7 +54,7 @@ fun LoginSignupScreen(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(40.dp)
             ) {
-                CustomButtonLS(text = "Login", backgroundColor = ObjectGreen1) {
+                CustomButtonLS(text = "Iniciar sesión", backgroundColor = ObjectGreen1) {
                     navController.navigate("login")
                 }
             }

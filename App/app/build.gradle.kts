@@ -99,4 +99,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
 
+    //coil
+    implementation("io.coil-kt.coil3:coil-compose:3.0.3")
+
 }

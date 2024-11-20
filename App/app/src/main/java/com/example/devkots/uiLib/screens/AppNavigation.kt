@@ -50,7 +50,8 @@ fun AppNavigation(
                 navController = navController,
                 viewModel = bioReportViewModel,
                 userName = userSessionViewModel.userName.collectAsState().value,
-                biomonitorId = userSessionViewModel.biomonitorId.collectAsState().value
+                biomonitorId = userSessionViewModel.biomonitorId.collectAsState().value,
+                userProfilePicture = userSessionViewModel.imageBase64.collectAsState().value
             )
         }
 
