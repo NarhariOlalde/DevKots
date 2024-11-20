@@ -189,7 +189,7 @@ fun TopBar(
         ) {
             Card(
                 modifier = Modifier
-                    .clickable { navController.navigate("profile") }
+                    .clickable { navController.navigate("configuracion") }
                     .align(Alignment.TopEnd),
                 shape = CircleShape
             ) {
