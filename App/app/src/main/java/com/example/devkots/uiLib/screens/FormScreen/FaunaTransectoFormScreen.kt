@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -49,16 +50,22 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.media3.database.DatabaseProvider
 import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.RetrofitInstanceBioReport
+import com.example.devkots.model.BioReport
+import com.example.devkots.model.BioReportEntity
 import com.example.devkots.model.FaunaTransectoReport
+import com.example.devkots.model.FaunaTransectoReportEntity
 import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
 import com.example.devkots.uiLib.components.getFileNameFromUri
@@ -220,6 +227,9 @@ fun FaunaTransectoFormScreen(
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = ObjectGreen2,
                             unfocusedBorderColor = ObjectGreen1
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
                         )
                     )
                 }
@@ -334,6 +344,9 @@ fun FaunaTransectoFormScreen(
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = ObjectGreen2,
                             unfocusedBorderColor = ObjectGreen1
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
                         )
                     )
                 }
@@ -494,7 +507,24 @@ fun FaunaTransectoFormScreen(
                     }
                     Button(
                         onClick = {
-                            val report = FaunaTransectoReport(
+                            val report = FaunaTransectoReportEntity(
+                                transectoNumber = transectoNumber.toIntOrNull() ?: 0,
+                                animalType = animalType,
+                                commonName = commonName,
+                                scientificName = scientificName.takeIf { it.isNotEmpty() },
+                                individualCount = individualCount.toIntOrNull() ?: 0,
+                                observationType = observationType,
+                                photoPath = photoPath?.toString(),
+                                observations = observations,
+                                date = currentDate,
+                                time = currentTime,
+                                gpsLocation = gpsLocation,
+                                weather = weather,
+                                status = false,
+                                season = season,
+                                biomonitor_id = biomonitorID
+                            )
+                            val reporttemporal = FaunaTransectoReport(
                                 transectoNumber = transectoNumber.toIntOrNull() ?: 0,
                                 animalType = animalType,
                                 commonName = commonName,
@@ -512,12 +542,22 @@ fun FaunaTransectoFormScreen(
                                 biomonitor_id = biomonitorID
                             )
 
-                            coroutineScope.launch {
-                                val response = RetrofitInstanceBioReport.api.submitFaunaTransectoReport(report)
-                                submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
+                            val reportBio = BioReportEntity(
+                                date = currentDate,
+                                status = false,
+                                biomonitor_id = biomonitorID,
+                                type = "Fauna en Transecto"
+                            )
 
-                                // Reset form on success
-                                if (response.isSuccessful) {
+                            coroutineScope.launch {
+                                val database = AppDatabase.getInstance(context)
+                                val faunaDao = database.faunaTransectoReportDao()
+                                val bioDao = database.bioReportDao()
+                                val response = RetrofitInstanceBioReport.api.submitFaunaTransectoReport(reporttemporal)
+                                try {
+                                    faunaDao.insertFaunaTransectoReport(report)
+                                    bioDao.insertReport(reportBio)
+                                    submissionResult = "Report saved locally successfully!"
                                     transectoNumber = ""
                                     animalType = ""
                                     commonName = ""
@@ -526,6 +566,9 @@ fun FaunaTransectoFormScreen(
                                     observationType = ""
                                     photoPath = null
                                     observations = ""
+
+                                } catch (e: Exception) {
+                                    submissionResult = "Failed to save report locally: ${e.message}"
                                 }
                             }
                         },
@@ -551,7 +594,6 @@ fun FaunaTransectoFormScreen(
             }
         }
     }
-
 }
 
 // Function to fetch location

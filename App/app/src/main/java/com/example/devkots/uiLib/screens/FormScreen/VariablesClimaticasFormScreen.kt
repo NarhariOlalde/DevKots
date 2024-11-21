@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -41,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -155,7 +157,7 @@ fun VariablesClimaticasFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(IntroGreen)
-                .padding(16.dp)
+                .padding(32.dp)
                 .verticalScroll(rememberScrollState()),
         )
         {
@@ -164,7 +166,6 @@ fun VariablesClimaticasFormScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
             ) {
                 Text(
                     text = "Zona:",
@@ -209,6 +210,9 @@ fun VariablesClimaticasFormScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = ObjectGreen2,
                         unfocusedBorderColor = ObjectGreen1
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
                     )
                 )
             }
@@ -230,6 +234,9 @@ fun VariablesClimaticasFormScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = ObjectGreen2,
                         unfocusedBorderColor = ObjectGreen1
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
                     )
                 )
             }
@@ -251,6 +258,9 @@ fun VariablesClimaticasFormScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = ObjectGreen2,
                         unfocusedBorderColor = ObjectGreen1
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
                     )
                 )
             }
@@ -272,6 +282,9 @@ fun VariablesClimaticasFormScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = ObjectGreen2,
                         unfocusedBorderColor = ObjectGreen1
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
                     )
                 )
             }
@@ -293,10 +306,13 @@ fun VariablesClimaticasFormScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = ObjectGreen2,
                         unfocusedBorderColor = ObjectGreen1
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
                     )
                 )
             }
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Row(
                 modifier = Modifier
@@ -376,6 +392,7 @@ fun VariablesClimaticasFormScreen(
             submissionResult?.let {
                 Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
             }
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

@@ -40,6 +40,7 @@ import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
+import com.example.devkots.uiLib.components.EditableFieldNumeric
 import com.example.devkots.uiLib.viewmodels.Report.ReportFaunaBusquedaLibreViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
@@ -162,7 +163,7 @@ fun ReportFaunaBusquedaLibreDetailScreen(
                     viewModel.report = viewModel.report?.copy(scientificName = it.takeIf { it.isNotEmpty() })
                 }
 
-                EditableField("Número de Individuos", viewModel.report!!.individualCount.toString(), viewModel.isEditable) {
+                EditableFieldNumeric("Número de Individuos", viewModel.report!!.individualCount.toString(), viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(individualCount = it.toIntOrNull() ?: viewModel.report!!.individualCount)
                 }
                 Text(

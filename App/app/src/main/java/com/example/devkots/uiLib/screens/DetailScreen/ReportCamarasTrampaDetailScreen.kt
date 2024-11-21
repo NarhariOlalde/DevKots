@@ -44,6 +44,7 @@ import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
+import com.example.devkots.uiLib.components.EditableFieldNumeric
 import com.example.devkots.uiLib.viewmodels.Report.ReportCamarasTrampaViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
@@ -61,13 +62,17 @@ fun ReportCamarasTrampaDetailScreen(
     // Estado para los elementos seleccionados
     val selectedItems = remember { mutableStateListOf<String>() }
 
-    // Actualizar el estado de las checkboxes con los valores del reporte
-    if (viewModel.report != null && selectedItems.isEmpty()) {
-        selectedItems.addAll(viewModel.report!!.listachequeo)
-    }
-
+    // Cargar datos del reporte al inicio
     LaunchedEffect(Unit) {
         viewModel.loadReport(reportId)
+    }
+
+    // Sincronizar selectedItems con los valores del reporte cuando cambie
+    LaunchedEffect(viewModel.report) {
+        viewModel.report?.listachequeo?.let { items ->
+            selectedItems.clear()
+            selectedItems.addAll(items)
+        }
     }
 
     Scaffold(
@@ -138,7 +143,7 @@ fun ReportCamarasTrampaDetailScreen(
                     viewModel.report = viewModel.report?.copy(placaguaya = it)
                 }
 
-                EditableField("Ancho del Camino en mts", viewModel.report!!.anchocamino.toString(), viewModel.isEditable) {
+                EditableFieldNumeric("Ancho del Camino en mts", viewModel.report!!.anchocamino.toString(), viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(anchocamino = it.toIntOrNull() ?: viewModel.report!!.anchocamino)
                 }
 
@@ -146,11 +151,11 @@ fun ReportCamarasTrampaDetailScreen(
                     viewModel.report = viewModel.report?.copy(fechainstalacion = it)
                 }
 
-                EditableField("Distancia al objetivo en mts", viewModel.report!!.distancia.toString(), viewModel.isEditable) {
+                EditableFieldNumeric("Distancia al objetivo en mts", viewModel.report!!.distancia.toString(), viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(distancia = it.toIntOrNull() ?: viewModel.report!!.distancia)
                 }
 
-                EditableField("Altura del lente en mts", viewModel.report!!.altura.toString(), viewModel.isEditable) {
+                EditableFieldNumeric("Altura del lente en mts", viewModel.report!!.altura.toString(), viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(altura = it.toIntOrNull() ?: viewModel.report!!.altura)
                 }
 
@@ -172,11 +177,12 @@ fun ReportCamarasTrampaDetailScreen(
                             Checkbox(
                                 checked = selectedItems.contains(item),
                                 onCheckedChange = { isChecked ->
-                                    // Actualiza la lista de items seleccionados
                                     if (isChecked) {
-                                        selectedItems.add(item) // Agrega el item si está marcado
+                                        if (!selectedItems.contains(item)) {
+                                            selectedItems.add(item)
+                                        }
                                     } else {
-                                        selectedItems.remove(item) // Elimina el item si está desmarcado
+                                        selectedItems.remove(item)
                                     }
                                 }
                             )
@@ -189,10 +195,6 @@ fun ReportCamarasTrampaDetailScreen(
                     }
                 }
 
-                EditableField("Observaciones", viewModel.report!!.observations, viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(observations = it)
-                }
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (viewModel.isEditable) {
@@ -200,7 +202,7 @@ fun ReportCamarasTrampaDetailScreen(
                         onClick = {
                             viewModel.report = viewModel.report?.copy(listachequeo = selectedItems)
                             viewModel.updateReport(reportId, viewModel.report!!)
-                            navController.popBackStack() // Go back after successful edit
+                            navController.popBackStack()
                         },
                         modifier = Modifier
                             .fillMaxWidth()

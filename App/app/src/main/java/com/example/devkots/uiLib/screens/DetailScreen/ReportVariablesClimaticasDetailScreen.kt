@@ -40,6 +40,7 @@ import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
+import com.example.devkots.uiLib.components.EditableFieldNumeric
 import com.example.devkots.uiLib.viewmodels.Report.ReportVariablesClimaticasViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
@@ -108,23 +109,23 @@ fun ReportVariablesClimaticasDetailScreen(
                     }
                 }
 
-                EditableField("Pluviosidad en mm", viewModel.report!!.pluviosidad, viewModel.isEditable) {
+                EditableFieldNumeric("Pluviosidad en mm", viewModel.report!!.pluviosidad, viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(pluviosidad = it)
                 }
 
-                EditableField("Temperatura máxima", viewModel.report!!.tempmax, viewModel.isEditable) {
+                EditableFieldNumeric("Temperatura máxima", viewModel.report!!.tempmax, viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(tempmax = it)
                 }
 
-                EditableField("Humedad máxima", viewModel.report!!.humedadmax, viewModel.isEditable) {
+                EditableFieldNumeric("Humedad máxima", viewModel.report!!.humedadmax, viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(humedadmax = it)
                 }
 
-                EditableField("Temperatura mínima", viewModel.report!!.tempmin, viewModel.isEditable) {
+                EditableFieldNumeric("Temperatura mínima", viewModel.report!!.tempmin, viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(tempmin = it)
                 }
 
-                EditableField("Nivel de Quebrada en mts", viewModel.report!!.nivelquebrada, viewModel.isEditable) {
+                EditableFieldNumeric("Nivel de Quebrada en mts", viewModel.report!!.nivelquebrada, viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(nivelquebrada = it)
                 }
 

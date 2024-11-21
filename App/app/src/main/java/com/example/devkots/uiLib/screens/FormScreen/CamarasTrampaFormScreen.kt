@@ -2,6 +2,7 @@ package com.example.devkots.uiLib.screens.FormScreen
 
 import android.Manifest
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -23,14 +24,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Checkbox
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -179,7 +186,7 @@ fun CamarasTrampaFormScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 32.dp)
             ) {
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -302,29 +309,17 @@ fun CamarasTrampaFormScreen(
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = ObjectGreen2,
                             unfocusedBorderColor = ObjectGreen1
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
                         )
                     )
                 }
 
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = fechainstalacion,
-                        onValueChange = { fechainstalacion = it },
-                        label = {
-                            Text("Fecha de Instalación", fontSize = 28.sp, modifier = Modifier.align(Alignment.Center))
-                        },
-                        textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 12.dp)
-                            .height(100.dp),
-                        singleLine = true,
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = ObjectGreen2,
-                            unfocusedBorderColor = ObjectGreen1
-                        )
-                    )
-                }
+                FechaInstalacionField(
+                    fechainstalacion = fechainstalacion,
+                    onFechaChange = { fechainstalacion = it }
+                )
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -342,6 +337,9 @@ fun CamarasTrampaFormScreen(
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = ObjectGreen2,
                             unfocusedBorderColor = ObjectGreen1
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
                         )
                     )
                 }
@@ -363,6 +361,9 @@ fun CamarasTrampaFormScreen(
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = ObjectGreen2,
                             unfocusedBorderColor = ObjectGreen1
+                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number
                         )
                     )
                 }
@@ -561,6 +562,7 @@ fun CamarasTrampaFormScreen(
                 submissionResult?.let {
                     Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
                 }
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
     }
@@ -597,5 +599,52 @@ private fun fetchLocation(
         // Permission not granted, notify the caller
         Toast.makeText(context, "Location permission not granted", Toast.LENGTH_SHORT).show()
         onLocationFetched("Permission denied")
+    }
+}
+
+@Composable
+fun FechaInstalacionField(fechainstalacion: String, onFechaChange: (String) -> Unit) {
+    val context = LocalContext.current
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = fechainstalacion,
+            onValueChange = { onFechaChange(it) },
+            label = {
+                Text(
+                    "Fecha de Instalación",
+                    fontSize = 28.sp,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            },
+            textStyle = TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp)
+                .height(100.dp),
+            singleLine = true,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Green,
+                unfocusedBorderColor = Color.Gray
+            ),
+            readOnly = true,
+            trailingIcon = {
+                IconButton(onClick = {
+                    val calendar = Calendar.getInstance()
+                    DatePickerDialog(
+                        context,
+                        { _, year, month, dayOfMonth ->
+                            val selectedDate = "$dayOfMonth-${month + 1}-$year"
+                            onFechaChange(selectedDate)
+                        },
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    ).show()
+                }) {
+                    Icon(Icons.Filled.CalendarToday, contentDescription = "Select Date")
+                }
+            }
+        )
     }
 }

@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
+import com.example.devkots.uiLib.components.EditableFieldNumeric
 import com.example.devkots.uiLib.viewmodels.Report.ReportParcelaVegetacionViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
@@ -244,19 +245,19 @@ fun ReportParcelaVegetacionDetailScreen(
                     viewModel.report = viewModel.report?.copy(nombrecientifico = it.takeIf { it.isNotEmpty() })
                 }
 
-                EditableField("Circunferencia en cm", viewModel.report!!.nombrecientifico ?: "", viewModel.isEditable) {
+                EditableFieldNumeric("Circunferencia en cm", viewModel.report!!.nombrecientifico ?: "", viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(nombrecientifico = it.takeIf { it.isNotEmpty() })
                 }
 
-                EditableField("Distancia en mt", viewModel.report!!.nombrecientifico ?: "", viewModel.isEditable) {
+                EditableFieldNumeric("Distancia en mt", viewModel.report!!.nombrecientifico ?: "", viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(nombrecientifico = it.takeIf { it.isNotEmpty() })
                 }
 
-                EditableField("Estatura Biomonitor en mt", viewModel.report!!.nombrecientifico ?: "", viewModel.isEditable) {
+                EditableFieldNumeric("Estatura Biomonitor en mt", viewModel.report!!.nombrecientifico ?: "", viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(nombrecientifico = it.takeIf { it.isNotEmpty() })
                 }
 
-                EditableField("Altura en mt", viewModel.report!!.nombrecientifico ?: "", viewModel.isEditable) {
+                EditableFieldNumeric("Altura en mt", viewModel.report!!.nombrecientifico ?: "", viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(nombrecientifico = it.takeIf { it.isNotEmpty() })
                 }
 

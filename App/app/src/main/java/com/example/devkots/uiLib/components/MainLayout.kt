@@ -15,6 +15,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -32,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
@@ -307,7 +309,7 @@ fun EditableField(
     onValueChange: (String) -> Unit
 ) {
     Column {
-        Text(label, color = Color(0xFF4E7029), fontSize = 16.sp)
+        Text(label, color = Color.Black, fontSize = 24.sp)
         if (isEditable) {
             OutlinedTextField(
                 value = value,
@@ -324,7 +326,44 @@ fun EditableField(
             Text(
                 text = value,
                 fontSize = 16.sp,
-                color = Color(0xFF6A994E),
+                color = Color.Black,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun EditableFieldNumeric(
+    label: String,
+    value: String,
+    isEditable: Boolean,
+    onValueChange: (String) -> Unit
+) {
+    Column {
+        Text(label, color = Color.Black, fontSize = 24.sp)
+        if (isEditable) {
+            OutlinedTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color(0xFFA5BE00),
+                    unfocusedBorderColor = Color(0xFF6A994E)
+                ),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number
+                )
+            )
+        } else {
+            Text(
+                text = value,
+                fontSize = 16.sp,
+                color = Color.Black,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)

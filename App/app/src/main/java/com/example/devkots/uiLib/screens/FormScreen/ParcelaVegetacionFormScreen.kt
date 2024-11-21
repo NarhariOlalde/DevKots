@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -47,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -174,16 +176,13 @@ fun ParcelaVegetacionFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(IntroGreen)
-                .padding(16.dp)
+                .padding(horizontal = 32.dp)
                 .verticalScroll(rememberScrollState()),
         )
         {
-            Spacer(modifier = Modifier.height(12.dp))
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -429,6 +428,9 @@ fun ParcelaVegetacionFormScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = ObjectGreen2,
                         unfocusedBorderColor = ObjectGreen1
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
                     )
                 )
             }
@@ -449,6 +451,9 @@ fun ParcelaVegetacionFormScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = ObjectGreen2,
                         unfocusedBorderColor = ObjectGreen1
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
                     )
                 )
             }
@@ -469,6 +474,9 @@ fun ParcelaVegetacionFormScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = ObjectGreen2,
                         unfocusedBorderColor = ObjectGreen1
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
                     )
                 )
             }
@@ -489,6 +497,9 @@ fun ParcelaVegetacionFormScreen(
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         focusedBorderColor = ObjectGreen2,
                         unfocusedBorderColor = ObjectGreen1
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number
                     )
                 )
             }
@@ -656,6 +667,7 @@ fun ParcelaVegetacionFormScreen(
             submissionResult?.let {
                 Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
             }
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

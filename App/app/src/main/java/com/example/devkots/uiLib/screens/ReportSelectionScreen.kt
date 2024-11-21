@@ -39,11 +39,11 @@ fun ReportSelectionScreen(navController: NavController,
     val typeOptions = listOf(
         "Fauna en Transecto",
         "Fauna en Punto de Conteo",
-        "Fauna Busqueda Libre",
-        "Validacion de Cobertura",
-        "Parcela de Vegetacion",
-        "Camaras Trampa",
-        "Variables Climaticas"
+        "Fauna Búsqueda Libre",
+        "Validación de Cobertura",
+        "Parcela de Vegetación",
+        "Cámaras Trampa",
+        "Variables Climáticas"
     )
     FormLayout(navController = navController) {
         Column(
@@ -190,11 +190,11 @@ fun ReportSelectionScreen(navController: NavController,
                     when (selectedType) {
                         "Fauna en Transecto" -> navController.navigate("fauna_transect_form/$selectedWeather/$selectedSeason")
                         "Fauna en Punto de Conteo" -> navController.navigate("fauna_point_count_form/$selectedWeather/$selectedSeason")
-                        "Fauna Busqueda Libre" -> navController.navigate("fauna_free_search_form/$selectedWeather/$selectedSeason")
-                        "Validacion de Cobertura" -> navController.navigate("coverage_validation_form/$selectedWeather/$selectedSeason")
-                        "Parcela de Vegetacion" -> navController.navigate("vegetation_plot_form/$selectedWeather/$selectedSeason")
-                        "Camaras Trampa" -> navController.navigate("trap_cameras_form/$selectedWeather/$selectedSeason")
-                        "Variables Climaticas" -> navController.navigate("climatic_variables_form/$selectedWeather/$selectedSeason")
+                        "Fauna Búsqueda Libre" -> navController.navigate("fauna_free_search_form/$selectedWeather/$selectedSeason")
+                        "Validación de Cobertura" -> navController.navigate("coverage_validation_form/$selectedWeather/$selectedSeason")
+                        "Parcela de Vegetación" -> navController.navigate("vegetation_plot_form/$selectedWeather/$selectedSeason")
+                        "Cámaras Trampa" -> navController.navigate("trap_cameras_form/$selectedWeather/$selectedSeason")
+                        "Variables Climáticas" -> navController.navigate("climatic_variables_form/$selectedWeather/$selectedSeason")
                     }
                 },
                 modifier = Modifier

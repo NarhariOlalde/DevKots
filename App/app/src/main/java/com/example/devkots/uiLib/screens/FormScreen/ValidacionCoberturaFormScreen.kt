@@ -157,16 +157,13 @@ fun ValidacionCoberturaFormScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(IntroGreen)
-                .padding(16.dp)
+                .padding(horizontal = 32.dp)
                 .verticalScroll(rememberScrollState()),
         )
         {
-            Spacer(modifier = Modifier.height(12.dp))
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -271,7 +268,6 @@ fun ValidacionCoberturaFormScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
@@ -468,6 +464,7 @@ fun ValidacionCoberturaFormScreen(
             submissionResult?.let {
                 Text(it, color = if (it.contains("success")) MaterialTheme.colors.primary else MaterialTheme.colors.error)
             }
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

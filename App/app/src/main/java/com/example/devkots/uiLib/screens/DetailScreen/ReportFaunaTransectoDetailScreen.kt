@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.devkots.R
 import com.example.devkots.uiLib.components.EditableField
+import com.example.devkots.uiLib.components.EditableFieldNumeric
 import com.example.devkots.uiLib.viewmodels.Report.ReportFaunaTransectoViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
@@ -69,7 +70,7 @@ fun ReportFaunaTransectoDetailScreen(
             ) {
                 Text("#FM$reportId", fontSize = 32.sp, color = Color(0xFF4E7029))
 
-                EditableField("Número de Transecto", viewModel.report!!.transectoNumber.toString(), viewModel.isEditable) {
+                EditableFieldNumeric("Número de Transecto", viewModel.report!!.transectoNumber.toString(), viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(transectoNumber = it.toIntOrNull() ?: viewModel.report!!.transectoNumber)
                 }
                 Text(
@@ -126,7 +127,7 @@ fun ReportFaunaTransectoDetailScreen(
                     viewModel.report = viewModel.report?.copy(scientificName = it.takeIf { it.isNotEmpty() })
                 }
 
-                EditableField("Número de Individuos", viewModel.report!!.individualCount.toString(), viewModel.isEditable) {
+                EditableFieldNumeric("Número de Individuos", viewModel.report!!.individualCount.toString(), viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(individualCount = it.toIntOrNull() ?: viewModel.report!!.individualCount)
                 }
                 Text(

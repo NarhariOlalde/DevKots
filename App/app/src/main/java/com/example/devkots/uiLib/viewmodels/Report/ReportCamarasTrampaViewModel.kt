@@ -40,7 +40,4 @@ class ReportCamarasTrampaViewModel(private val bioReportService: BioReportServic
             }
         }
     }
-
-
-
 }
