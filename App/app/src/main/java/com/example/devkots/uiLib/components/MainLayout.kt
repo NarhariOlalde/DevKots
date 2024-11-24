@@ -12,6 +12,7 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +45,7 @@ import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.uiLib.theme.IntroGreen
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -312,16 +315,24 @@ fun EditableField(
 @Composable
 fun EditableFieldNumeric(
     label: String,
-    value: String,
+    value: Int,
     isEditable: Boolean,
-    onValueChange: (String) -> Unit
+    onValueChange: (Int) -> Unit
 ) {
+    var textValue by remember { mutableStateOf(value.toString()) } // Mantén el valor como String
+
     Column {
         Text(label, color = Color.Black, fontSize = 24.sp)
         if (isEditable) {
             OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
+                value = textValue,
+                onValueChange = { newValue ->
+                    textValue = newValue // Actualiza el estado local primero
+                    val intValue = newValue.toIntOrNull()
+                    if (intValue != null) {
+                        onValueChange(intValue) // Solo actualiza si es un número válido
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
@@ -335,7 +346,7 @@ fun EditableFieldNumeric(
             )
         } else {
             Text(
-                text = value,
+                text = value.toString(),
                 fontSize = 16.sp,
                 color = Color.Black,
                 modifier = Modifier
@@ -345,3 +356,53 @@ fun EditableFieldNumeric(
         }
     }
 }
+
+
+
+fun copyUriToExternalStorage(context: Context, uri: Uri): Uri? {
+    return try {
+        val newUri = if (uri.toString().startsWith("content://media/picker_get_content/")) {
+            val mediaId = uri.lastPathSegment?.toLongOrNull()
+            mediaId?.let {
+                Uri.parse("content://media/external/images/media/$mediaId")
+            }
+        } else {
+            uri
+        }
+
+        newUri
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+fun handleCameraClick(
+    context: Context,
+    cameraUri: MutableState<Uri?>,
+    cameraLauncher: ActivityResultLauncher<Uri>,
+    permissionLauncher: ActivityResultLauncher<String>,
+    submissionResult: (String) -> Unit
+) {
+    when {
+        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
+            // Permission is already granted, proceed with taking a photo
+            cameraUri.value = createMediaStoreImageUri(context)
+            cameraUri.value?.let { cameraLauncher.launch(it) }
+        }
+        ActivityCompat.shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.CAMERA) -> {
+            // Explain to the user why you need the camera permission (if needed)
+            submissionResult("Please allow camera access to take photos.")
+        }
+        else -> {
+            // Request the permission
+            permissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+}
+
+
+
+
+
+

@@ -1,9 +1,17 @@
 package com.example.devkots.uiLib.screens.DetailScreen
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
@@ -31,20 +40,31 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.devkots.R
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
 import com.example.devkots.uiLib.components.EditableFieldNumeric
+import com.example.devkots.uiLib.components.createMediaStoreImageUri
+import com.example.devkots.uiLib.components.handleCameraClick
+import com.example.devkots.uiLib.theme.ObjectGreen2
 import com.example.devkots.uiLib.viewmodels.Report.ReportCamarasTrampaViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
@@ -57,6 +77,24 @@ fun ReportCamarasTrampaDetailScreen(
     val viewModel: ReportCamarasTrampaViewModel = viewModel(
         factory = ReportViewModelFactory(bioReportService)
     )
+    val context = LocalContext.current
+    var submissionResult by remember { mutableStateOf<String?>(null) }
+
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.addPhoto(context, it)
+        }
+    }
+
+    // Lanzador para la cámara
+    val cameraUri = remember { mutableStateOf<Uri?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            cameraUri.value?.let {
+                viewModel.addPhoto(context, it)
+            }
+        }
+    }
     val listachequeo = listOf("Programada", "Memoria", "Prueba de gateo", "Instalada", "Letrero de cámara", "Prendida")
 
     // Estado para los elementos seleccionados
@@ -72,6 +110,12 @@ fun ReportCamarasTrampaDetailScreen(
         viewModel.report?.listachequeo?.let { items ->
             selectedItems.clear()
             selectedItems.addAll(items)
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(context, "Permission is required for images is required to access the gallery.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -143,20 +187,20 @@ fun ReportCamarasTrampaDetailScreen(
                     viewModel.report = viewModel.report?.copy(placaguaya = it)
                 }
 
-                EditableFieldNumeric("Ancho del Camino en mts", viewModel.report!!.anchocamino.toString(), viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(anchocamino = it.toIntOrNull() ?: viewModel.report!!.anchocamino)
+                EditableFieldNumeric("Ancho del Camino en mts", viewModel.report!!.anchocamino, viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(anchocamino = it)
                 }
 
                 EditableField("Fecha de Instalación", viewModel.report!!.fechainstalacion, viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(fechainstalacion = it)
                 }
 
-                EditableFieldNumeric("Distancia al objetivo en mts", viewModel.report!!.distancia.toString(), viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(distancia = it.toIntOrNull() ?: viewModel.report!!.distancia)
+                EditableFieldNumeric("Distancia al objetivo en mts", viewModel.report!!.distancia, viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(distancia = it)
                 }
 
-                EditableFieldNumeric("Altura del lente en mts", viewModel.report!!.altura.toString(), viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(altura = it.toIntOrNull() ?: viewModel.report!!.altura)
+                EditableFieldNumeric("Altura del lente en mts", viewModel.report!!.altura, viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(altura = it)
                 }
 
                 Text(
@@ -191,6 +235,143 @@ fun ReportCamarasTrampaDetailScreen(
                                 text = item,
                                 color = Color.Black
                             )
+                        }
+                    }
+                }
+                Text(
+                    text = "Estado del Tiempo",
+                    fontSize = 24.sp,
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    val weatherTypes = listOf(
+                        "Soleado" to R.drawable.sunny,
+                        "Nublado" to R.drawable.cloudy,
+                        "Lluvioso" to R.drawable.rainy
+                    )
+
+                    weatherTypes.forEach { (weatherType, iconResId) ->
+                        Image(
+                            painter = painterResource(id = iconResId),
+                            contentDescription = weatherType,
+                            modifier = Modifier
+                                .size(90.dp)
+                                .background(
+                                    if (viewModel.report!!.weather == weatherType) Color(0xFF99CC66) else Color.Transparent,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .clickable {
+                                    viewModel.report = viewModel.report?.copy(weather = weatherType)
+                                }
+                                .padding(8.dp)
+                        )
+                    }
+                }
+                Text(
+                    text = "Estación",
+                    fontSize = 24.sp,
+                )
+                Column {
+                    val seasons = listOf("Verano-Seco", "Invierno-Lluviosa")
+
+                    seasons.forEach { season ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = viewModel.report!!.season == season,
+                                onClick = {
+                                    viewModel.report = viewModel.report?.copy(season = season)
+                                }
+                            )
+                            Text(
+                                text = season
+                            )
+                        }
+                    }
+                }
+                Text(
+                    text = "Evidencias",
+                    fontSize = 24.sp,
+                )
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp),
+                ) {
+                    Button(
+                        onClick = { galleryLauncher.launch("image/*") }     ,
+                        colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .size(width = 170.dp, height = 50.dp)
+                    ) {
+                        Text(
+                            text = "Elegir Archivo",
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            handleCameraClick(
+                                context = context,
+                                cameraUri = cameraUri,
+                                cameraLauncher = cameraLauncher,
+                                permissionLauncher = permissionLauncher,
+                                submissionResult = { message ->
+                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .size(width = 170.dp, height = 50.dp)
+                    ) {
+                        Text(
+                            text = "Tomar foto",
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+                viewModel.report?.photoPaths?.let { photoPaths ->
+                    photoPaths.forEachIndexed { index, photoPath ->
+                        Box(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .height(200.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.Gray)
+                        ) {
+                            val painter = rememberImagePainter(
+                                photoPath,
+                                builder = {
+                                    crossfade(true)
+                                }
+                            )
+                            Image(
+                                painter = painter,
+                                contentDescription = "Image",
+                            )
+                            IconButton(
+                                onClick = {
+                                    viewModel.removePhotoAt(index)
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .size(24.dp)
+                                    .clip(CircleShape)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.x_circle),
+                                    contentDescription = "Eliminar imagen",
+                                    tint = Color.Red,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
                         }
                     }
                 }

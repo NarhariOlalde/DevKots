@@ -1,9 +1,17 @@
 package com.example.devkots.uiLib.screens.DetailScreen
 
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
@@ -29,18 +38,29 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.devkots.R
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
 import com.example.devkots.uiLib.components.EditableFieldNumeric
+import com.example.devkots.uiLib.components.createMediaStoreImageUri
+import com.example.devkots.uiLib.theme.ObjectGreen2
 import com.example.devkots.uiLib.viewmodels.Report.ReportFaunaPuntoConteoViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 
@@ -54,8 +74,33 @@ fun ReportFaunaPuntoConteoDetailScreen(
         factory = ReportViewModelFactory(bioReportService)
     )
 
+    val context = LocalContext.current
+    var submissionResult by remember { mutableStateOf<String?>(null) }
+
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.addPhoto(context, it)
+        }
+    }
+
+    // Lanzador para la cámara
+    val cameraUri = remember { mutableStateOf<Uri?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            cameraUri.value?.let {
+                viewModel.addPhoto(context, it)
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.loadReport(reportId)
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (!isGranted) {
+            Toast.makeText(context, "Permission is required for images is required to access the gallery.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     Scaffold(
@@ -163,8 +208,8 @@ fun ReportFaunaPuntoConteoDetailScreen(
                     viewModel.report = viewModel.report?.copy(scientificName = it.takeIf { it.isNotEmpty() })
                 }
 
-                EditableFieldNumeric("Número de Individuos", viewModel.report!!.individualCount.toString(), viewModel.isEditable) {
-                    viewModel.report = viewModel.report?.copy(individualCount = it.toIntOrNull() ?: viewModel.report!!.individualCount)
+                EditableFieldNumeric("Número de Individuos", viewModel.report!!.individualCount, viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(individualCount = it)
                 }
                 Text(
                     text = "Tipo de Registro",
@@ -260,6 +305,89 @@ fun ReportFaunaPuntoConteoDetailScreen(
                             Text(
                                 text = season
                             )
+                        }
+                    }
+                }
+                Text(
+                    text = "Evidencias",
+                    fontSize = 24.sp,
+                )
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp),
+                ) {
+                    Button(
+                        onClick = { galleryLauncher.launch("image/*") }     ,
+                        colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .size(width = 170.dp, height = 50.dp)
+                    ) {
+                        Text(
+                            text = "Elegir Archivo",
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            com.example.devkots.uiLib.components.handleCameraClick(
+                                context = context,
+                                cameraUri = cameraUri,
+                                cameraLauncher = cameraLauncher,
+                                permissionLauncher = permissionLauncher,
+                                submissionResult = { message ->
+                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
+                        modifier = Modifier
+                            .padding(start = 30.dp)
+                            .size(width = 170.dp, height = 50.dp)
+                    ) {
+                        Text(
+                            text = "Tomar foto",
+                            fontSize = 15.sp,
+                            color = Color.White
+                        )
+                    }
+                }
+                viewModel.report?.photoPaths?.let { photoPaths ->
+                    photoPaths.forEachIndexed { index, photoPath ->
+                        Box(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .height(200.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.Gray)
+                        ) {
+                            val painter = rememberImagePainter(
+                                photoPath,
+                                builder = {
+                                    crossfade(true)
+                                }
+                            )
+                            Image(
+                                painter = painter,
+                                contentDescription = "Image",
+                            )
+                            IconButton(
+                                onClick = {
+                                    viewModel.removePhotoAt(index)
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .size(24.dp)
+                                    .clip(CircleShape)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.x_circle),
+                                    contentDescription = "Eliminar imagen",
+                                    tint = Color.Red,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
                         }
                     }
                 }

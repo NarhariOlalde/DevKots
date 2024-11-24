@@ -306,11 +306,11 @@ fun VariablesClimaticasFormScreen(
                     onClick = {
                         val report = VariablesClimaticasReportEntity(
                             zona = zone,
-                            pluviosidad = pluviosidad,
-                            tempmax = tempmax,
-                            humedadmax = humedadmax,
-                            tempmin = tempmin,
-                            nivelquebrada = nivelquebrada,
+                            pluviosidad = pluviosidad.toIntOrNull() ?: 0,
+                            tempmax = tempmax.toIntOrNull() ?: 0,
+                            humedadmax = humedadmax.toIntOrNull() ?: 0,
+                            tempmin = tempmin.toIntOrNull() ?: 0,
+                            nivelquebrada = nivelquebrada.toIntOrNull() ?: 0,
                             date = currentDate,
                             time = currentTime,
                             gpsLocation = gpsLocation,
@@ -321,11 +321,11 @@ fun VariablesClimaticasFormScreen(
                         )
                         val reporttemporal = VariablesClimaticasReport(
                             zona = zone,
-                            pluviosidad = pluviosidad,
-                            tempmax = tempmax,
-                            humedadmax = humedadmax,
-                            tempmin = tempmin,
-                            nivelquebrada = nivelquebrada,
+                            pluviosidad = pluviosidad.toIntOrNull() ?: 0,
+                            tempmax = tempmax.toIntOrNull() ?: 0,
+                            humedadmax = humedadmax.toIntOrNull() ?: 0,
+                            tempmin = tempmin.toIntOrNull() ?: 0,
+                            nivelquebrada = nivelquebrada.toIntOrNull() ?: 0,
                             date = currentDate,
                             time = currentTime,
                             gpsLocation = gpsLocation,

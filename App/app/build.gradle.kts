@@ -108,5 +108,6 @@ dependencies {
 
     //coil
     implementation("io.coil-kt.coil3:coil-compose:3.0.3")
+    implementation("io.coil-kt:coil-compose:2.3.0")
 
 }

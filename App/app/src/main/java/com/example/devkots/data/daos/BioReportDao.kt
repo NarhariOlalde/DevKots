@@ -18,4 +18,3 @@ interface BioReportDao {
     @Delete
     suspend fun deleteReport(report: BioReportEntity)
 }
-

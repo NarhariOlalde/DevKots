@@ -67,7 +67,9 @@ import com.example.devkots.model.BioReportEntity
 import com.example.devkots.model.CamarasTrampaReport
 import com.example.devkots.model.LocalEntities.CamarasTrampaReportEntity
 import com.example.devkots.uiLib.components.FormLayout
+import com.example.devkots.uiLib.components.copyUriToExternalStorage
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
+import com.example.devkots.uiLib.components.handleCameraClick
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -173,24 +175,6 @@ fun CamarasTrampaFormScreen(
         }
     }
 
-    // Camera button onClick handler
-    fun handleCameraClick() {
-        when {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
-                // Permission is already granted, proceed with taking a photo
-                cameraUri.value = createMediaStoreImageUri(context)
-                cameraUri.value?.let { cameraLauncher.launch(it) }
-            }
-            ActivityCompat.shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.CAMERA) -> {
-                // Explain to the user why you need the camera permission (if needed)
-                submissionResult = "Please allow camera access to take photos."
-            }
-            else -> {
-                // Request the permission
-                permissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }
-    }
     FormLayout(navController = navController){
         Column(
             modifier = Modifier
@@ -459,7 +443,15 @@ fun CamarasTrampaFormScreen(
 
                     Button(
                         onClick = {
-                            handleCameraClick()
+                            handleCameraClick(
+                                context = context,
+                                cameraUri = cameraUri,
+                                cameraLauncher = cameraLauncher,
+                                permissionLauncher = permissionLauncher,
+                                submissionResult = { message ->
+                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                }
+                            )
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
                         modifier = Modifier
@@ -477,15 +469,19 @@ fun CamarasTrampaFormScreen(
                     modifier = Modifier.padding(top = 16.dp),
                 ) {
                     photoPaths.forEachIndexed { index, uri ->
+                        val newUri = copyUriToExternalStorage(context, uri) ?: uri
+
+                        // Actualizar la URI en la lista para que refleje el cambio
+                        photoPaths[index] = newUri
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Nombre del archivo
                             Text(
-                                text = uri.lastPathSegment ?: "Archivo desconocido",
+                                text = newUri.lastPathSegment ?: "Archivo desconocido",
                                 modifier = Modifier.weight(1f),
                                 fontSize = 16.sp
                             )
@@ -614,7 +610,7 @@ fun CamarasTrampaFormScreen(
                                     fechainstalacion = ""
                                     distanciaobj = ""
                                     altura = ""
-                                    listachequeo = ""
+                                    checkedStates.fill(false)
                                     photoPaths.clear()
                                     observations = ""
 
