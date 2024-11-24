@@ -1,7 +1,12 @@
-package com.example.devkots.model
+package com.example.devkots.model.LocalEntities
 
-data class FaunaBusquedaReport(
-    val type: String = "Fauna Busqueda Libre",     // Updated to "type" instead of "formType"
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "fauna_puntoconteo_reports")
+data class FaunaPuntoConteoReportEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val type: String = "Fauna en Punto de Conteo",     // Updated to "type" instead of "formType"
     val zone: String,
     val animalType: String,                  // Tipo de Animal
     val commonName: String,                  // Nombre Comun

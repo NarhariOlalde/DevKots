@@ -30,6 +30,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
@@ -38,6 +39,7 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,36 +51,29 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import androidx.media3.database.DatabaseProvider
 import androidx.navigation.NavController
 import com.example.devkots.R
 import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.RetrofitInstanceBioReport
-import com.example.devkots.model.BioReport
 import com.example.devkots.model.BioReportEntity
 import com.example.devkots.model.FaunaTransectoReport
-import com.example.devkots.model.FaunaTransectoReportEntity
+import com.example.devkots.model.LocalEntities.FaunaTransectoReportEntity
 import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
-import com.example.devkots.uiLib.components.getFileNameFromUri
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -111,8 +106,7 @@ fun FaunaTransectoFormScreen(
         Pair(R.drawable.anfibio, "Anfibio"),
         Pair(R.drawable.insecto, "Insecto")
     )
-    val fileNameState = remember { mutableStateOf<String?>(null) }
-    var photoPath by remember { mutableStateOf<Uri?>(null) }
+    val photoPaths = remember { mutableStateListOf<Uri>() }
 
     // Static values
     val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
@@ -143,29 +137,29 @@ fun FaunaTransectoFormScreen(
     // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            val fileName = getFileNameFromUri(context, it)
-            fileName?.let {
-                fileNameState.value = it
+            if (photoPaths.size < 5) { // Limita a 5 imágenes
+                photoPaths.add(it)
+            } else {
+                Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
             }
-            photoPath = it
         }
     }
 
-// Camera launcher
+
+
+    // Camera launcher
     val cameraUri = remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             cameraUri.value?.let {
-                val fileName = getFileNameFromUri(context, it)
-                fileName?.let {
-                    fileNameState.value = it
+                if (photoPaths.size < 5) {
+                    photoPaths.add(it)
+                } else {
+                    Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
                 }
-                photoPath = it
             }
         }
     }
-
-
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (!isGranted) {
@@ -437,33 +431,34 @@ fun FaunaTransectoFormScreen(
                 Column(
                     modifier = Modifier.padding(top = 16.dp),
                 ) {
-                    Row() {
-                        Text(
-                            text = if (!fileNameState.value.isNullOrEmpty())
-                                "${fileNameState.value}"
-                            else
-                                "No se ha seleccionado archivo",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        if (!fileNameState.value.isNullOrEmpty()) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.x_circle),
-                                contentDescription = "Eliminar archivo",
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .clickable {
-                                        fileNameState.value = ""
-                                    },
-                                tint = Color.Red
+                    photoPaths.forEachIndexed { index, uri ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Nombre del archivo
+                            Text(
+                                text = uri.lastPathSegment ?: "Archivo desconocido",
+                                modifier = Modifier.weight(1f),
+                                fontSize = 16.sp
                             )
+
+                            // Botón para eliminar archivo
+                            IconButton(
+                                onClick = { photoPaths.removeAt(index) },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.x_circle),
+                                    contentDescription = "Eliminar archivo",
+                                    tint = Color.Red
+                                )
+                            }
                         }
                     }
                 }
-
 
                 Spacer(modifier = Modifier.height(30.dp))
 
@@ -514,7 +509,7 @@ fun FaunaTransectoFormScreen(
                                 scientificName = scientificName.takeIf { it.isNotEmpty() },
                                 individualCount = individualCount.toIntOrNull() ?: 0,
                                 observationType = observationType,
-                                photoPath = photoPath?.toString(),
+                                photoPaths = photoPaths.map { it.toString() }, // Convertir a String
                                 observations = observations,
                                 date = currentDate,
                                 time = currentTime,
@@ -524,6 +519,7 @@ fun FaunaTransectoFormScreen(
                                 season = season,
                                 biomonitor_id = biomonitorID
                             )
+
                             val reporttemporal = FaunaTransectoReport(
                                 transectoNumber = transectoNumber.toIntOrNull() ?: 0,
                                 animalType = animalType,
@@ -531,7 +527,7 @@ fun FaunaTransectoFormScreen(
                                 scientificName = scientificName.takeIf { it.isNotEmpty() },
                                 individualCount = individualCount.toIntOrNull() ?: 0,
                                 observationType = observationType,
-                                photoPath = photoPath?.toString(),
+                                photoPaths = photoPaths.map { it.toString() },
                                 observations = observations,
                                 date = currentDate,
                                 time = currentTime,
@@ -564,7 +560,7 @@ fun FaunaTransectoFormScreen(
                                     scientificName = ""
                                     individualCount = ""
                                     observationType = ""
-                                    photoPath = null
+                                    photoPaths.clear()
                                     observations = ""
 
                                 } catch (e: Exception) {

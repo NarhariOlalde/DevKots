@@ -1,4 +1,4 @@
-package com.example.devkots.model
+package com.example.devkots.model.LocalEntities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -13,7 +13,7 @@ data class FaunaTransectoReportEntity(
     val scientificName: String? = null,
     val individualCount: Int,
     val observationType: String,
-    val photoPath: String? = null,
+    val photoPaths: List<String>? = null,
     val observations: String,
     val date: String,
     val time: String,

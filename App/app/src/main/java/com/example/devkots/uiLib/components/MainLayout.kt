@@ -275,32 +275,6 @@ fun createMediaStoreImageUri(context: Context): Uri? {
     return context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 }
 
-fun getFileNameFromUri(context: Context, uri: Uri): String? {
-    var fileName: String? = null
-
-    // Si la URI es de tipo 'content://', obtenemos el nombre de la base de datos de contenido
-    if (uri.scheme.equals("content", ignoreCase = true)) {
-        val cursor = context.contentResolver.query(uri, null, null, null, null)
-        cursor?.use {
-            val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (it.moveToFirst()) {
-                fileName = it.getString(nameIndex) // Extraemos el nombre del archivo
-            }
-        }
-    }
-    // Si la URI es de tipo 'file://', intentamos obtener el nombre del archivo desde la ruta del archivo
-    else if (uri.scheme.equals("file", ignoreCase = true)) {
-        fileName = uri.path?.let { path ->
-            File(path).name // Extraemos el nombre directamente desde la ruta
-        }
-    }
-
-    return fileName
-}
-
-
-
-
 @Composable
 fun EditableField(
     label: String,

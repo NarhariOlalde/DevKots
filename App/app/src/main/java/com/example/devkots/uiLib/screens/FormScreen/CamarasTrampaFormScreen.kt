@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -60,8 +61,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.RetrofitInstanceBioReport
+import com.example.devkots.model.BioReportEntity
 import com.example.devkots.model.CamarasTrampaReport
+import com.example.devkots.model.LocalEntities.CamarasTrampaReportEntity
 import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
 import com.example.devkots.uiLib.theme.IntroGreen
@@ -99,7 +103,6 @@ fun CamarasTrampaFormScreen(
     var distanciaobj by remember { mutableStateOf("") }
     var altura by remember { mutableStateOf("") }
     var listachequeo by remember { mutableStateOf("") }
-    var photoPath by remember { mutableStateOf<Uri?>(null) }
     var observations by remember { mutableStateOf("") }
     var submissionResult by remember { mutableStateOf<String?>(null) }
     val Listachequeo = listOf(
@@ -111,6 +114,7 @@ fun CamarasTrampaFormScreen(
         "Prendida"
     )
     val checkedStates = remember { mutableStateListOf(false, false, false, false, false, false) }
+    val photoPaths = remember { mutableStateListOf<Uri>() }
 
     // Static values
     val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
@@ -138,16 +142,28 @@ fun CamarasTrampaFormScreen(
         }
     }
 
-    // File pickers
+    // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        photoPath = uri
+        uri?.let {
+            if (photoPaths.size < 5) { // Limita a 5 imágenes
+                photoPaths.add(it)
+            } else {
+                Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // Camera launcher
     val cameraUri = remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            photoPath = cameraUri.value // Set the captured image URI as the photoPath
+            cameraUri.value?.let {
+                if (photoPaths.size < 5) {
+                    photoPaths.add(it)
+                } else {
+                    Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -457,6 +473,38 @@ fun CamarasTrampaFormScreen(
                         )
                     }
                 }
+                Column(
+                    modifier = Modifier.padding(top = 16.dp),
+                ) {
+                    photoPaths.forEachIndexed { index, uri ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Nombre del archivo
+                            Text(
+                                text = uri.lastPathSegment ?: "Archivo desconocido",
+                                modifier = Modifier.weight(1f),
+                                fontSize = 16.sp
+                            )
+
+                            // Botón para eliminar archivo
+                            IconButton(
+                                onClick = { photoPaths.removeAt(index) },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.x_circle),
+                                    contentDescription = "Eliminar archivo",
+                                    tint = Color.Red
+                                )
+                            }
+                        }
+                    }
+
+                }
 
                 Spacer(modifier = Modifier.height(30.dp))
 
@@ -500,7 +548,7 @@ fun CamarasTrampaFormScreen(
                     }
                     Button(
                         onClick = {
-                            val report = CamarasTrampaReport(
+                            val report = CamarasTrampaReportEntity(
                                 code = code,
                                 zona = zone,
                                 nombrecamara = nombreCamara,
@@ -511,7 +559,7 @@ fun CamarasTrampaFormScreen(
                                 distancia = distanciaobj.toIntOrNull() ?: 0,
                                 altura = altura.toIntOrNull() ?: 0,
                                 listachequeo = checkedStates.mapIndexedNotNull { index, isChecked -> if (isChecked) Listachequeo[index] else null },
-                                photoPath = photoPath?.toString(),
+                                photoPaths = photoPaths.map { it.toString() }, // Convertir a String
                                 observations = observations,
                                 date = currentDate,
                                 time = currentTime,
@@ -521,13 +569,42 @@ fun CamarasTrampaFormScreen(
                                 season = season,
                                 biomonitor_id = biomonitorID
                             )
-
+                            val reporttemporal = CamarasTrampaReport(
+                                code = code,
+                                zona = zone,
+                                nombrecamara = nombreCamara,
+                                placacamara = placaCamara,
+                                placaguaya = placaGuaya,
+                                anchocamino = anchoCamino.toIntOrNull() ?: 0,
+                                fechainstalacion = fechainstalacion,
+                                distancia = distanciaobj.toIntOrNull() ?: 0,
+                                altura = altura.toIntOrNull() ?: 0,
+                                listachequeo = checkedStates.mapIndexedNotNull { index, isChecked -> if (isChecked) Listachequeo[index] else null },
+                                photoPaths = photoPaths.map { it.toString() }, // Convertir a String
+                                observations = observations,
+                                date = currentDate,
+                                time = currentTime,
+                                gpsLocation = gpsLocation,
+                                weather = weather,
+                                status = false,
+                                season = season,
+                                biomonitor_id = biomonitorID
+                            )
+                            val reportBio = BioReportEntity(
+                                date = currentDate,
+                                status = false,
+                                biomonitor_id = biomonitorID,
+                                type = "Camaras Trampa"
+                            )
                             coroutineScope.launch {
-                                val response = RetrofitInstanceBioReport.api.submitCamarasTrampaReport(report)
-                                submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
-
-                                // Reset form on success
-                                if (response.isSuccessful) {
+                                val database = AppDatabase.getInstance(context)
+                                val faunaDao = database.camarasTrampaReportDao()
+                                val bioDao = database.bioReportDao()
+                                RetrofitInstanceBioReport.api.submitCamarasTrampaReport(reporttemporal)
+                                try {
+                                    faunaDao.insertCamarasTrampaReport(report)
+                                    bioDao.insertReport(reportBio)
+                                    submissionResult = "Report saved locally successfully!"
                                     code = ""
                                     zone = ""
                                     nombreCamara = ""
@@ -538,8 +615,11 @@ fun CamarasTrampaFormScreen(
                                     distanciaobj = ""
                                     altura = ""
                                     listachequeo = ""
-                                    photoPath = null
+                                    photoPaths.clear()
                                     observations = ""
+
+                                } catch (e: Exception) {
+                                    submissionResult = "Failed to save report locally: ${e.message}"
                                 }
                             }
                         },

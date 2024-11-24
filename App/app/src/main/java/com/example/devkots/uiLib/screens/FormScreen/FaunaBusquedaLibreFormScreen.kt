@@ -29,6 +29,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
@@ -37,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -56,8 +59,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.RetrofitInstanceBioReport
+import com.example.devkots.model.BioReportEntity
 import com.example.devkots.model.FaunaBusquedaReport
+import com.example.devkots.model.LocalEntities.FaunaBusquedaReportEntity
 import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
 import com.example.devkots.uiLib.theme.IntroGreen
@@ -102,6 +108,7 @@ fun FaunaBusquedaLibreFormScreen(
         Pair(R.drawable.anfibio, "Anfibio"),
         Pair(R.drawable.insecto, "Insecto")
     )
+    val photoPaths = remember { mutableStateListOf<Uri>() }
 
     // Static values
     val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
@@ -129,16 +136,28 @@ fun FaunaBusquedaLibreFormScreen(
         }
     }
 
-    // File pickers
+    // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        photoPath = uri
+        uri?.let {
+            if (photoPaths.size < 5) { // Limita a 5 imágenes
+                photoPaths.add(it)
+            } else {
+                Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // Camera launcher
     val cameraUri = remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            photoPath = cameraUri.value // Set the captured image URI as the photoPath
+            cameraUri.value?.let {
+                if (photoPaths.size < 5) {
+                    photoPaths.add(it)
+                } else {
+                    Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -431,6 +450,38 @@ fun FaunaBusquedaLibreFormScreen(
                         )
                     }
                 }
+                Column(
+                    modifier = Modifier.padding(top = 16.dp),
+                ) {
+                    photoPaths.forEachIndexed { index, uri ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Nombre del archivo
+                            Text(
+                                text = uri.lastPathSegment ?: "Archivo desconocido",
+                                modifier = Modifier.weight(1f),
+                                fontSize = 16.sp
+                            )
+
+                            // Botón para eliminar archivo
+                            IconButton(
+                                onClick = { photoPaths.removeAt(index) },
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.x_circle),
+                                    contentDescription = "Eliminar archivo",
+                                    tint = Color.Red
+                                )
+                            }
+                        }
+                    }
+
+                }
 
                 Spacer(modifier = Modifier.height(30.dp))
 
@@ -474,7 +525,7 @@ fun FaunaBusquedaLibreFormScreen(
                     }
                     Button(
                         onClick = {
-                            val report = FaunaBusquedaReport(
+                            val report = FaunaBusquedaReportEntity(
                                 zone = zone,
                                 animalType = animalType,
                                 commonName = commonName,
@@ -482,7 +533,7 @@ fun FaunaBusquedaLibreFormScreen(
                                 individualCount = individualCount.toIntOrNull() ?: 0,
                                 observationType = observationType,
                                 observationHeight = observationHeight,
-                                photoPath = photoPath?.toString(),
+                                photoPaths = photoPaths.map { it.toString() }, // Convertir a String
                                 observations = observations,
                                 date = currentDate,
                                 time = currentTime,
@@ -492,13 +543,39 @@ fun FaunaBusquedaLibreFormScreen(
                                 season = season,
                                 biomonitor_id = biomonitorID
                             )
-
+                            val reporttemporal = FaunaBusquedaReport(
+                                zone = zone,
+                                animalType = animalType,
+                                commonName = commonName,
+                                scientificName = scientificName.takeIf { it.isNotEmpty() },
+                                individualCount = individualCount.toIntOrNull() ?: 0,
+                                observationType = observationType,
+                                observationHeight = observationHeight,
+                                photoPaths = photoPaths.map { it.toString() }, // Convertir a String
+                                observations = observations,
+                                date = currentDate,
+                                time = currentTime,
+                                gpsLocation = gpsLocation,
+                                weather = weather,
+                                status = false,
+                                season = season,
+                                biomonitor_id = biomonitorID
+                            )
+                            val reportBio = BioReportEntity(
+                                date = currentDate,
+                                status = false,
+                                biomonitor_id = biomonitorID,
+                                type = "Fauna Busqueda Libre"
+                            )
                             coroutineScope.launch {
-                                val response = RetrofitInstanceBioReport.api.submitFaunaBusquedaReport(report)
-                                submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
-
-                                // Reset form on success
-                                if (response.isSuccessful) {
+                                val database = AppDatabase.getInstance(context)
+                                val faunaDao = database.faunaBusquedaReportDao()
+                                val bioDao = database.bioReportDao()
+                                val response = RetrofitInstanceBioReport.api.submitFaunaBusquedaReport(reporttemporal)
+                                try {
+                                    faunaDao.insertFaunaBusquedaReport(report)
+                                    bioDao.insertReport(reportBio)
+                                    submissionResult = "Report saved locally successfully!"
                                     zone = ""
                                     animalType = ""
                                     commonName = ""
@@ -506,8 +583,11 @@ fun FaunaBusquedaLibreFormScreen(
                                     individualCount = ""
                                     observationType = ""
                                     observationHeight = ""
-                                    photoPath = null
+                                    photoPaths.clear()
                                     observations = ""
+
+                                } catch (e: Exception) {
+                                    submissionResult = "Failed to save report locally: ${e.message}"
                                 }
                             }
                         },

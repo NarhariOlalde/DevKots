@@ -30,6 +30,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
@@ -37,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -56,7 +59,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.RetrofitInstanceBioReport
+import com.example.devkots.model.BioReportEntity
+import com.example.devkots.model.LocalEntities.ParcelaVegetacionReportEntity
 import com.example.devkots.model.ParcelaVegetacionReport
 import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
@@ -101,6 +107,7 @@ fun ParcelaVegetacionFormScreen(
     var photoPath by remember { mutableStateOf<Uri?>(null) }
     var observations by remember { mutableStateOf("") }
     var submissionResult by remember { mutableStateOf<String?>(null) }
+    val photoPaths = remember { mutableStateListOf<Uri>() }
 
     val habito = listOf(
         Pair(R.drawable.arbusto, "Arbusto < 1 mt"),
@@ -134,16 +141,28 @@ fun ParcelaVegetacionFormScreen(
         }
     }
 
-    // File pickers
+    // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        photoPath = uri
+        uri?.let {
+            if (photoPaths.size < 5) { // Limita a 5 imágenes
+                photoPaths.add(it)
+            } else {
+                Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // Camera launcher
     val cameraUri = remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            photoPath = cameraUri.value // Set the captured image URI as the photoPath
+            cameraUri.value?.let {
+                if (photoPaths.size < 5) {
+                    photoPaths.add(it)
+                } else {
+                    Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -560,6 +579,38 @@ fun ParcelaVegetacionFormScreen(
                     )
                 }
             }
+            Column(
+                modifier = Modifier.padding(top = 16.dp),
+            ) {
+                photoPaths.forEachIndexed { index, uri ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Nombre del archivo
+                        Text(
+                            text = uri.lastPathSegment ?: "Archivo desconocido",
+                            modifier = Modifier.weight(1f),
+                            fontSize = 16.sp
+                        )
+
+                        // Botón para eliminar archivo
+                        IconButton(
+                            onClick = { photoPaths.removeAt(index) },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.x_circle),
+                                contentDescription = "Eliminar archivo",
+                                tint = Color.Red
+                            )
+                        }
+                    }
+                }
+
+            }
 
             Spacer(modifier = Modifier.height(30.dp))
 
@@ -603,7 +654,7 @@ fun ParcelaVegetacionFormScreen(
                 }
                 Button(
                     onClick = {
-                        val report = ParcelaVegetacionReport(
+                        val report = ParcelaVegetacionReportEntity(
                             code = code,
                             cuadrante = cuadrante,
                             subcuadrante = subcuadrante,
@@ -615,7 +666,7 @@ fun ParcelaVegetacionFormScreen(
                             distancia = distancia.toIntOrNull() ?: 0,
                             estaturabio = estaturabio.toIntOrNull() ?: 0,
                             altura = altura.toIntOrNull() ?: 0,
-                            photoPath = photoPath?.toString(),
+                            photoPaths = photoPaths.map { it.toString() }, // Convertir a String
                             observations = observations,
                             date = currentDate,
                             time = currentTime,
@@ -625,13 +676,43 @@ fun ParcelaVegetacionFormScreen(
                             season = season,
                             biomonitor_id = biomonitorID
                         )
-
+                        val reporttemporal = ParcelaVegetacionReport(
+                            code = code,
+                            cuadrante = cuadrante,
+                            subcuadrante = subcuadrante,
+                            habitocrecimiento = habitoCrecimiento,
+                            nombrecomun = nombreComun,
+                            nombrecientifico = nombreCientifico.takeIf { it.isNotEmpty() },
+                            placa = placa,
+                            circunferencia = circunferencia.toIntOrNull() ?: 0,
+                            distancia = distancia.toIntOrNull() ?: 0,
+                            estaturabio = estaturabio.toIntOrNull() ?: 0,
+                            altura = altura.toIntOrNull() ?: 0,
+                            photoPaths = photoPaths.map { it.toString() }, // Convertir a String
+                            observations = observations,
+                            date = currentDate,
+                            time = currentTime,
+                            gpsLocation = gpsLocation,
+                            weather = weather,
+                            status = false,
+                            season = season,
+                            biomonitor_id = biomonitorID
+                        )
+                        val reportBio = BioReportEntity(
+                            date = currentDate,
+                            status = false,
+                            biomonitor_id = biomonitorID,
+                            type = "Parcela de Vegetación"
+                        )
                         coroutineScope.launch {
-                            val response = RetrofitInstanceBioReport.api.submitParcelaVegetacionReport(report)
-                            submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
-
-                            // Reset form on success
-                            if (response.isSuccessful) {
+                            val database = AppDatabase.getInstance(context)
+                            val faunaDao = database.parcelaVegetacionReportDao()
+                            val bioDao = database.bioReportDao()
+                            val response = RetrofitInstanceBioReport.api.submitParcelaVegetacionReport(reporttemporal)
+                            try {
+                                faunaDao.insertParcelaVegetacionReport(report)
+                                bioDao.insertReport(reportBio)
+                                submissionResult = "Report saved locally successfully!"
                                 code = ""
                                 cuadrante = ""
                                 subcuadrante = ""
@@ -643,8 +724,11 @@ fun ParcelaVegetacionFormScreen(
                                 distancia = ""
                                 estaturabio = ""
                                 altura = ""
-                                photoPath = null
+                                photoPaths.clear()
                                 observations = ""
+
+                            } catch (e: Exception) {
+                                submissionResult = "Failed to save report locally: ${e.message}"
                             }
                         }
                     },

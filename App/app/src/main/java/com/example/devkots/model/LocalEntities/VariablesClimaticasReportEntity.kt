@@ -1,6 +1,11 @@
-package com.example.devkots.model
+package com.example.devkots.model.LocalEntities
 
-data class VariablesClimaticasReport(
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "variables_climaticas_reports")
+data class VariablesClimaticasReportEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val type: String = "Variables Climaticas",
     val zona: String,
     val pluviosidad: String,

@@ -25,6 +25,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
@@ -33,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,7 +54,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.RetrofitInstanceBioReport
+import com.example.devkots.model.BioReportEntity
+import com.example.devkots.model.LocalEntities.ValidacionCoberturaReportEntity
 import com.example.devkots.model.ValidacionCoberturaReport
 import com.example.devkots.uiLib.components.FormLayout
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
@@ -88,6 +95,7 @@ fun ValidacionCoberturaFormScreen(
     var photoPath by remember { mutableStateOf<Uri?>(null) }
     var observations by remember { mutableStateOf("") }
     var submissionResult by remember { mutableStateOf<String?>(null) }
+    val photoPaths = remember { mutableStateListOf<Uri>() }
 
     // Static values
     val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().time)
@@ -115,16 +123,28 @@ fun ValidacionCoberturaFormScreen(
         }
     }
 
-    // File pickers
+    // Gallery launcher
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        photoPath = uri
+        uri?.let {
+            if (photoPaths.size < 5) { // Limita a 5 imágenes
+                photoPaths.add(it)
+            } else {
+                Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     // Camera launcher
     val cameraUri = remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            photoPath = cameraUri.value // Set the captured image URI as the photoPath
+            cameraUri.value?.let {
+                if (photoPaths.size < 5) {
+                    photoPaths.add(it)
+                } else {
+                    Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -367,6 +387,38 @@ fun ValidacionCoberturaFormScreen(
                     )
                 }
             }
+            Column(
+                modifier = Modifier.padding(top = 16.dp),
+            ) {
+                photoPaths.forEachIndexed { index, uri ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Nombre del archivo
+                        Text(
+                            text = uri.lastPathSegment ?: "Archivo desconocido",
+                            modifier = Modifier.weight(1f),
+                            fontSize = 16.sp
+                        )
+
+                        // Botón para eliminar archivo
+                        IconButton(
+                            onClick = { photoPaths.removeAt(index) },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.x_circle),
+                                contentDescription = "Eliminar archivo",
+                                tint = Color.Red
+                            )
+                        }
+                    }
+                }
+
+            }
 
             Spacer(modifier = Modifier.height(30.dp))
 
@@ -410,14 +462,14 @@ fun ValidacionCoberturaFormScreen(
                 }
                 Button(
                     onClick = {
-                        val report = ValidacionCoberturaReport(
+                        val report = ValidacionCoberturaReportEntity(
                             code = code,
                             seguimiento = seguimiento,
                             cambio = cambio,
                             cobertura = cobertura,
                             tiposCultivo = tiposCultivo,
                             disturbio = disturbio,
-                            photoPath = photoPath?.toString(),
+                            photoPaths = photoPaths.map { it.toString() }, // Convertir a String
                             observations = observations,
                             date = currentDate,
                             time = currentTime,
@@ -427,21 +479,49 @@ fun ValidacionCoberturaFormScreen(
                             season = season,
                             biomonitor_id = biomonitorID
                         )
-
+                        val reporttemporal = ValidacionCoberturaReport(
+                            code = code,
+                            seguimiento = seguimiento,
+                            cambio = cambio,
+                            cobertura = cobertura,
+                            tiposCultivo = tiposCultivo,
+                            disturbio = disturbio,
+                            photoPaths = photoPaths.map { it.toString() }, // Convertir a String
+                            observations = observations,
+                            date = currentDate,
+                            time = currentTime,
+                            gpsLocation = gpsLocation,
+                            weather = weather,
+                            status = false,
+                            season = season,
+                            biomonitor_id = biomonitorID
+                        )
+                        val reportBio = BioReportEntity(
+                            date = currentDate,
+                            status = false,
+                            biomonitor_id = biomonitorID,
+                            type = "Validacion de Cobertura"
+                        )
                         coroutineScope.launch {
-                            val response = RetrofitInstanceBioReport.api.submitValidacionCoberturaReport(report)
-                            submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
-
-                            // Reset form on success
-                            if (response.isSuccessful) {
+                            val database = AppDatabase.getInstance(context)
+                            val faunaDao = database.validacionCoberturaReportDao()
+                            val bioDao = database.bioReportDao()
+                            val response = RetrofitInstanceBioReport.api.submitValidacionCoberturaReport(reporttemporal)
+                            try {
+                                faunaDao.insertValidacionCoberturaReport(report)
+                                bioDao.insertReport(reportBio)
+                                submissionResult = "Report saved locally successfully!"
                                 code = ""
                                 seguimiento = ""
                                 cambio = ""
                                 cobertura = ""
                                 tiposCultivo = ""
                                 disturbio = ""
-                                photoPath = null
+                                photoPaths.clear()
                                 observations = ""
+
+                            } catch (e: Exception) {
+                                submissionResult = "Failed to save report locally: ${e.message}"
                             }
                         }
                     },

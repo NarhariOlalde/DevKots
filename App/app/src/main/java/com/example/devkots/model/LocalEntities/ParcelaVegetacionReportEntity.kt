@@ -1,6 +1,11 @@
-package com.example.devkots.model
+package com.example.devkots.model.LocalEntities
 
-data class ParcelaVegetacionReport(
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "parcela_vegetacion_reports")
+data class ParcelaVegetacionReportEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val type: String = "Parcela de Vegetacion",
     val code: String,
     val cuadrante: String,

@@ -1,11 +1,9 @@
 package com.example.devkots.uiLib.screens.FormScreen
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -46,14 +44,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.RetrofitInstanceBioReport
+import com.example.devkots.model.BioReportEntity
+import com.example.devkots.model.LocalEntities.VariablesClimaticasReportEntity
 import com.example.devkots.model.VariablesClimaticasReport
 import com.example.devkots.uiLib.components.FormLayout
-import com.example.devkots.uiLib.components.createMediaStoreImageUri
 import com.example.devkots.uiLib.theme.IntroGreen
 import com.example.devkots.uiLib.theme.ObjectGreen1
 import com.example.devkots.uiLib.theme.ObjectGreen2
@@ -85,8 +84,6 @@ fun VariablesClimaticasFormScreen(
     var humedadmax by remember { mutableStateOf("") }
     var tempmin by remember { mutableStateOf("") }
     var nivelquebrada by remember { mutableStateOf("") }
-    var photoPath by remember { mutableStateOf<Uri?>(null) }
-    var observations by remember { mutableStateOf("") }
     var submissionResult by remember { mutableStateOf<String?>(null) }
 
     // Static values
@@ -115,43 +112,12 @@ fun VariablesClimaticasFormScreen(
         }
     }
 
-    // File pickers
-    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        photoPath = uri
-    }
-
-    // Camera launcher
-    val cameraUri = remember { mutableStateOf<Uri?>(null) }
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            photoPath = cameraUri.value // Set the captured image URI as the photoPath
-        }
-    }
-
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+    rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (!isGranted) {
             Toast.makeText(context, "Permission is required for images is required to access the gallery.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Camera button onClick handler
-    fun handleCameraClick() {
-        when {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
-                // Permission is already granted, proceed with taking a photo
-                cameraUri.value = createMediaStoreImageUri(context)
-                cameraUri.value?.let { cameraLauncher.launch(it) }
-            }
-            ActivityCompat.shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.CAMERA) -> {
-                // Explain to the user why you need the camera permission (if needed)
-                submissionResult = "Please allow camera access to take photos."
-            }
-            else -> {
-                // Request the permission
-                permissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        }
-    }
     FormLayout(navController = navController){
         Column(
             modifier = Modifier
@@ -338,15 +304,13 @@ fun VariablesClimaticasFormScreen(
                 }
                 Button(
                     onClick = {
-                        val report = VariablesClimaticasReport(
+                        val report = VariablesClimaticasReportEntity(
                             zona = zone,
                             pluviosidad = pluviosidad,
                             tempmax = tempmax,
                             humedadmax = humedadmax,
                             tempmin = tempmin,
                             nivelquebrada = nivelquebrada,
-                            photoPath = photoPath?.toString(),
-                            observations = observations,
                             date = currentDate,
                             time = currentTime,
                             gpsLocation = gpsLocation,
@@ -355,21 +319,45 @@ fun VariablesClimaticasFormScreen(
                             season = season,
                             biomonitor_id = biomonitorID
                         )
-
+                        val reporttemporal = VariablesClimaticasReport(
+                            zona = zone,
+                            pluviosidad = pluviosidad,
+                            tempmax = tempmax,
+                            humedadmax = humedadmax,
+                            tempmin = tempmin,
+                            nivelquebrada = nivelquebrada,
+                            date = currentDate,
+                            time = currentTime,
+                            gpsLocation = gpsLocation,
+                            weather = weather,
+                            status = false,
+                            season = season,
+                            biomonitor_id = biomonitorID
+                        )
+                        val reportBio = BioReportEntity(
+                            date = currentDate,
+                            status = false,
+                            biomonitor_id = biomonitorID,
+                            type = "Variables Climaticas"
+                        )
                         coroutineScope.launch {
-                            val response = RetrofitInstanceBioReport.api.submitVariablesClimaticasReport(report)
-                            submissionResult = if (response.isSuccessful) "Report submitted successfully!" else "Submission failed."
-
-                            // Reset form on success
-                            if (response.isSuccessful) {
+                            val database = AppDatabase.getInstance(context)
+                            val faunaDao = database.variablesClimaticasReportDao()
+                            val bioDao = database.bioReportDao()
+                            RetrofitInstanceBioReport.api.submitVariablesClimaticasReport(reporttemporal)
+                            try {
+                                faunaDao.insertVariablesClimaticasReport(report)
+                                bioDao.insertReport(reportBio)
+                                submissionResult = "Report saved locally successfully!"
                                 zone = ""
                                 pluviosidad = ""
                                 tempmax = ""
                                 humedadmax = ""
                                 tempmin = ""
                                 nivelquebrada = ""
-                                photoPath = null
-                                observations = ""
+
+                            } catch (e: Exception) {
+                                submissionResult = "Failed to save report locally: ${e.message}"
                             }
                         }
                     },
