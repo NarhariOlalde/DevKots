@@ -1,7 +1,7 @@
 package com.example.devkots.model
 
 data class ParcelaVegetacionReport(
-    val type: String = "Parcela de Vegetacion",
+    val type: String = "Parcela de Vegetación",
     val code: String,
     val cuadrante: String,
     val subcuadrante: String,
@@ -13,7 +13,7 @@ data class ParcelaVegetacionReport(
     val distancia: Int,
     val estaturabio: Int,
     val altura: Int,
-    val photoPaths: List<String>? = null,
+    val photoPaths: List<String>? = emptyList(),
     val observations: String,
     val date: String,
     val time: String,

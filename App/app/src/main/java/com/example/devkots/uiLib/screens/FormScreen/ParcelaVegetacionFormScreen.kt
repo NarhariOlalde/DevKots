@@ -672,41 +672,19 @@ fun ParcelaVegetacionFormScreen(
                             season = season,
                             biomonitor_id = biomonitorID
                         )
-                        val reporttemporal = ParcelaVegetacionReport(
-                            code = code,
-                            cuadrante = cuadrante,
-                            subcuadrante = subcuadrante,
-                            habitocrecimiento = habitoCrecimiento,
-                            nombrecomun = nombreComun,
-                            nombrecientifico = nombreCientifico.takeIf { it.isNotEmpty() },
-                            placa = placa,
-                            circunferencia = circunferencia.toIntOrNull() ?: 0,
-                            distancia = distancia.toIntOrNull() ?: 0,
-                            estaturabio = estaturabio.toIntOrNull() ?: 0,
-                            altura = altura.toIntOrNull() ?: 0,
-                            photoPaths = photoPaths.map { it.toString() }, // Convertir a String
-                            observations = observations,
-                            date = currentDate,
-                            time = currentTime,
-                            gpsLocation = gpsLocation,
-                            weather = weather,
-                            status = false,
-                            season = season,
-                            biomonitor_id = biomonitorID
-                        )
-                        val reportBio = BioReportEntity(
-                            date = currentDate,
-                            status = false,
-                            biomonitor_id = biomonitorID,
-                            type = "Parcela de Vegetación"
-                        )
                         coroutineScope.launch {
                             val database = AppDatabase.getInstance(context)
                             val faunaDao = database.parcelaVegetacionReportDao()
                             val bioDao = database.bioReportDao()
-                            val response = RetrofitInstanceBioReport.api.submitParcelaVegetacionReport(reporttemporal)
                             try {
-                                faunaDao.insertParcelaVegetacionReport(report)
+                                val formId = faunaDao.insertParcelaVegetacionReport(report)
+                                val reportBio = BioReportEntity(
+                                    formId = formId,
+                                    date = currentDate,
+                                    status = false,
+                                    biomonitor_id = biomonitorID,
+                                    type = "Parcela de Vegetación"
+                                )
                                 bioDao.insertReport(reportBio)
                                 submissionResult = "Report saved locally successfully!"
                                 code = ""

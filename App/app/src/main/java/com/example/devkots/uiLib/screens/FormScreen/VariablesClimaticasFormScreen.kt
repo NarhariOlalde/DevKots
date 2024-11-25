@@ -319,34 +319,19 @@ fun VariablesClimaticasFormScreen(
                             season = season,
                             biomonitor_id = biomonitorID
                         )
-                        val reporttemporal = VariablesClimaticasReport(
-                            zona = zone,
-                            pluviosidad = pluviosidad.toIntOrNull() ?: 0,
-                            tempmax = tempmax.toIntOrNull() ?: 0,
-                            humedadmax = humedadmax.toIntOrNull() ?: 0,
-                            tempmin = tempmin.toIntOrNull() ?: 0,
-                            nivelquebrada = nivelquebrada.toIntOrNull() ?: 0,
-                            date = currentDate,
-                            time = currentTime,
-                            gpsLocation = gpsLocation,
-                            weather = weather,
-                            status = false,
-                            season = season,
-                            biomonitor_id = biomonitorID
-                        )
-                        val reportBio = BioReportEntity(
-                            date = currentDate,
-                            status = false,
-                            biomonitor_id = biomonitorID,
-                            type = "Variables Climaticas"
-                        )
                         coroutineScope.launch {
                             val database = AppDatabase.getInstance(context)
                             val faunaDao = database.variablesClimaticasReportDao()
                             val bioDao = database.bioReportDao()
-                            RetrofitInstanceBioReport.api.submitVariablesClimaticasReport(reporttemporal)
                             try {
-                                faunaDao.insertVariablesClimaticasReport(report)
+                                val formId = faunaDao.insertVariablesClimaticasReport(report)
+                                val reportBio = BioReportEntity(
+                                    formId = formId,
+                                    date = currentDate,
+                                    status = false,
+                                    biomonitor_id = biomonitorID,
+                                    type = "Variables Climáticas"
+                                )
                                 bioDao.insertReport(reportBio)
                                 submissionResult = "Report saved locally successfully!"
                                 zone = ""

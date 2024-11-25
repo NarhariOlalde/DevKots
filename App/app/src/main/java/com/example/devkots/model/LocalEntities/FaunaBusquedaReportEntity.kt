@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "fauna_busqueda_reports")
 data class FaunaBusquedaReportEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val type: String = "Fauna Busqueda Libre",     // Updated to "type" instead of "formType"
+    val type: String = "Fauna Búsqueda Libre",     // Updated to "type" instead of "formType"
     val zone: String,
     val animalType: String,                  // Tipo de Animal
     val commonName: String,                  // Nombre Comun
@@ -14,7 +14,7 @@ data class FaunaBusquedaReportEntity(
     val individualCount: Int,                // Numero de Individuos
     val observationType: String,             // Tipo de Observacion
     val observationHeight: String,
-    val photoPaths: List<String>? = null,
+    val photoPaths: List<String>? = emptyList(),
     val observations: String,                // Observaciones
     val date: String,                        // Current date
     val time: String,                        // Current time

@@ -13,7 +13,7 @@ data class FaunaTransectoReportEntity(
     val scientificName: String? = null,
     val individualCount: Int,
     val observationType: String,
-    val photoPaths: List<String>? = null,
+    val photoPaths: List<String>? = emptyList(),
     val observations: String,
     val date: String,
     val time: String,

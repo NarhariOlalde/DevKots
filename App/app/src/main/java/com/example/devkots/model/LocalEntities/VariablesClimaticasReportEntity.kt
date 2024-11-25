@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "variables_climaticas_reports")
 data class VariablesClimaticasReportEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val type: String = "Variables Climaticas",
+    val type: String = "Variables Climáticas",
     val zona: String,
     val pluviosidad: Int,
     val tempmax: Int,

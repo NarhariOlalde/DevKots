@@ -1,50 +1,64 @@
 package com.example.devkots.uiLib.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.BioReportService
-import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.BioReport
-import com.example.devkots.uiLib.components.MainLayout
-import com.example.devkots.uiLib.viewmodels.BioReportViewModel
-import com.example.devkots.uiLib.theme.ObjectGreen2
-import com.example.devkots.uiLib.theme.ObjectGreen1
-import com.example.devkots.uiLib.theme.ObjectGreen5
+import com.example.devkots.model.BioReportEntity
+import com.example.devkots.model.LocalEntities.CamarasTrampaReportEntity
+import com.example.devkots.model.LocalEntities.FaunaBusquedaReportEntity
+import com.example.devkots.model.LocalEntities.FaunaPuntoConteoReportEntity
+import com.example.devkots.model.LocalEntities.FaunaTransectoReportEntity
+import com.example.devkots.model.LocalEntities.ParcelaVegetacionReportEntity
+import com.example.devkots.model.LocalEntities.ValidacionCoberturaReportEntity
+import com.example.devkots.model.LocalEntities.VariablesClimaticasReportEntity
+import com.example.devkots.uiLib.components.ReportRepository
+import com.example.devkots.uiLib.components.toCamarasTrampaReport
+import com.example.devkots.uiLib.components.toFaunaBusquedaReport
+import com.example.devkots.uiLib.components.toFaunaPuntoConteoReport
+import com.example.devkots.uiLib.components.toFaunaTransectoReport
+import com.example.devkots.uiLib.components.toParcelaVegetacionReport
+import com.example.devkots.uiLib.components.toValidacionCoberturaReport
+import com.example.devkots.uiLib.components.toVariablesClimaticasReport
 import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(
     navController: NavController,
     bioReportService: BioReportService,
-    biomonitorId: String // Current user's biomonitor ID
+    biomonitorId: String, // Current user's biomonitor ID
+    reportRepository: ReportRepository
 ) {
+    val context = LocalContext.current
+    val database = remember { AppDatabase.getInstance(context) } // Instancia de la base de datos
+    val bioReportDao = remember { database.bioReportDao() } // Instancia del DAO
+
     val coroutineScope = rememberCoroutineScope()
+
     var reports by remember { mutableStateOf<List<BioReport>>(emptyList()) }
+    var localReports by remember { mutableStateOf<List<BioReportEntity>>(emptyList()) }
     var filteredReports by remember { mutableStateOf<List<BioReport>>(emptyList()) }
-    var selectedTab by remember { mutableStateOf(0) }
+    var combinedReports by remember { mutableStateOf<List<BioReport>>(emptyList()) }
+
+    var selectedTab by remember { mutableIntStateOf(0) }
     var loading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
@@ -52,9 +66,9 @@ fun SearchScreen(
     // Define filterReportsByTab as a lambda or function within SearchScreen
     val filterReportsByTab: (Int) -> Unit = { tabIndex ->
         filteredReports = when (tabIndex) {
-            0 -> reports // Todos: Show all reports
-            1 -> reports.filter { !it.status } // Guardados: Show only reports with status == false
-            2 -> reports.filter { it.status } // Subidos: Show only reports with status == true
+            0 -> combinedReports // Todos: Show all reports
+            1 -> combinedReports.filter { !it.status } // Guardados: Show only reports with status == false
+            2 -> combinedReports.filter { it.status } // Subidos: Show only reports with status == true
             else -> reports
         }
     }
@@ -62,16 +76,35 @@ fun SearchScreen(
     // Fetch reports on launch
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            val response = bioReportService.getAllReportsBiomonitorID(biomonitorId)
-            println("Biomonitor ID: $biomonitorId")
-            println("Response: $response")
-            if (response.isSuccessful) {
-                reports = response.body() ?: emptyList()
-                println("Reports: $reports")
+            loading = true
+            try {
+                // Obtener reportes de la API
+                val apiResponse = bioReportService.getAllReportsBiomonitorID(biomonitorId)
+                if (apiResponse.isSuccessful) {
+                    reports = apiResponse.body() ?: emptyList()
+                } else {
+                    errorMessage = "Error al obtener reportes de la API."
+                }
+
+                // Obtener reportes locales
+                localReports = bioReportDao.getReportsByBiomonitorId(biomonitorId)
+
+                // Combinar reportes
+                combinedReports = reports + localReports.map { localReport ->
+                    BioReport(
+                        id = localReport.formId.toInt(),
+                        biomonitor_id = localReport.biomonitor_id,
+                        status = localReport.status,
+                        date = localReport.date,
+                        type = localReport.type
+                    )
+                }
+
+                // Filtrar por pestaña seleccionada
                 filterReportsByTab(selectedTab)
-                loading = false
-            } else {
-                errorMessage = "Failed to load reports."
+            } catch (e: Exception) {
+                errorMessage = "Error: ${e.message}"
+            } finally {
                 loading = false
             }
         }
@@ -86,22 +119,53 @@ fun SearchScreen(
                 actions = {
                     IconButton(onClick = {
                         coroutineScope.launch {
-                            val reportsToUpdate = reports.filter { !it.status && it.biomonitor_id == biomonitorId }
+                            val reportsToUpdate = localReports.filter { !it.status && it.biomonitor_id == biomonitorId }
                             var allSuccessful = true
 
                             // Update each report individually
                             for (report in reportsToUpdate) {
-                                val response = bioReportService.updateReportStatusById(
-                                    id = report.id,
-                                    statusUpdate = mapOf("status" to true)
-                                )
-                                if (!response.isSuccessful) {
+                                val fullReport = reportRepository.getReportByIdAndType(report.formId, report.type)
+                                val reportForSubmission = when (report.type) {
+                                    "Fauna en Transecto" -> (fullReport as? FaunaTransectoReportEntity)?.toFaunaTransectoReport()
+                                    "Fauna en Punto de Conteo" -> (fullReport as? FaunaPuntoConteoReportEntity)?.toFaunaPuntoConteoReport()
+                                    "Fauna Búsqueda Libre" -> (fullReport as? FaunaBusquedaReportEntity)?.toFaunaBusquedaReport()
+                                    "Validación de Cobertura" -> (fullReport as? ValidacionCoberturaReportEntity)?.toValidacionCoberturaReport()
+                                    "Parcela de Vegetación" -> (fullReport as? ParcelaVegetacionReportEntity)?.toParcelaVegetacionReport()
+                                    "Cámaras Trampa" -> (fullReport as? CamarasTrampaReportEntity)?.toCamarasTrampaReport()
+                                    "Variables Climáticas" -> (fullReport as? VariablesClimaticasReportEntity)?.toVariablesClimaticasReport()
+                                    else -> {
+                                        allSuccessful = false
+                                        errorMessage = "Unknown form type for report with ID: ${report.id}"
+                                        break
+                                    }
+                                }
+
+                                if (reportForSubmission != null) {
+                                    // Enviar el reporte a la API
+                                    val submitResponse = when (report.type) {
+                                        "Fauna en Transecto" -> bioReportService.submitFaunaTransectoReport(reportForSubmission)
+                                        "Fauna en Punto de Conteo" -> bioReportService.submitFaunaPuntoConteoReport(reportForSubmission)
+                                        "Fauna Búsqueda Libre" -> bioReportService.submitFaunaBusquedaReport(reportForSubmission)
+                                        "Validación de Cobertura" -> bioReportService.submitValidacionCoberturaReport(reportForSubmission)
+                                        "Parcela de Vegetación" -> bioReportService.submitParcelaVegetacionReport(reportForSubmission)
+                                        "Cámaras Trampa" -> bioReportService.submitCamarasTrampaReport(reportForSubmission)
+                                        "Variables Climáticas" -> bioReportService.submitVariablesClimaticasReport(reportForSubmission)
+                                        else -> {
+                                            allSuccessful = false
+                                            errorMessage = "Unknown form type for report with ID: ${report.id}"
+                                            break
+                                        }
+                                    }
+
+                                    reportRepository.deleteReportByIdAndType(report.formId, report.type)
+                                    reportRepository.deleteReport(report.id)
+
+                                } else {
                                     allSuccessful = false
-                                    errorMessage = "Failed to update report with ID: ${report.id}"
+                                    errorMessage = "Failed to convert report with ID: ${report.id} to appropriate type"
                                     break
                                 }
                             }
-
                             // Refresh reports if all updates succeeded
                             if (allSuccessful) {
                                 val refreshedResponse = bioReportService.getAllReportsBiomonitorID(biomonitorId)
@@ -181,10 +245,6 @@ fun SearchScreen(
                 }
             }
 
-
-
-
-
             if (loading) {
                 CircularProgressIndicator(modifier = Modifier.fillMaxSize())
             } else if (filteredReports.isNotEmpty()) {
@@ -198,7 +258,7 @@ fun SearchScreen(
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
                                 .clickable {
-                                    navController.navigate("report_detail/${report.id}/${report.type}")
+                                    navController.navigate("report_detail/${report.id}/${report.type}/${report.status.toString()}")
                                 },
                             backgroundColor = Color.White,
                             elevation = 4.dp,
@@ -213,13 +273,20 @@ fun SearchScreen(
                                     modifier = Modifier.size(75.dp)
                                 )
                                 Spacer(modifier = Modifier.width(30.dp))
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    Text("#FM${report.id}", fontSize = 30.sp, fontWeight = FontWeight.Bold)
-                                    Text("${report.type}", fontSize = 25.sp)
-                                    Text("Date: ${report.date}", fontSize = 20.sp)
+                                if(report.status) {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text("#FM${report.id}", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                                        Text("${report.type}", fontSize = 25.sp)
+                                        Text("Date: ${report.date}", fontSize = 20.sp)
+                                    }
+                                } else {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text("#FMLocal", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+                                        Text("${report.type}", fontSize = 25.sp)
+                                        Text("Date: ${report.date}", fontSize = 20.sp)
+                                    }
                                 }
                             }
-
                         }
                     }
                 }

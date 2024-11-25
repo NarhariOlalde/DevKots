@@ -17,4 +17,11 @@ interface BioReportDao {
 
     @Delete
     suspend fun deleteReport(report: BioReportEntity)
+
+    @Query("SELECT * FROM bio_reports WHERE biomonitor_id = :biomonitorId")
+    suspend fun getReportsByBiomonitorId(biomonitorId: String): List<BioReportEntity>
+
+    @Query("DELETE FROM bio_reports WHERE id = :id")
+    suspend fun deleteReportById(id: Int)
 }
+

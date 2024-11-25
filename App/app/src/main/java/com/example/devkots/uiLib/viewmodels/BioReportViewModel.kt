@@ -4,11 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.BioReport
+import com.example.devkots.uiLib.components.ReportRepository
+import com.example.devkots.uiLib.components.toBioReport
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class BioReportViewModel : ViewModel() {
+class BioReportViewModel(
+    private val bioReportRepository: ReportRepository
+) : ViewModel() {
+
     private val _bioReports = MutableStateFlow<List<BioReport>>(emptyList())
     val bioReports: StateFlow<List<BioReport>> = _bioReports
 
@@ -30,20 +35,31 @@ class BioReportViewModel : ViewModel() {
     fun fetchReportsForUser(biomonitorId: String) {
         viewModelScope.launch {
             try {
-                val response = RetrofitInstanceBioReport.api.getAllReports()
-                if (response.isSuccessful) {
-                    val reports = response.body()?.filter { it.biomonitor_id == biomonitorId } ?: emptyList()
-                    _bioReports.value = reports
-                    _totalReports.value = reports.size
-                    _trueReportsCount.value = reports.count { it.status }
-                    _falseReportsCount.value = reports.size - _trueReportsCount.value
-                    _trueStatusPercentage.value = if (reports.isNotEmpty()) {
-                        (_trueReportsCount.value.toDouble() / reports.size) * 100
-                    } else {
-                        0.0
-                    }
+                // Llama a la API para obtener los reportes remotos
+                val remoteResponse = RetrofitInstanceBioReport.api.getAllReports()
+                val remoteReports = if (remoteResponse.isSuccessful) {
+                    remoteResponse.body()?.filter { it.biomonitor_id == biomonitorId } ?: emptyList()
                 } else {
-                    _errorMessage.value = "Failed to fetch reports: ${response.message()}"
+                    _errorMessage.value = "Failed to fetch remote reports: ${remoteResponse.message()}"
+                    emptyList()
+                }
+
+                // Llama al repositorio para obtener los reportes locales
+                val localReports = bioReportRepository.getAllLocalReports()
+                    .filter { it.biomonitor_id == biomonitorId }
+
+                // Combina los reportes locales y remotos
+                val combinedReports = remoteReports + localReports.map { it.toBioReport() }
+
+                // Actualiza las estadísticas
+                _bioReports.value = combinedReports
+                _totalReports.value = combinedReports.size
+                _trueReportsCount.value = combinedReports.count { it.status }
+                _falseReportsCount.value = combinedReports.size - _trueReportsCount.value
+                _trueStatusPercentage.value = if (combinedReports.isNotEmpty()) {
+                    (_trueReportsCount.value.toDouble() / combinedReports.size) * 100
+                } else {
+                    0.0
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Error: ${e.message}"

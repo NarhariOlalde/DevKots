@@ -42,8 +42,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
+import com.example.devkots.data.daos.FaunaTransectoReportDao
 import com.example.devkots.uiLib.components.EditableField
 import com.example.devkots.uiLib.components.EditableFieldNumeric
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
@@ -55,13 +58,21 @@ import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 @Composable
 fun ReportFaunaTransectoDetailScreen(
     navController: NavController,
+    status: Boolean,
     reportId: Int,
     bioReportService: BioReportService
 ) {
-    val viewModel: ReportFaunaTransectoViewModel = viewModel(
-        factory = ReportViewModelFactory(bioReportService)
-    )
     val context = LocalContext.current
+    val database = remember { AppDatabase.getInstance(context) }
+    val faunaTransectoReportDao = database.faunaTransectoReportDao()
+
+    val viewModel: ReportFaunaTransectoViewModel = viewModel(
+        factory = ReportViewModelFactory(
+            bioReportService = bioReportService,
+            faunaTransectoReportDao = faunaTransectoReportDao
+        )
+    )
+
     var submissionResult by remember { mutableStateOf<String?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -80,8 +91,8 @@ fun ReportFaunaTransectoDetailScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.loadReport(reportId)
+    LaunchedEffect(reportId, status) {
+        viewModel.loadReport(reportId, status)
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -147,8 +158,10 @@ fun ReportFaunaTransectoDetailScreen(
                     animals.forEachIndexed { index, animal ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.clickable {
-                                viewModel.report = viewModel.report?.copy(animalType = animal.second)
+                            modifier = Modifier.clickable(enabled = viewModel.isEditable) { // Solo seleccionable si es editable
+                                if (viewModel.isEditable) {
+                                    viewModel.report = viewModel.report?.copy(animalType = animal.second)
+                                }
                             }
                         ) {
                             Image(
@@ -195,7 +208,8 @@ fun ReportFaunaTransectoDetailScreen(
                                 selected = viewModel.report!!.observationType == type,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(observationType = type)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = type,
@@ -229,8 +243,10 @@ fun ReportFaunaTransectoDetailScreen(
                                     if (viewModel.report!!.weather == weatherType) Color(0xFF99CC66) else Color.Transparent,
                                     shape = RoundedCornerShape(8.dp)
                                 )
-                                .clickable {
-                                    viewModel.report = viewModel.report?.copy(weather = weatherType)
+                                .clickable(enabled = viewModel.isEditable) { // Solo seleccionable si es editable
+                                    if (viewModel.isEditable) {
+                                        viewModel.report = viewModel.report?.copy(weather = weatherType)
+                                    }
                                 }
                                 .padding(8.dp)
                         )
@@ -249,7 +265,8 @@ fun ReportFaunaTransectoDetailScreen(
                                 selected = viewModel.report!!.season == season,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(season = season)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = season
@@ -270,7 +287,8 @@ fun ReportFaunaTransectoDetailScreen(
                         colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
                         modifier = Modifier
                             .padding(start = 30.dp)
-                            .size(width = 170.dp, height = 50.dp)
+                            .size(width = 170.dp, height = 50.dp),
+                        enabled = viewModel.isEditable
                     ) {
                         Text(
                             text = "Elegir Archivo",
@@ -293,7 +311,8 @@ fun ReportFaunaTransectoDetailScreen(
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
                         modifier = Modifier
                             .padding(start = 30.dp)
-                            .size(width = 170.dp, height = 50.dp)
+                            .size(width = 170.dp, height = 50.dp),
+                        enabled = viewModel.isEditable
                     ) {
                         Text(
                             text = "Tomar foto",
@@ -304,42 +323,46 @@ fun ReportFaunaTransectoDetailScreen(
                 }
                 viewModel.report?.photoPaths?.let { photoPaths ->
                     photoPaths.forEachIndexed { index, photoPath ->
-                        Box(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.Gray)
-                        ) {
-                            val painter = rememberImagePainter(
-                                photoPath,
-                                builder = {
-                                    crossfade(true)
-                                }
-                            )
-                            Image(
-                                painter = painter,
-                                contentDescription = "Image",
-                            )
-                            IconButton(
-                                onClick = {
-                                    viewModel.removePhotoAt(index)
-                                },
+                        // Verifica si el photoPath no está vacío
+                        if (photoPath.isNotEmpty()) {
+                            Box(
                                 modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .size(24.dp)
-                                    .clip(CircleShape)
+                                    .padding(8.dp)
+                                    .height(200.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.Gray)
                             ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.x_circle),
-                                    contentDescription = "Eliminar imagen",
-                                    tint = Color.Red,
-                                    modifier = Modifier.size(24.dp)
+                                val painter = rememberAsyncImagePainter(
+                                    model = photoPath,  // Aquí se pasa la ruta de la imagen
                                 )
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "Image",
+                                )
+                                // Solo muestra el botón de eliminar si la vista es editable
+                                if (viewModel.isEditable) {
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.removePhotoAt(index)
+                                        },
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(24.dp)
+                                            .clip(CircleShape)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.x_circle),
+                                            contentDescription = "Eliminar imagen",
+                                            tint = Color.Red,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 }
+
 
                 EditableField("Observaciones", viewModel.report!!.observations, viewModel.isEditable) {
                     viewModel.report = viewModel.report?.copy(observations = it)

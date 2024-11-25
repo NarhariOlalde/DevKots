@@ -56,6 +56,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
 import com.example.devkots.uiLib.components.EditableFieldNumeric
@@ -67,14 +68,21 @@ import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 @Composable
 fun ReportFaunaBusquedaLibreDetailScreen(
     navController: NavController,
+    status: Boolean,
     reportId: Int,
     bioReportService: BioReportService
 ) {
+    val context = LocalContext.current
+    val database = remember { AppDatabase.getInstance(context) }
+    val faunaBusquedaReportDao = database.faunaBusquedaReportDao()
+
     val viewModel: ReportFaunaBusquedaLibreViewModel = viewModel(
-        factory = ReportViewModelFactory(bioReportService)
+        factory = ReportViewModelFactory(
+            bioReportService = bioReportService,
+            faunaBusquedaLibreReportDao = faunaBusquedaReportDao
+        )
     )
 
-    val context = LocalContext.current
     var submissionResult by remember { mutableStateOf<String?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -93,13 +101,17 @@ fun ReportFaunaBusquedaLibreDetailScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.loadReport(reportId)
+    LaunchedEffect(reportId, status) {
+        viewModel.loadReport(reportId, status)
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (!isGranted) {
-            Toast.makeText(context, "Permission is required for images is required to access the gallery.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                "Permission is required for images is required to access the gallery.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 

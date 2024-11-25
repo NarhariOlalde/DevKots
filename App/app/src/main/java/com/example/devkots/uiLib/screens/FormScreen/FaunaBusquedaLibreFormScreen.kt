@@ -539,37 +539,19 @@ fun FaunaBusquedaLibreFormScreen(
                                 season = season,
                                 biomonitor_id = biomonitorID
                             )
-                            val reporttemporal = FaunaBusquedaReport(
-                                zone = zone,
-                                animalType = animalType,
-                                commonName = commonName,
-                                scientificName = scientificName.takeIf { it.isNotEmpty() },
-                                individualCount = individualCount.toIntOrNull() ?: 0,
-                                observationType = observationType,
-                                observationHeight = observationHeight,
-                                photoPaths = photoPaths.map { it.toString() }, // Convertir a String
-                                observations = observations,
-                                date = currentDate,
-                                time = currentTime,
-                                gpsLocation = gpsLocation,
-                                weather = weather,
-                                status = false,
-                                season = season,
-                                biomonitor_id = biomonitorID
-                            )
-                            val reportBio = BioReportEntity(
-                                date = currentDate,
-                                status = false,
-                                biomonitor_id = biomonitorID,
-                                type = "Fauna Busqueda Libre"
-                            )
                             coroutineScope.launch {
                                 val database = AppDatabase.getInstance(context)
                                 val faunaDao = database.faunaBusquedaReportDao()
                                 val bioDao = database.bioReportDao()
-                                val response = RetrofitInstanceBioReport.api.submitFaunaBusquedaReport(reporttemporal)
                                 try {
-                                    faunaDao.insertFaunaBusquedaReport(report)
+                                    val formId = faunaDao.insertFaunaBusquedaReport(report)
+                                    val reportBio = BioReportEntity(
+                                        formId = formId,
+                                        date = currentDate,
+                                        status = false,
+                                        biomonitor_id = biomonitorID,
+                                        type = "Fauna Búsqueda Libre"
+                                    )
                                     bioDao.insertReport(reportBio)
                                     submissionResult = "Report saved locally successfully!"
                                     zone = ""

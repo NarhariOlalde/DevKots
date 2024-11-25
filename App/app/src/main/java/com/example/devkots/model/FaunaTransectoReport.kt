@@ -8,7 +8,7 @@ data class FaunaTransectoReport(
     val scientificName: String? = null,      // Nombre Cientifico (optional)
     val individualCount: Int,                // Numero de Individuos
     val observationType: String,             // Tipo de Observacion
-    val photoPaths: List<String>? = null,
+    val photoPaths: List<String>? = emptyList(),
     val observations: String,                // Observaciones
     val date: String,                        // Current date
     val time: String,                        // Current time

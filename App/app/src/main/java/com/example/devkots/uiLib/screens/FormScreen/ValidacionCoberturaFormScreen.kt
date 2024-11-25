@@ -475,36 +475,19 @@ fun ValidacionCoberturaFormScreen(
                             season = season,
                             biomonitor_id = biomonitorID
                         )
-                        val reporttemporal = ValidacionCoberturaReport(
-                            code = code,
-                            seguimiento = seguimiento,
-                            cambio = cambio,
-                            cobertura = cobertura,
-                            tiposCultivo = tiposCultivo,
-                            disturbio = disturbio,
-                            photoPaths = photoPaths.map { it.toString() }, // Convertir a String
-                            observations = observations,
-                            date = currentDate,
-                            time = currentTime,
-                            gpsLocation = gpsLocation,
-                            weather = weather,
-                            status = false,
-                            season = season,
-                            biomonitor_id = biomonitorID
-                        )
-                        val reportBio = BioReportEntity(
-                            date = currentDate,
-                            status = false,
-                            biomonitor_id = biomonitorID,
-                            type = "Validacion de Cobertura"
-                        )
                         coroutineScope.launch {
                             val database = AppDatabase.getInstance(context)
                             val faunaDao = database.validacionCoberturaReportDao()
                             val bioDao = database.bioReportDao()
-                            val response = RetrofitInstanceBioReport.api.submitValidacionCoberturaReport(reporttemporal)
                             try {
-                                faunaDao.insertValidacionCoberturaReport(report)
+                                val formId = faunaDao.insertValidacionCoberturaReport(report)
+                                val reportBio = BioReportEntity(
+                                    formId = formId,
+                                    date = currentDate,
+                                    status = false,
+                                    biomonitor_id = biomonitorID,
+                                    type = "Validación de Cobertura"
+                                )
                                 bioDao.insertReport(reportBio)
                                 submissionResult = "Report saved locally successfully!"
                                 code = ""

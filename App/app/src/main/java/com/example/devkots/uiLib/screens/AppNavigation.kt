@@ -5,14 +5,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.uiLib.components.MainLayout
+import com.example.devkots.uiLib.components.ReportRepository
 import com.example.devkots.uiLib.screens.DetailScreen.ReportCamarasTrampaDetailScreen
 import com.example.devkots.uiLib.screens.DetailScreen.ReportFaunaBusquedaLibreDetailScreen
 import com.example.devkots.uiLib.screens.DetailScreen.ReportFaunaPuntoConteoDetailScreen
@@ -36,8 +40,23 @@ import com.example.devkots.uiLib.viewmodels.UserSessionViewModel
 fun AppNavigation(
     navController: NavHostController,
     userSessionViewModel: UserSessionViewModel = UserSessionViewModel(),
-    bioReportViewModel: BioReportViewModel = BioReportViewModel()
 ) {
+
+    val context = LocalContext.current
+    val database = remember { AppDatabase.getInstance(context) }
+    val reportRepository = remember {
+        ReportRepository(
+            bioReportDao = database.bioReportDao(),
+            faunaTransectoDao = database.faunaTransectoReportDao(),
+            faunaPuntoConteoDao = database.faunaPuntoConteoReportDao(),
+            faunaBusquedaDao = database.faunaBusquedaReportDao(),
+            validacionCoberturaDao = database.validacionCoberturaReportDao(),
+            parcelaVegetacionDao = database.parcelaVegetacionReportDao(),
+            camarasTrampaDao = database.camarasTrampaReportDao(),
+            variablesClimaticasDao = database.variablesClimaticasReportDao()
+        )
+    }
+    val bioReportViewModel = BioReportViewModel(reportRepository)
 
     val bioReportService = RetrofitInstanceBioReport.api
 
@@ -60,47 +79,58 @@ fun AppNavigation(
                 SearchScreen(
                     navController = navController,
                     bioReportService = bioReportService,
-                    biomonitorId = userSessionViewModel.biomonitorId.collectAsState().value
+                    biomonitorId = userSessionViewModel.biomonitorId.collectAsState().value,
+                    reportRepository = reportRepository
                 )
             }
         }
-        composable("report_detail/{reportId}/{reportType}") { backStackEntry ->
+        composable("report_detail/{reportId}/{reportType}/{status}") { backStackEntry ->
             val reportId = backStackEntry.arguments?.getString("reportId")?.toIntOrNull()
             val reportType = backStackEntry.arguments?.getString("reportType")
+            val status = backStackEntry.arguments?.getString("status")?.toBoolean() ?: false
             if (reportId != null && reportType != null) {
                 when (reportType) {
-                    "Fauna en Transecto" -> ReportFaunaTransectoDetailScreen(
+                    "Fauna en Transecto" ->
+                        ReportFaunaTransectoDetailScreen(
                         navController = navController,
+                        status = status,
                         reportId = reportId,
                         bioReportService = bioReportService
                     )
+
                     "Fauna en Punto de Conteo" -> ReportFaunaPuntoConteoDetailScreen(
                         navController = navController,
+                        status = status,
                         reportId = reportId,
                         bioReportService = bioReportService
                     )
-                    "Fauna Busqueda Libre" -> ReportFaunaBusquedaLibreDetailScreen(
+                    "Fauna Búsqueda Libre" -> ReportFaunaBusquedaLibreDetailScreen(
                         navController = navController,
+                        status = status,
                         reportId = reportId,
                         bioReportService = bioReportService
                     )
-                    "Validacion de cobertura" -> ReportValidacionCoberturaDetailScreen(
+                    "Validación de Cobertura" -> ReportValidacionCoberturaDetailScreen(
                         navController = navController,
+                        status = status,
                         reportId = reportId,
                         bioReportService = bioReportService
                     )
-                    "Parcela de Vegetacion" -> ReportParcelaVegetacionDetailScreen(
+                    "Parcela de Vegetación" -> ReportParcelaVegetacionDetailScreen(
                         navController = navController,
+                        status = status,
                         reportId = reportId,
                         bioReportService = bioReportService
                     )
-                    "Camaras Trampa" -> ReportCamarasTrampaDetailScreen(
+                    "Cámaras Trampa" -> ReportCamarasTrampaDetailScreen(
                         navController = navController,
+                        status = status,
                         reportId = reportId,
                         bioReportService = bioReportService
                     )
-                    "Variables Climaticas" -> ReportVariablesClimaticasDetailScreen(
+                    "Variables Climáticas" -> ReportVariablesClimaticasDetailScreen(
                         navController = navController,
+                        status = status,
                         reportId = reportId,
                         bioReportService = bioReportService
                     )

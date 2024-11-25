@@ -565,40 +565,19 @@ fun CamarasTrampaFormScreen(
                                 season = season,
                                 biomonitor_id = biomonitorID
                             )
-                            val reporttemporal = CamarasTrampaReport(
-                                code = code,
-                                zona = zone,
-                                nombrecamara = nombreCamara,
-                                placacamara = placaCamara,
-                                placaguaya = placaGuaya,
-                                anchocamino = anchoCamino.toIntOrNull() ?: 0,
-                                fechainstalacion = fechainstalacion,
-                                distancia = distanciaobj.toIntOrNull() ?: 0,
-                                altura = altura.toIntOrNull() ?: 0,
-                                listachequeo = checkedStates.mapIndexedNotNull { index, isChecked -> if (isChecked) Listachequeo[index] else null },
-                                photoPaths = photoPaths.map { it.toString() }, // Convertir a String
-                                observations = observations,
-                                date = currentDate,
-                                time = currentTime,
-                                gpsLocation = gpsLocation,
-                                weather = weather,
-                                status = false,
-                                season = season,
-                                biomonitor_id = biomonitorID
-                            )
-                            val reportBio = BioReportEntity(
-                                date = currentDate,
-                                status = false,
-                                biomonitor_id = biomonitorID,
-                                type = "Camaras Trampa"
-                            )
                             coroutineScope.launch {
                                 val database = AppDatabase.getInstance(context)
                                 val faunaDao = database.camarasTrampaReportDao()
                                 val bioDao = database.bioReportDao()
-                                RetrofitInstanceBioReport.api.submitCamarasTrampaReport(reporttemporal)
                                 try {
-                                    faunaDao.insertCamarasTrampaReport(report)
+                                    val formId = faunaDao.insertCamarasTrampaReport(report)
+                                    val reportBio = BioReportEntity(
+                                        formId = formId,
+                                        date = currentDate,
+                                        status = false,
+                                        biomonitor_id = biomonitorID,
+                                        type = "Cámaras Trampa"
+                                    )
                                     bioDao.insertReport(reportBio)
                                     submissionResult = "Report saved locally successfully!"
                                     code = ""

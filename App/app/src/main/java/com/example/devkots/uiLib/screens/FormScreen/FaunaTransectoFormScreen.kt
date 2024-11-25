@@ -504,24 +504,6 @@ fun FaunaTransectoFormScreen(
                                 scientificName = scientificName.takeIf { it.isNotEmpty() },
                                 individualCount = individualCount.toIntOrNull() ?: 0,
                                 observationType = observationType,
-                                photoPaths = photoPaths.map { it.toString() }, // Convertir a String
-                                observations = observations,
-                                date = currentDate,
-                                time = currentTime,
-                                gpsLocation = gpsLocation,
-                                weather = weather,
-                                status = false,
-                                season = season,
-                                biomonitor_id = biomonitorID
-                            )
-
-                            val reporttemporal = FaunaTransectoReport(
-                                transectoNumber = transectoNumber.toIntOrNull() ?: 0,
-                                animalType = animalType,
-                                commonName = commonName,
-                                scientificName = scientificName.takeIf { it.isNotEmpty() },
-                                individualCount = individualCount.toIntOrNull() ?: 0,
-                                observationType = observationType,
                                 photoPaths = photoPaths.map { it.toString() },
                                 observations = observations,
                                 date = currentDate,
@@ -532,22 +514,21 @@ fun FaunaTransectoFormScreen(
                                 season = season,
                                 biomonitor_id = biomonitorID
                             )
-
-                            val reportBio = BioReportEntity(
-                                date = currentDate,
-                                status = false,
-                                biomonitor_id = biomonitorID,
-                                type = "Fauna en Transecto"
-                            )
-
                             coroutineScope.launch {
                                 val database = AppDatabase.getInstance(context)
                                 val faunaDao = database.faunaTransectoReportDao()
                                 val bioDao = database.bioReportDao()
-                                val response = RetrofitInstanceBioReport.api.submitFaunaTransectoReport(reporttemporal)
                                 try {
-                                    faunaDao.insertFaunaTransectoReport(report)
+                                    val formId = faunaDao.insertFaunaTransectoReport(report)
+                                    val reportBio = BioReportEntity(
+                                        formId = formId, // Usar el ID generado del formulario
+                                        date = currentDate,
+                                        status = false,
+                                        biomonitor_id = biomonitorID,
+                                        type = "Fauna en Transecto"
+                                    )
                                     bioDao.insertReport(reportBio)
+
                                     submissionResult = "Report saved locally successfully!"
                                     transectoNumber = ""
                                     animalType = ""

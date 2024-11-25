@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("io.realm.kotlin") version "2.3.0"
     id("com.google.devtools.ksp") version "1.9.0-1.0.13"
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -86,6 +88,10 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
 
     // API
     implementation(libs.retrofit2.retrofit)

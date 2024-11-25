@@ -59,6 +59,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
 import com.example.devkots.uiLib.components.EditableFieldNumeric
@@ -71,13 +72,21 @@ import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 @Composable
 fun ReportCamarasTrampaDetailScreen(
     navController: NavController,
+    status: Boolean,
     reportId: Int,
     bioReportService: BioReportService
 ) {
-    val viewModel: ReportCamarasTrampaViewModel = viewModel(
-        factory = ReportViewModelFactory(bioReportService)
-    )
     val context = LocalContext.current
+    val database = remember { AppDatabase.getInstance(context) }
+    val camarasTrampaReportDao = database.camarasTrampaReportDao()
+
+    val viewModel: ReportCamarasTrampaViewModel = viewModel(
+        factory = ReportViewModelFactory(
+            bioReportService = bioReportService,
+            camarasTrampaReportDao = camarasTrampaReportDao
+        )
+    )
+
     var submissionResult by remember { mutableStateOf<String?>(null) }
 
     val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -95,14 +104,14 @@ fun ReportCamarasTrampaDetailScreen(
             }
         }
     }
+
     val listachequeo = listOf("Programada", "Memoria", "Prueba de gateo", "Instalada", "Letrero de cámara", "Prendida")
 
     // Estado para los elementos seleccionados
     val selectedItems = remember { mutableStateListOf<String>() }
 
-    // Cargar datos del reporte al inicio
-    LaunchedEffect(Unit) {
-        viewModel.loadReport(reportId)
+    LaunchedEffect(reportId, status) {
+        viewModel.loadReport(reportId, status)
     }
 
     // Sincronizar selectedItems con los valores del reporte cuando cambie
@@ -115,7 +124,11 @@ fun ReportCamarasTrampaDetailScreen(
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (!isGranted) {
-            Toast.makeText(context, "Permission is required for images is required to access the gallery.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                "Permission is required for images is required to access the gallery.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -374,6 +387,10 @@ fun ReportCamarasTrampaDetailScreen(
                             }
                         }
                     }
+                }
+
+                EditableField("Observaciones", viewModel.report!!.observations, viewModel.isEditable) {
+                    viewModel.report = viewModel.report?.copy(observations = it)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

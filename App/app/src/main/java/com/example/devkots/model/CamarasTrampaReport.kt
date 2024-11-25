@@ -1,7 +1,7 @@
 package com.example.devkots.model
 
 data class CamarasTrampaReport(
-    val type: String = "Camaras Trampa",
+    val type: String = "Cámaras Trampa",
     val code: String,
     val zona: String,
     val nombrecamara: String,
@@ -12,7 +12,7 @@ data class CamarasTrampaReport(
     val distancia: Int,
     val altura: Int,
     val listachequeo: List<String>? = null,
-    val photoPaths: List<String>? = null,
+    val photoPaths: List<String>? = emptyList(),
     val observations: String,
     val date: String,
     val time: String,

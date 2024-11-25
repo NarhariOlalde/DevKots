@@ -10,8 +10,6 @@ import com.example.devkots.model.ValidacionCoberturaReport
 import com.example.devkots.model.VariablesClimaticasReport
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -27,25 +25,25 @@ interface BioReportService {
     suspend fun getAllReportsBiomonitorID(@Query("biomonitor_id") biomonitorId: String): Response<List<BioReport>>
 
     @POST("basic_report") // Endpoint for shared report collection
-    suspend fun submitFaunaTransectoReport(@Body report: FaunaTransectoReport): Response<FaunaTransectoReport>
+    suspend fun submitFaunaTransectoReport(@Body report: Any?): Response<FaunaTransectoReport>
 
     @POST("basic_report")
-    suspend fun submitFaunaPuntoConteoReport(@Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
+    suspend fun submitFaunaPuntoConteoReport(@Body report: Any?): Response<FaunaPuntoConteoReport>
 
     @POST("basic_report")
-    suspend fun submitFaunaBusquedaReport(@Body report: FaunaBusquedaReport): Response<FaunaBusquedaReport>
+    suspend fun submitFaunaBusquedaReport(@Body report: Any?): Response<FaunaBusquedaReport>
 
     @POST("basic_report")
-    suspend fun submitValidacionCoberturaReport(@Body report: ValidacionCoberturaReport): Response<ValidacionCoberturaReport>
+    suspend fun submitValidacionCoberturaReport(@Body report: Any?): Response<ValidacionCoberturaReport>
 
     @POST("basic_report")
-    suspend fun submitParcelaVegetacionReport(@Body report: ParcelaVegetacionReport): Response<ParcelaVegetacionReport>
+    suspend fun submitParcelaVegetacionReport(@Body report: Any?): Response<ParcelaVegetacionReport>
 
     @POST("basic_report")
-    suspend fun submitCamarasTrampaReport(@Body report: CamarasTrampaReport): Response<CamarasTrampaReport>
+    suspend fun submitCamarasTrampaReport(@Body report: Any?): Response<CamarasTrampaReport>
 
     @POST("basic_report")
-    suspend fun submitVariablesClimaticasReport(@Body report: VariablesClimaticasReport): Response<VariablesClimaticasReport>
+    suspend fun submitVariablesClimaticasReport(@Body report: Any?): Response<VariablesClimaticasReport>
 
     @GET("basic_report/{id}")
     suspend fun getReportById(@Path("id") id: Int): Response<BioReport>
@@ -99,4 +97,5 @@ interface BioReportService {
         @Path("id") id: Int,
         @Body statusUpdate: Map<String, Boolean> // Only updating the status field
     ): Response<Unit>
+
 }

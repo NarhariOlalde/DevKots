@@ -2,6 +2,7 @@ package com.example.devkots.uiLib.viewmodels.Report
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,35 +10,77 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.devkots.data.BioReportService
+import com.example.devkots.data.daos.ParcelaVegetacionReportDao
 import com.example.devkots.model.ParcelaVegetacionReport
 import com.example.devkots.uiLib.components.copyUriToExternalStorage
+import com.example.devkots.uiLib.components.toEntity
+import com.example.devkots.uiLib.components.toParcelaVegetacionReport
 import kotlinx.coroutines.launch
 
-class ReportParcelaVegetacionViewModel(private val bioReportService: BioReportService) : ViewModel() {
-    var report by mutableStateOf<ParcelaVegetacionReport?>(null)
+class ReportParcelaVegetacionViewModel(
+    private val bioReportService: BioReportService,
+    private val ParcelaVegetacionReportDao: ParcelaVegetacionReportDao? = null
+) : ViewModel() {
+
     var cuadranteuno by mutableStateOf("")
     var cuadrantedos by mutableStateOf("")
+    var report by mutableStateOf<ParcelaVegetacionReport?>(null)
     var isEditable by mutableStateOf(false)
     var loading by mutableStateOf(true)
     var errorMessage by mutableStateOf<String?>(null)
 
-    fun loadReport(reportId: Int) {
-        viewModelScope.launch {
-            val response = bioReportService.getParcelaVegetacionReport(reportId)
-            if (response.isSuccessful) {
-                report = response.body()
-                isEditable = report?.status == false
-                loading = false
+    // Función para cargar el reporte
+    fun loadReport(reportId: Int, status: Boolean) {
+        Log.d("loadReport", "Cargando reporte con ID: $reportId y status: $status")
+        if (status) {
+            fetchReportFromApi(reportId)
+        } else {
+            fetchReportFromDatabase(reportId)
+        }
+    }
 
-                report?.cuadrante?.let {
-                    val cuadrantes = it.split("-")
-                    if (cuadrantes.size == 2) {
-                        cuadranteuno = cuadrantes[0]
-                        cuadrantedos = cuadrantes[1]
+    private fun fetchReportFromApi(reportId: Int) {
+        viewModelScope.launch {
+            loading = true
+            try {
+                val response = bioReportService.getParcelaVegetacionReport(reportId)
+                if (response.isSuccessful) {
+                    response.body()?.let { fetchedReport ->
+                        report = fetchedReport
+                        isEditable = report?.status == false
+
+                        fetchedReport.cuadrante?.let {
+                            setCuadrantes(it)
+                        }
+                    }
+                } else {
+                    Log.e("Report", "Error en la respuesta de la API: ${response.message()}")
+                    errorMessage = "Error al obtener reporte desde la API: ${response.message()}"
+                }
+            } catch (e: Exception) {
+                Log.e("Report", "Error al obtener reporte desde la API", e)
+                errorMessage = "Error al obtener reporte desde la API: ${e.message}"
+            } finally {
+                loading = false
+            }
+        }
+    }
+
+    private fun fetchReportFromDatabase(reportId: Int) {
+        viewModelScope.launch {
+            loading = true
+            try {
+                ParcelaVegetacionReportDao?.getParcelaVegetacionReportById(reportId.toLong())?.let {
+                    report = it.toParcelaVegetacionReport()
+                    it.cuadrante?.let {
+                        setCuadrantes(it)
                     }
                 }
-            } else {
-                errorMessage = "Failed to load report details."
+                isEditable = report?.status == true
+            } catch (e: Exception) {
+                Log.e("Report", "Error al obtener reporte desde la base de datos", e)
+                errorMessage = "Error al cargar reporte desde la base de datos."
+            } finally {
                 loading = false
             }
         }
@@ -45,22 +88,31 @@ class ReportParcelaVegetacionViewModel(private val bioReportService: BioReportSe
 
     fun updateReport(reportId: Int, updatedReport: ParcelaVegetacionReport) {
         viewModelScope.launch {
-            val response = bioReportService.updateParcelaVegetacionReport(reportId, updatedReport)
-            if (response.isSuccessful) {
+            loading = true
+            try {
+                Log.d("Update", "Iniciando actualización en la base de datos local")
+                val entity = updatedReport.toEntity(reportId)
+                ParcelaVegetacionReportDao?.updateParcelaVegetacionReport(entity)
+                Log.d("Update", "Reporte actualizado localmente")
                 report = updatedReport
-            } else {
-                errorMessage = "Failed to update report."
+                Log.d("Update", "Estado en memoria actualizado")
+            } catch (e: Exception) {
+                Log.e("Report", "Error al actualizar reporte localmente", e)
+                errorMessage = "Error al actualizar reporte local: ${e.message}"
+            } finally {
+                loading = false
             }
         }
     }
 
-    fun updateCuadrante() {
-        val updatedCuadrante = "$cuadranteuno-$cuadrantedos"
-        report?.let {
-            val updatedReport = it.copy(cuadrante = updatedCuadrante)
-            updateReport(it.code.toInt(), updatedReport)
+    private fun setCuadrantes(cuadrante: String) {
+        val cuadrantes = cuadrante.split("-")
+        if (cuadrantes.size == 2) {
+            cuadranteuno = cuadrantes[0]
+            cuadrantedos = cuadrantes[1]
         }
     }
+
 
     fun removePhotoAt(index: Int) {
         report = report?.let { currentReport ->
@@ -72,20 +124,22 @@ class ReportParcelaVegetacionViewModel(private val bioReportService: BioReportSe
         }
     }
 
-    // Agregar una nueva foto con control de límite
     fun addPhoto(context: Context, uri: Uri) {
-        val newUri = copyUriToExternalStorage(context, uri)  // Copia la URI al almacenamiento externo
+        Log.d("AddPhoto", "URI recibida: $uri")
+        val newUri = copyUriToExternalStorage(context, uri)
         if (newUri != null) {
+            Log.d("AddPhoto", "URI copiada al almacenamiento externo: $newUri")
             val currentPhotoPaths = report?.photoPaths?.toMutableList() ?: mutableListOf()
-            if (currentPhotoPaths.size < 5) {  // Verifica si hay espacio para más fotos
-                currentPhotoPaths.add(newUri.toString())  // Agrega la nueva URI a la lista
+            Log.d("AddPhoto", "Rutas actuales de fotos: $currentPhotoPaths")
+            if (currentPhotoPaths.size < 6) {
+                currentPhotoPaths.add(newUri.toString())
                 report = report?.copy(photoPaths = currentPhotoPaths)
+                Log.d("AddPhoto", "Nueva lista de fotos: $currentPhotoPaths")
             } else {
-                // Limite alcanzado
                 Toast.makeText(context, "Máximo de 5 imágenes alcanzado", Toast.LENGTH_SHORT).show()
             }
         } else {
-            // Error al copiar la foto al almacenamiento externo
+            Log.e("AddPhoto", "Error al copiar la foto al almacenamiento externo")
             Toast.makeText(context, "Error al agregar la foto", Toast.LENGTH_SHORT).show()
         }
     }

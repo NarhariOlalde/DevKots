@@ -1,7 +1,7 @@
 package com.example.devkots.model
 
 data class VariablesClimaticasReport(
-    val type: String = "Variables Climaticas",
+    val type: String = "Variables Climáticas",
     val zona: String,
     val pluviosidad: Int,
     val tempmax: Int,

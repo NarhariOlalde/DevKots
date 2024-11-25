@@ -1,5 +1,9 @@
 package com.example.devkots.uiLib.screens.DetailScreen
 
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,15 +33,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.devkots.R
+import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
 import com.example.devkots.uiLib.components.EditableFieldNumeric
@@ -47,15 +57,25 @@ import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
 @Composable
 fun ReportVariablesClimaticasDetailScreen(
     navController: NavController,
+    status: Boolean,
     reportId: Int,
     bioReportService: BioReportService
 ) {
+    val context = LocalContext.current
+    val database = remember { AppDatabase.getInstance(context) }
+    val variablesClimaticasReportDao = database.variablesClimaticasReportDao()
+
     val viewModel: ReportVariablesClimaticasViewModel = viewModel(
-        factory = ReportViewModelFactory(bioReportService)
+        factory = ReportViewModelFactory(
+            bioReportService = bioReportService,
+            variablesClimaticasReportDao = variablesClimaticasReportDao
+        )
     )
 
-    LaunchedEffect(Unit) {
-        viewModel.loadReport(reportId)
+    var submissionResult by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(reportId, status) {
+        viewModel.loadReport(reportId, status)
     }
 
     Scaffold(

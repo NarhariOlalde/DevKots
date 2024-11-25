@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "parcela_vegetacion_reports")
 data class ParcelaVegetacionReportEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val type: String = "Parcela de Vegetacion",
+    val type: String = "Parcela de Vegetación",
     val code: String,
     val cuadrante: String,
     val subcuadrante: String,
@@ -18,7 +18,7 @@ data class ParcelaVegetacionReportEntity(
     val distancia: Int,
     val estaturabio: Int,
     val altura: Int,
-    val photoPaths: List<String>? = null,
+    val photoPaths: List<String>? = emptyList(),
     val observations: String,
     val date: String,
     val time: String,
