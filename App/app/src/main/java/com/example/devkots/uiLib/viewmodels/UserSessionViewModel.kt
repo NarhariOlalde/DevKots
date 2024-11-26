@@ -42,26 +42,7 @@ class UserSessionViewModel : ViewModel() {
     /**
      * Updates the user's info in the session. This is typically called when user updates their profile.
      */
-    fun updateUserInfo(name: String, email: String, password: String, imageBase64: String?) {
-        val id = biomonitorId.value.toIntOrNull() ?: return  // Ensure we have a valid ID
 
-        viewModelScope.launch {
-            val user = User(id = id, name = name, mail = email, password = password, imageBase64 = imageBase64)
-            try {
-                val response = RetrofitInstance.api.updateUser(id, user)
-                if (response.isSuccessful) {
-                    _userName.value = name
-                    _email.value = email
-                    _updateStatus.value = true
-                    _imageBase64.value = imageBase64
-                } else {
-                    _updateStatus.value = false
-                }
-            } catch (e: Exception) {
-                _updateStatus.value = false
-            }
-        }
-    }
     /**
      * Logs out the user by clearing session data.
      */

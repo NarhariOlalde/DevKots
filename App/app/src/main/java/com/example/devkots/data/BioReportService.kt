@@ -45,9 +45,6 @@ interface BioReportService {
     @POST("basic_report")
     suspend fun submitVariablesClimaticasReport(@Body report: Any?): Response<VariablesClimaticasReport>
 
-    @GET("basic_report/{id}")
-    suspend fun getReportById(@Path("id") id: Int): Response<BioReport>
-
     // Get specific Fauna en Transecto report by ID
     @GET("basic_report/{id}")
     suspend fun getFaunaTransectoReport(@Path("id") id: Int): Response<FaunaTransectoReport>
@@ -69,33 +66,5 @@ interface BioReportService {
 
     @GET("basic_report/{id}")
     suspend fun getVariablesClimaticasReport(@Path("id") id: Int): Response<VariablesClimaticasReport>
-
-    // Update a Fauna en Transecto report
-    @PUT("basic_report/{id}")
-    suspend fun updateFaunaTransectoReport(@Path("id") id: Int, @Body report: FaunaTransectoReport): Response<FaunaTransectoReport>
-
-    @PUT("basic_report/{id}")
-    suspend fun updateFaunaPuntoConteoReport(@Path("id") id: Int, @Body report: FaunaPuntoConteoReport): Response<FaunaPuntoConteoReport>
-
-    @PUT("basic_report/{id}")
-    suspend fun updateFaunaBusquedaLibreReport(@Path("id") id: Int, @Body report: FaunaBusquedaReport): Response<FaunaBusquedaReport>
-
-    @PUT("basic_report/{id}")
-    suspend fun updateValidacionCoberturaReport(@Path("id") id: Int, @Body report: ValidacionCoberturaReport): Response<ValidacionCoberturaReport>
-
-    @PUT("basic_report/{id}")
-    suspend fun updateParcelaVegetacionReport(@Path("id") id: Int, @Body report: ParcelaVegetacionReport): Response<ParcelaVegetacionReport>
-
-    @PUT("basic_report/{id}")
-    suspend fun updateCamarasTrampaReport(@Path("id") id: Int, @Body report: CamarasTrampaReport): Response<CamarasTrampaReport>
-
-    @PUT("basic_report/{id}")
-    suspend fun updateVariablesClimaticasReport(@Path("id") id: Int, @Body report: VariablesClimaticasReport): Response<VariablesClimaticasReport>
-
-    @PATCH("basic_report/{id}")
-    suspend fun updateReportStatusById(
-        @Path("id") id: Int,
-        @Body statusUpdate: Map<String, Boolean> // Only updating the status field
-    ): Response<Unit>
 
 }

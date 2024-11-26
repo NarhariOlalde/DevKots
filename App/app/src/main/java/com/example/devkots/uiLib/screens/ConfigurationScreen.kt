@@ -37,16 +37,11 @@ fun ConfigurationScreen(
     val emailState = userSessionViewModel.email.collectAsState()
     var password by remember { mutableStateOf("") }
 
-    // Track if the update was successful
-    val updateStatus by userSessionViewModel.updateStatus.collectAsState()
-
     // Local variables for name and email based on collected states
     var name by remember { mutableStateOf(nameState.value) }
     var email by remember { mutableStateOf(emailState.value) }
     var imageBase64 : String? by remember { mutableStateOf(userSessionViewModel.imageBase64.value) }
 
-    // Enable save button only when all fields are non-blank
-    val isSaveEnabled = name.isNotBlank() && email.isNotBlank() && password.isNotBlank()
 
     MainLayout(navController = navController) {
         Column(
@@ -54,68 +49,11 @@ fun ConfigurationScreen(
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            TopNavigationBar(navController, "Configuración")
-
-            // Name Input
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Nombre", style = TextStyle(fontSize = 18.sp)) },
-                textStyle = TextStyle(fontSize = 35.sp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
+            TopAppBar(
+                title = { Text("Configuración", fontSize = 24.sp, modifier = Modifier.padding(start = 40.dp))},
+                backgroundColor = Color(0xFFB4D68F),
+                modifier = Modifier.height(80.dp),
             )
-
-            // Email Input
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email", style = TextStyle(fontSize = 18.sp)) },
-                textStyle = TextStyle(fontSize = 35.sp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
-
-            // Password Input
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Contraseña", style = TextStyle(fontSize = 18.sp)) },
-                textStyle = TextStyle(fontSize = 35.sp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password)
-            )
-
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Save Button
-            Button(
-                onClick = {
-                    val hashedPassword = HashUtil.sha256(password)
-                    userSessionViewModel.updateUserInfo(name, email, hashedPassword, imageBase64)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                enabled = isSaveEnabled,
-                colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2)
-            ) {
-                Text("Guardar Cambios", color = Color.White, fontSize = 30.sp)
-            }
-
-            // Display Update Status
-            updateStatus?.let { success ->
-                Text(
-                    text = if (success) "Update successful" else "Update failed",
-                    color = if (success) Color.Green else Color.Red
-                )
-            }
 
             // Logout Button
             Button(

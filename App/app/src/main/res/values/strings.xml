@@ -2,4 +2,6 @@
     <string name="app_name">AWAQ-BIO</string>\
     <string name="logo_description">Awaq Logo </string>
     <string name="icon_description">Main page logo </string>
+    <string name="com_auth0_domain">dev-6vzyeoluir57rec7.us.auth0.com</string>
+    <string name="com_auth0_client_id">SQ5P8rWLWHVtge7gmlhjdVthrVA6J3eD</string>
 </resources>

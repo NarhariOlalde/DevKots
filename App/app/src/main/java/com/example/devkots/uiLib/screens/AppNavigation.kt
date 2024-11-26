@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.auth0.android.Auth0
 import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.uiLib.components.MainLayout
@@ -40,6 +41,7 @@ import com.example.devkots.uiLib.viewmodels.UserSessionViewModel
 fun AppNavigation(
     navController: NavHostController,
     userSessionViewModel: UserSessionViewModel = UserSessionViewModel(),
+    auth0: Auth0
 ) {
 
     val context = LocalContext.current
@@ -62,7 +64,7 @@ fun AppNavigation(
 
     NavHost(navController = navController, startDestination = "login_signup") {
         composable("login_signup") { LoginSignupScreen(navController) }
-        composable("login") { LoginScreen(navController, LoginViewModel(userSessionViewModel), userSessionViewModel) }
+        composable("login") { LoginScreen(navController, LoginViewModel(userSessionViewModel, auth0), userSessionViewModel) }
         composable("signup") { SignupScreen( navController, SignupViewModel(userSessionViewModel) ) }
         composable("dashboard") {
             DashboardScreen(
