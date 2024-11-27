@@ -121,19 +121,19 @@ fun DashboardScreen(
                             totalReports = trueReportsCount,
                             color = ObjectGreen2,
                             text = "Subidos",
-                            fontSize = 35
+                            fontSize = 32
                         )
                         BottomReportInfoPanel(
                             totalReports = totalReports,
                             color = Color.Black,
                             text = "En total",
-                            fontSize = 35
+                            fontSize = 32
                         )
                         BottomReportInfoPanel(
                             totalReports = falseReportsCount,
                             color = Color.Red,
                             text = "Guardados",
-                            fontSize = 35
+                            fontSize = 32
                         )
                     }
                 }
