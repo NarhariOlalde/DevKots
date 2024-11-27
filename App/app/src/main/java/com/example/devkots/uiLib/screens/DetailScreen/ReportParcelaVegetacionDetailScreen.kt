@@ -55,6 +55,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.devkots.R
 import com.example.devkots.data.AppDatabase
@@ -62,6 +63,7 @@ import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
 import com.example.devkots.uiLib.components.EditableFieldNumeric
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
+import com.example.devkots.uiLib.components.handleCameraClick
 import com.example.devkots.uiLib.theme.ObjectGreen2
 import com.example.devkots.uiLib.viewmodels.Report.ReportParcelaVegetacionViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
@@ -114,6 +116,24 @@ fun ReportParcelaVegetacionDetailScreen(
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    // Función para verificar si todos los campos obligatorios están completos
+    fun isFormValid(): Boolean {
+        val report = viewModel.report
+        return report != null &&
+                report.code.isNotEmpty() &&
+                report.cuadrante.isNotEmpty() &&
+                report.subcuadrante.isNotEmpty() &&
+                report.habitocrecimiento.isNotEmpty() &&
+                report.nombrecomun.isNotEmpty() &&
+                report.placa.isNotEmpty() &&
+                report.circunferencia > 0 &&
+                report.distancia > 0 &&
+                report.estaturabio > 0 &&
+                report.altura > 0 &&
+                report.weather.isNotEmpty() &&
+                report.season.isNotEmpty()
     }
 
     Scaffold(
@@ -169,7 +189,7 @@ fun ReportParcelaVegetacionDetailScreen(
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier
-                                    .clickable { viewModel.cuadranteuno = cuadr }
+                                    .clickable(enabled = viewModel.isEditable) { viewModel.cuadranteuno = cuadr }
                                     .background(
                                         color = if (viewModel.cuadranteuno == cuadr) Color(0xFF99CC66) else Color.White,
                                         shape = RoundedCornerShape(8.dp)
@@ -196,7 +216,7 @@ fun ReportParcelaVegetacionDetailScreen(
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier
-                                    .clickable { viewModel.cuadrantedos = cuadr
+                                    .clickable(enabled = viewModel.isEditable) { viewModel.cuadrantedos = cuadr
                                     }
                                     .background(
                                         color = if (viewModel.cuadrantedos == cuadr) Color(0xFF99CC66) else Color.White,
@@ -230,7 +250,7 @@ fun ReportParcelaVegetacionDetailScreen(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
-                                .clickable { viewModel.report = viewModel.report?.copy(subcuadrante = subcuadr) }
+                                .clickable(enabled = viewModel.isEditable) { viewModel.report = viewModel.report?.copy(subcuadrante = subcuadr) }
                                 .background(
                                     color = if (viewModel.report!!.subcuadrante == subcuadr.toString()) Color(0xFF99CC66) else Color.White,
                                     shape = RoundedCornerShape(8.dp)
@@ -264,7 +284,7 @@ fun ReportParcelaVegetacionDetailScreen(
                     habito.forEachIndexed { index, habit ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.clickable { viewModel.report = viewModel.report?.copy(habitocrecimiento = habit.second)}
+                            modifier = Modifier.clickable(enabled = viewModel.isEditable) { viewModel.report = viewModel.report?.copy(habitocrecimiento = habit.second)}
                         ) {
                             Image(
                                 painter = painterResource(id = habit.first),
@@ -339,8 +359,10 @@ fun ReportParcelaVegetacionDetailScreen(
                                     if (viewModel.report!!.weather == weatherType) Color(0xFF99CC66) else Color.Transparent,
                                     shape = RoundedCornerShape(8.dp)
                                 )
-                                .clickable {
-                                    viewModel.report = viewModel.report?.copy(weather = weatherType)
+                                .clickable(enabled = viewModel.isEditable) { // Solo seleccionable si es editable
+                                    if (viewModel.isEditable) {
+                                        viewModel.report = viewModel.report?.copy(weather = weatherType)
+                                    }
                                 }
                                 .padding(8.dp)
                         )
@@ -359,7 +381,8 @@ fun ReportParcelaVegetacionDetailScreen(
                                 selected = viewModel.report!!.season == season,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(season = season)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = season
@@ -380,7 +403,8 @@ fun ReportParcelaVegetacionDetailScreen(
                         colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
                         modifier = Modifier
                             .padding(start = 30.dp)
-                            .size(width = 170.dp, height = 50.dp)
+                            .size(width = 170.dp, height = 50.dp),
+                        enabled = viewModel.isEditable
                     ) {
                         Text(
                             text = "Elegir Archivo",
@@ -390,7 +414,7 @@ fun ReportParcelaVegetacionDetailScreen(
                     }
                     Button(
                         onClick = {
-                            com.example.devkots.uiLib.components.handleCameraClick(
+                            handleCameraClick(
                                 context = context,
                                 cameraUri = cameraUri,
                                 cameraLauncher = cameraLauncher,
@@ -403,7 +427,8 @@ fun ReportParcelaVegetacionDetailScreen(
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
                         modifier = Modifier
                             .padding(start = 30.dp)
-                            .size(width = 170.dp, height = 50.dp)
+                            .size(width = 170.dp, height = 50.dp),
+                        enabled = viewModel.isEditable
                     ) {
                         Text(
                             text = "Tomar foto",
@@ -414,38 +439,41 @@ fun ReportParcelaVegetacionDetailScreen(
                 }
                 viewModel.report?.photoPaths?.let { photoPaths ->
                     photoPaths.forEachIndexed { index, photoPath ->
-                        Box(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.Gray)
-                        ) {
-                            val painter = rememberImagePainter(
-                                photoPath,
-                                builder = {
-                                    crossfade(true)
-                                }
-                            )
-                            Image(
-                                painter = painter,
-                                contentDescription = "Image",
-                            )
-                            IconButton(
-                                onClick = {
-                                    viewModel.removePhotoAt(index)
-                                },
+                        // Verifica si el photoPath no está vacío
+                        if (photoPath.isNotEmpty()) {
+                            Box(
                                 modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .size(24.dp)
-                                    .clip(CircleShape)
+                                    .padding(8.dp)
+                                    .height(200.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.Gray)
                             ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.x_circle),
-                                    contentDescription = "Eliminar imagen",
-                                    tint = Color.Red,
-                                    modifier = Modifier.size(24.dp)
+                                val painter = rememberAsyncImagePainter(
+                                    model = photoPath,  // Aquí se pasa la ruta de la imagen
                                 )
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "Image",
+                                )
+                                // Solo muestra el botón de eliminar si la vista es editable
+                                if (viewModel.isEditable) {
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.removePhotoAt(index)
+                                        },
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(24.dp)
+                                            .clip(CircleShape)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.x_circle),
+                                            contentDescription = "Eliminar imagen",
+                                            tint = Color.Red,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -467,7 +495,8 @@ fun ReportParcelaVegetacionDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029))
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029)),
+                        enabled = isFormValid() && viewModel.isEditable
                     ) {
                         Text("Save Changes", color = Color.White, fontSize = 18.sp)
                     }

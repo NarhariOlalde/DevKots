@@ -78,6 +78,20 @@ fun ReportVariablesClimaticasDetailScreen(
         viewModel.loadReport(reportId, status)
     }
 
+    // Función para verificar si todos los campos obligatorios están completos
+    fun isFormValid(): Boolean {
+        val report = viewModel.report
+        return report != null &&
+                report.zona.isNotEmpty() &&
+                report.pluviosidad > 0 &&
+                report.tempmax > 0 &&
+                report.tempmin > 0 &&
+                report.humedadmax > 0 &&
+                report.nivelquebrada > 0 &&
+                report.weather.isNotEmpty() &&
+                report.season.isNotEmpty()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -120,7 +134,8 @@ fun ReportVariablesClimaticasDetailScreen(
                                 selected = viewModel.report!!.zona == type,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(zona = type)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = type,
@@ -160,7 +175,8 @@ fun ReportVariablesClimaticasDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029))
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029)),
+                        enabled = isFormValid() && viewModel.isEditable
                     ) {
                         Text("Save Changes", color = Color.White, fontSize = 18.sp)
                     }

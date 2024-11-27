@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -103,6 +104,19 @@ fun ReportFaunaTransectoDetailScreen(
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    // Función para verificar si todos los campos obligatorios están completos
+    fun isFormValid(): Boolean {
+        val report = viewModel.report
+        return report != null &&
+                report.transectoNumber > 0 &&
+                report.commonName.isNotEmpty() &&
+                report.individualCount > 0 &&
+                report.animalType.isNotEmpty() &&
+                report.observationType.isNotEmpty() &&
+                report.weather.isNotEmpty() &&
+                report.season.isNotEmpty()
     }
 
     Scaffold(
@@ -379,7 +393,8 @@ fun ReportFaunaTransectoDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029))
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029)),
+                        enabled = isFormValid() && viewModel.isEditable
                     ) {
                         Text("Save Changes", color = Color.White, fontSize = 18.sp)
                     }

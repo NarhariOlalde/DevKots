@@ -23,5 +23,9 @@ interface BioReportDao {
 
     @Query("DELETE FROM bio_reports WHERE id = :id")
     suspend fun deleteReportById(id: Int)
+
+    @Query("DELETE FROM bio_reports WHERE formId = :formId AND type = :type")
+    suspend fun deleteReportByFormIdAndType(formId: Long, type: String)
+
 }
 

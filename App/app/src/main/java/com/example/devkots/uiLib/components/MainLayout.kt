@@ -315,11 +315,11 @@ fun EditableField(
 @Composable
 fun EditableFieldNumeric(
     label: String,
-    value: Int,
+    value: Int?,
     isEditable: Boolean,
     onValueChange: (Int) -> Unit
 ) {
-    var textValue by remember { mutableStateOf(value.toString()) } // Mantén el valor como String
+    var textValue by remember { mutableStateOf(value?.toString() ?: "") } // Usamos "" en lugar de "0"
 
     Column {
         Text(label, color = Color.Black, fontSize = 24.sp)
@@ -330,7 +330,9 @@ fun EditableFieldNumeric(
                     textValue = newValue // Actualiza el estado local primero
                     val intValue = newValue.toIntOrNull()
                     if (intValue != null) {
-                        onValueChange(intValue) // Solo actualiza si es un número válido
+                        onValueChange(intValue)
+                    } else if (newValue.isEmpty()) {
+                        onValueChange(0)
                     }
                 },
                 modifier = Modifier
@@ -346,7 +348,7 @@ fun EditableFieldNumeric(
             )
         } else {
             Text(
-                text = value.toString(),
+                text = value?.toString() ?: "0", // Mostramos "0" si es null
                 fontSize = 16.sp,
                 color = Color.Black,
                 modifier = Modifier

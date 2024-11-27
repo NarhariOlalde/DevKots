@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -171,6 +174,18 @@ fun SearchScreen(
                                 val refreshedResponse = bioReportService.getAllReportsBiomonitorID(biomonitorId)
                                 if (refreshedResponse.isSuccessful) {
                                     reports = refreshedResponse.body() ?: emptyList()
+                                    localReports = bioReportDao.getReportsByBiomonitorId(biomonitorId)
+
+                                    combinedReports = reports + localReports.map { localReport ->
+                                        BioReport(
+                                            id = localReport.formId.toInt(),
+                                            biomonitor_id = localReport.biomonitor_id,
+                                            status = localReport.status,
+                                            date = localReport.date,
+                                            type = localReport.type
+                                        )
+                                    }
+
                                     filterReportsByTab(selectedTab)
                                     errorMessage = null
                                 } else {
@@ -248,9 +263,10 @@ fun SearchScreen(
             if (loading) {
                 CircularProgressIndicator(modifier = Modifier.fillMaxSize())
             } else if (filteredReports.isNotEmpty()) {
-                Column(modifier = Modifier
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState())
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
                     filteredReports.forEach { report ->
                         Card(
@@ -264,7 +280,10 @@ fun SearchScreen(
                             elevation = 4.dp,
                             border = BorderStroke(1.dp, Color.LightGray)
                         ) {
-                            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically){
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Image(
                                     painter = painterResource(
                                         id = if (report.status) R.drawable.subido else R.drawable.guardado
@@ -273,17 +292,85 @@ fun SearchScreen(
                                     modifier = Modifier.size(75.dp)
                                 )
                                 Spacer(modifier = Modifier.width(30.dp))
-                                if(report.status) {
-                                    Column(modifier = Modifier.padding(16.dp)) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    if (report.status) {
                                         Text("#FM${report.id}", fontSize = 30.sp, fontWeight = FontWeight.Bold)
                                         Text("${report.type}", fontSize = 25.sp)
                                         Text("Date: ${report.date}", fontSize = 20.sp)
-                                    }
-                                } else {
-                                    Column(modifier = Modifier.padding(16.dp)) {
+                                    } else {
                                         Text("#FMLocal", fontSize = 30.sp, fontWeight = FontWeight.Bold)
                                         Text("${report.type}", fontSize = 25.sp)
                                         Text("Date: ${report.date}", fontSize = 20.sp)
+                                    }
+                                }
+
+                                if(!report.status) {
+                                    var expanded by remember { mutableStateOf(false) }
+                                    Box {
+                                        // Botón de los tres puntos
+                                        IconButton(onClick = { expanded = true }) {
+                                            Icon(
+                                                imageVector = Icons.Default.MoreVert,
+                                                contentDescription = "Opciones",
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                        }
+
+                                        // Menú desplegable
+                                        DropdownMenu(
+                                            expanded = expanded,
+                                            onDismissRequest = { expanded = false },
+                                            modifier = Modifier.wrapContentSize()
+                                        ) {
+                                            DropdownMenuItem(
+                                                onClick = {
+                                                    expanded = false
+                                                    coroutineScope.launch {
+                                                        reportRepository.deleteReportByIdAndType(
+                                                            report.id.toLong(),
+                                                            report.type
+                                                        )
+                                                        reportRepository.deleteReportByFormIdAndType(
+                                                            report.id.toLong(),
+                                                            report.type
+                                                        )
+                                                        val refreshedResponse =
+                                                            bioReportService.getAllReportsBiomonitorID(
+                                                                biomonitorId
+                                                            )
+                                                        if (refreshedResponse.isSuccessful) {
+                                                            reports = refreshedResponse.body()
+                                                                ?: emptyList()
+                                                            localReports =
+                                                                bioReportDao.getReportsByBiomonitorId(
+                                                                    biomonitorId
+                                                                )
+                                                            combinedReports =
+                                                                reports + localReports.map { localReport ->
+                                                                    BioReport(
+                                                                        id = localReport.formId.toInt(),
+                                                                        biomonitor_id = localReport.biomonitor_id,
+                                                                        status = localReport.status,
+                                                                        date = localReport.date,
+                                                                        type = localReport.type
+                                                                    )
+                                                                }
+                                                            filterReportsByTab(selectedTab)
+                                                        }
+                                                    }
+                                                }
+                                            ) {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Delete, // Usamos el ícono predeterminado de basura
+                                                        contentDescription = "Borrar",
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Text("Borrar")
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -304,3 +391,5 @@ fun SearchScreen(
         }
     }
 }
+
+

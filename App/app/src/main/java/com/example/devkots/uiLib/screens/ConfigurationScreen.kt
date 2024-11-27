@@ -55,6 +55,20 @@ fun ConfigurationScreen(
                 modifier = Modifier.height(80.dp),
             )
 
+            // Email Input
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email", style = TextStyle(fontSize = 18.sp)) },
+                textStyle = TextStyle(fontSize = 35.sp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                enabled = false
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Logout Button
             Button(
                 onClick = {

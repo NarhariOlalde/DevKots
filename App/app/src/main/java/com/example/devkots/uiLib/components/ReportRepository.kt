@@ -52,5 +52,9 @@ class ReportRepository(private val bioReportDao: BioReportDao ,
     suspend fun getAllLocalReports(): List<BioReportEntity> {
         return bioReportDao.getAllReports()
     }
+
+    suspend fun deleteReportByFormIdAndType(id: Long, type: String) {
+        return bioReportDao.deleteReportByFormIdAndType(id, type)
+    }
 }
 

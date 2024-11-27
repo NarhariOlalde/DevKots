@@ -57,6 +57,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.devkots.R
 import com.example.devkots.data.AppDatabase
@@ -132,6 +133,23 @@ fun ReportCamarasTrampaDetailScreen(
         }
     }
 
+    // Función para verificar si todos los campos obligatorios están completos
+    fun isFormValid(): Boolean {
+        val report = viewModel.report
+        return report != null &&
+                report.code.isNotEmpty() &&
+                report.zona.isNotEmpty() &&
+                report.nombrecamara.isNotEmpty() &&
+                report.placacamara.isNotEmpty() &&
+                report.placaguaya.isNotEmpty() &&
+                report.anchocamino > 0 &&
+                report.fechainstalacion.isNotEmpty() &&
+                report.distancia > 0 &&
+                report.altura > 0 &&
+                report.weather.isNotEmpty() &&
+                report.season.isNotEmpty()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -179,7 +197,8 @@ fun ReportCamarasTrampaDetailScreen(
                                 selected = viewModel.report!!.zona == type,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(zona = type)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = type,
@@ -234,12 +253,14 @@ fun ReportCamarasTrampaDetailScreen(
                             Checkbox(
                                 checked = selectedItems.contains(item),
                                 onCheckedChange = { isChecked ->
-                                    if (isChecked) {
-                                        if (!selectedItems.contains(item)) {
-                                            selectedItems.add(item)
+                                    if (viewModel.isEditable) {
+                                        if (isChecked) {
+                                            if (!selectedItems.contains(item)) {
+                                                selectedItems.add(item)
+                                            }
+                                        } else {
+                                            selectedItems.remove(item)
                                         }
-                                    } else {
-                                        selectedItems.remove(item)
                                     }
                                 }
                             )
@@ -277,9 +298,11 @@ fun ReportCamarasTrampaDetailScreen(
                                     if (viewModel.report!!.weather == weatherType) Color(0xFF99CC66) else Color.Transparent,
                                     shape = RoundedCornerShape(8.dp)
                                 )
-                                .clickable {
+                                .clickable(enabled = viewModel.isEditable) { // Solo seleccionable si es editable
+                                if (viewModel.isEditable) {
                                     viewModel.report = viewModel.report?.copy(weather = weatherType)
                                 }
+                            }
                                 .padding(8.dp)
                         )
                     }
@@ -297,7 +320,8 @@ fun ReportCamarasTrampaDetailScreen(
                                 selected = viewModel.report!!.season == season,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(season = season)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = season
@@ -318,7 +342,8 @@ fun ReportCamarasTrampaDetailScreen(
                         colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
                         modifier = Modifier
                             .padding(start = 30.dp)
-                            .size(width = 170.dp, height = 50.dp)
+                            .size(width = 170.dp, height = 50.dp),
+                        enabled = viewModel.isEditable
                     ) {
                         Text(
                             text = "Elegir Archivo",
@@ -341,7 +366,8 @@ fun ReportCamarasTrampaDetailScreen(
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
                         modifier = Modifier
                             .padding(start = 30.dp)
-                            .size(width = 170.dp, height = 50.dp)
+                            .size(width = 170.dp, height = 50.dp),
+                        enabled = viewModel.isEditable
                     ) {
                         Text(
                             text = "Tomar foto",
@@ -352,38 +378,41 @@ fun ReportCamarasTrampaDetailScreen(
                 }
                 viewModel.report?.photoPaths?.let { photoPaths ->
                     photoPaths.forEachIndexed { index, photoPath ->
-                        Box(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.Gray)
-                        ) {
-                            val painter = rememberImagePainter(
-                                photoPath,
-                                builder = {
-                                    crossfade(true)
-                                }
-                            )
-                            Image(
-                                painter = painter,
-                                contentDescription = "Image",
-                            )
-                            IconButton(
-                                onClick = {
-                                    viewModel.removePhotoAt(index)
-                                },
+                        // Verifica si el photoPath no está vacío
+                        if (photoPath.isNotEmpty()) {
+                            Box(
                                 modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .size(24.dp)
-                                    .clip(CircleShape)
+                                    .padding(8.dp)
+                                    .height(200.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.Gray)
                             ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.x_circle),
-                                    contentDescription = "Eliminar imagen",
-                                    tint = Color.Red,
-                                    modifier = Modifier.size(24.dp)
+                                val painter = rememberAsyncImagePainter(
+                                    model = photoPath,  // Aquí se pasa la ruta de la imagen
                                 )
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "Image",
+                                )
+                                // Solo muestra el botón de eliminar si la vista es editable
+                                if (viewModel.isEditable) {
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.removePhotoAt(index)
+                                        },
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(24.dp)
+                                            .clip(CircleShape)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.x_circle),
+                                            contentDescription = "Eliminar imagen",
+                                            tint = Color.Red,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -405,7 +434,8 @@ fun ReportCamarasTrampaDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029))
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029)),
+                        enabled = isFormValid() && viewModel.isEditable
                     ) {
                         Text("Save Changes", color = Color.White, fontSize = 18.sp)
                     }

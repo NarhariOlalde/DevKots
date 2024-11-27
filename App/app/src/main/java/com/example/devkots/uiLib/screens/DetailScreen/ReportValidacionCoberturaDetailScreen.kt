@@ -54,12 +54,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.devkots.R
 import com.example.devkots.data.AppDatabase
 import com.example.devkots.data.BioReportService
 import com.example.devkots.uiLib.components.EditableField
 import com.example.devkots.uiLib.components.createMediaStoreImageUri
+import com.example.devkots.uiLib.components.handleCameraClick
 import com.example.devkots.uiLib.theme.ObjectGreen2
 import com.example.devkots.uiLib.viewmodels.Report.ReportValidacionCoberturaViewModel
 import com.example.devkots.uiLib.viewmodels.ReportViewModelFactory
@@ -114,6 +116,20 @@ fun ReportValidacionCoberturaDetailScreen(
         }
     }
 
+    // Función para verificar si todos los campos obligatorios están completos
+    fun isFormValid(): Boolean {
+        val report = viewModel.report
+        return report != null &&
+                report.code.isNotEmpty() &&
+                report.seguimiento.isNotEmpty() &&
+                report.cambio.isNotEmpty() &&
+                report.cobertura.isNotEmpty() &&
+                report.tiposCultivo.isNotEmpty() &&
+                report.disturbio.isNotEmpty() &&
+                report.weather.isNotEmpty() &&
+                report.season.isNotEmpty()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -159,7 +175,8 @@ fun ReportValidacionCoberturaDetailScreen(
                                 selected = viewModel.report!!.seguimiento == type,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(seguimiento = type)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = type,
@@ -180,7 +197,8 @@ fun ReportValidacionCoberturaDetailScreen(
                                 selected = viewModel.report!!.cambio == type,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(cambio = type)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = type,
@@ -201,7 +219,8 @@ fun ReportValidacionCoberturaDetailScreen(
                                 selected = viewModel.report!!.cobertura == type,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(cobertura = type)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = type,
@@ -226,7 +245,8 @@ fun ReportValidacionCoberturaDetailScreen(
                                 selected = viewModel.report!!.disturbio == type,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(disturbio = type)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = type,
@@ -261,8 +281,10 @@ fun ReportValidacionCoberturaDetailScreen(
                                     if (viewModel.report!!.weather == weatherType) Color(0xFF99CC66) else Color.Transparent,
                                     shape = RoundedCornerShape(8.dp)
                                 )
-                                .clickable {
-                                    viewModel.report = viewModel.report?.copy(weather = weatherType)
+                                .clickable(enabled = viewModel.isEditable) { // Solo seleccionable si es editable
+                                    if (viewModel.isEditable) {
+                                        viewModel.report = viewModel.report?.copy(weather = weatherType)
+                                    }
                                 }
                                 .padding(8.dp)
                         )
@@ -281,7 +303,8 @@ fun ReportValidacionCoberturaDetailScreen(
                                 selected = viewModel.report!!.season == season,
                                 onClick = {
                                     viewModel.report = viewModel.report?.copy(season = season)
-                                }
+                                },
+                                enabled = viewModel.isEditable
                             )
                             Text(
                                 text = season
@@ -302,7 +325,8 @@ fun ReportValidacionCoberturaDetailScreen(
                         colors = ButtonDefaults.buttonColors(backgroundColor = ObjectGreen2),
                         modifier = Modifier
                             .padding(start = 30.dp)
-                            .size(width = 170.dp, height = 50.dp)
+                            .size(width = 170.dp, height = 50.dp),
+                        enabled = viewModel.isEditable
                     ) {
                         Text(
                             text = "Elegir Archivo",
@@ -312,7 +336,7 @@ fun ReportValidacionCoberturaDetailScreen(
                     }
                     Button(
                         onClick = {
-                            com.example.devkots.uiLib.components.handleCameraClick(
+                            handleCameraClick(
                                 context = context,
                                 cameraUri = cameraUri,
                                 cameraLauncher = cameraLauncher,
@@ -325,7 +349,8 @@ fun ReportValidacionCoberturaDetailScreen(
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF388E3C)),
                         modifier = Modifier
                             .padding(start = 30.dp)
-                            .size(width = 170.dp, height = 50.dp)
+                            .size(width = 170.dp, height = 50.dp),
+                        enabled = viewModel.isEditable
                     ) {
                         Text(
                             text = "Tomar foto",
@@ -336,38 +361,41 @@ fun ReportValidacionCoberturaDetailScreen(
                 }
                 viewModel.report?.photoPaths?.let { photoPaths ->
                     photoPaths.forEachIndexed { index, photoPath ->
-                        Box(
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color.Gray)
-                        ) {
-                            val painter = rememberImagePainter(
-                                photoPath,
-                                builder = {
-                                    crossfade(true)
-                                }
-                            )
-                            Image(
-                                painter = painter,
-                                contentDescription = "Image",
-                            )
-                            IconButton(
-                                onClick = {
-                                    viewModel.removePhotoAt(index)
-                                },
+                        // Verifica si el photoPath no está vacío
+                        if (photoPath.isNotEmpty()) {
+                            Box(
                                 modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .size(24.dp)
-                                    .clip(CircleShape)
+                                    .padding(8.dp)
+                                    .height(200.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Color.Gray)
                             ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.x_circle),
-                                    contentDescription = "Eliminar imagen",
-                                    tint = Color.Red,
-                                    modifier = Modifier.size(24.dp)
+                                val painter = rememberAsyncImagePainter(
+                                    model = photoPath,  // Aquí se pasa la ruta de la imagen
                                 )
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "Image",
+                                )
+                                // Solo muestra el botón de eliminar si la vista es editable
+                                if (viewModel.isEditable) {
+                                    IconButton(
+                                        onClick = {
+                                            viewModel.removePhotoAt(index)
+                                        },
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(24.dp)
+                                            .clip(CircleShape)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.x_circle),
+                                            contentDescription = "Eliminar imagen",
+                                            tint = Color.Red,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -389,7 +417,8 @@ fun ReportValidacionCoberturaDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029))
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF4E7029)),
+                        enabled = isFormValid() && viewModel.isEditable
                     ) {
                         Text("Save Changes", color = Color.White, fontSize = 18.sp)
                     }
