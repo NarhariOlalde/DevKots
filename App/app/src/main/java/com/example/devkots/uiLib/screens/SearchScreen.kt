@@ -378,7 +378,7 @@ fun SearchScreen(
                     }
                 }
             } else {
-                Text("No reports found.", modifier = Modifier.align(Alignment.CenterHorizontally))
+                Text("No se encontraron reportes", modifier = Modifier.align(Alignment.CenterHorizontally))
             }
 
             errorMessage?.let {
