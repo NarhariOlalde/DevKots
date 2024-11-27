@@ -3,9 +3,13 @@ package com.example.devkots.uiLib.viewmodels
 import com.example.devkots.data.BioReportService
 import com.example.devkots.data.RetrofitInstanceBioReport
 import com.example.devkots.model.BioReport
+import com.example.devkots.model.BioReportEntity
+import com.example.devkots.uiLib.components.ReportRepository
+import com.example.devkots.uiLib.components.toBioReport
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Assert.*
@@ -18,15 +22,17 @@ class BioReportViewModelTest {
 
     private lateinit var viewModel: BioReportViewModel
     private lateinit var mockApi: BioReportService
+    private lateinit var mockRepository: ReportRepository
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         mockApi = mockk()
+        mockRepository = mockk()
         mockkObject(RetrofitInstanceBioReport)
         every { RetrofitInstanceBioReport.api } returns mockApi
-        viewModel = BioReportViewModel()
+        viewModel = BioReportViewModel(mockRepository)
     }
 
     @After
@@ -34,78 +40,87 @@ class BioReportViewModelTest {
         Dispatchers.resetMain()
     }
 
-    // Descripción: Esta prueba verifica que cuando se obtienen informes válidos para un usuario, el estado del ViewModel se actualiza correctamente con los datos del informe, el total de informes, los recuentos de informes verdaderos/falsos y el porcentaje de informes verdaderos.
-    // Escenario: Simula una respuesta exitosa de la API con una lista de objetos BioReport.
-    // Aserciones: Comprueba si las variables de estado del ViewModel (como bioReports, totalReports, trueReportsCount, etc.) contienen los valores esperados en función de los informes simulados.
     @Test
     fun fetchReportsForUser_ValidReports_UpdatesStateCorrectly() = runTest(testDispatcher) {
         val biomonitorId = "123"
-        val mockReports = listOf(
-            BioReport(id = 1, date = "2024-11-12", status = true, biomonitor_id = "123", type = "Type A"),
-            BioReport(id = 2, date = "2024-11-12", status = false, biomonitor_id = "123", type = "Type B"),
-            BioReport(id = 3, date = "2024-11-12", status = true, biomonitor_id = "123", type = "Type C")
+        val remoteReports = listOf(
+            BioReport(id = 1, date = "2024-11-12", status = true, biomonitor_id = biomonitorId, type = "Type A"),
+            BioReport(id = 2, date = "2024-11-12", status = false, biomonitor_id = biomonitorId, type = "Type B")
         )
-        coEvery { mockApi.getAllReports() } returns Response.success(mockReports)
+        val localReports = listOf(
+            BioReportEntity(
+                id = 3, formId = 3L, date = "2024-11-12",
+                status = true, biomonitor_id = biomonitorId, type = "Type C"
+            )
+        )
+
+        coEvery { mockApi.getAllReports() } returns Response.success(remoteReports)
+        coEvery { mockRepository.getAllLocalReports() } returns localReports
 
         viewModel.fetchReportsForUser(biomonitorId)
-        advanceUntilIdle() // Wait for coroutine to finish
+        advanceUntilIdle()
 
-        val bioReports = viewModel.bioReports.value
-        val totalReports = viewModel.totalReports.value
-        val trueReportsCount = viewModel.trueReportsCount.value
-        val falseReportsCount = viewModel.falseReportsCount.value
-        val trueStatusPercentage = viewModel.trueStatusPercentage.value
+        val bioReports = viewModel.bioReports.first()
+        val totalReports = viewModel.totalReports.first()
+        val trueReportsCount = viewModel.trueReportsCount.first()
+        val falseReportsCount = viewModel.falseReportsCount.first()
+        val trueStatusPercentage = viewModel.trueStatusPercentage.first()
 
         assertEquals(3, totalReports)
         assertEquals(2, trueReportsCount)
         assertEquals(1, falseReportsCount)
         assertEquals(66.67, trueStatusPercentage, 0.01) // Percentage calculation
-        assertEquals(mockReports, bioReports)
+        assertEquals(remoteReports + localReports.map { it.toBioReport() }, bioReports)
     }
 
-    // Descripción: Esta prueba verifica que cuando la solicitud a la API para obtener informes falla, el ViewModel establece un mensaje de error apropiado y asegura que la lista de informes esté vacía.
-    // Escenario: Simula una respuesta de error de la API (error 404).
-    // Aserciones: Comprueba si el errorMessage en el ViewModel contiene el mensaje de error esperado y si la lista bioReports está vacía.
     @Test
     fun fetchReportsForUser_ApiFailure_SetsErrorMessage() = runTest(testDispatcher) {
         coEvery { mockApi.getAllReports() } returns Response.error(404, mockk(relaxed = true))
+        coEvery { mockRepository.getAllLocalReports() } returns emptyList()
+
         viewModel.fetchReportsForUser("123")
-        advanceUntilIdle() 
-        assertEquals("Failed to fetch reports: Response.error()", viewModel.errorMessage.value)
-        assertTrue(viewModel.bioReports.value.isEmpty())
+        advanceUntilIdle()
+
+        assertEquals("Failed to fetch remote reports: Response.error()", viewModel.errorMessage.first())
+        assertTrue(viewModel.bioReports.first().isEmpty())
     }
 
-    // Descripción: Esta prueba verifica que cuando se lanza una excepción durante la solicitud a la API, el ViewModel establece un mensaje de error apropiado y asegura que la lista de informes esté vacía.
-    // Escenario: Simula que se lanza una RuntimeException durante la llamada a la API.
-    // Aserciones: Comprueba si el errorMessage en el ViewModel contiene el mensaje de error esperado y si la lista bioReports está vacía.
     @Test
     fun fetchReportsForUser_ExceptionThrown_SetsErrorMessage() = runTest(testDispatcher) {
         coEvery { mockApi.getAllReports() } throws RuntimeException("Network error")
+        coEvery { mockRepository.getAllLocalReports() } returns emptyList()
+
         viewModel.fetchReportsForUser("123")
         advanceUntilIdle()
-        assertEquals("Error: Network error", viewModel.errorMessage.value)
-        assertTrue(viewModel.bioReports.value.isEmpty())
+
+        assertEquals("Error: Network error", viewModel.errorMessage.first())
+        assertTrue(viewModel.bioReports.first().isEmpty())
     }
 
-    // Descripción: Esta prueba verifica que cuando no se encuentran informes para un ID de biomonitor específico, el ViewModel establece un estado vacío, lo que indica que no hay datos disponibles.
-    // Escenario: Simula una respuesta exitosa de la API pero con una lista vacía de informes para el ID de biomonitor dado.
-    // Aserciones: Comprueba si la lista bioReports está vacía y si las variables de estado relacionadas (como totalReports, trueReportsCount, etc.) están establecidas en 0.
     @Test
     fun fetchReportsForUser_NoReportsForBiomonitorId_SetsEmptyState() = runTest(testDispatcher) {
         val biomonitorId = "456"
-        val mockReports = listOf(
+        val remoteReports = listOf(
             BioReport(id = 1, date = "2024-11-12", status = true, biomonitor_id = "123", type = "Type A")
         )
+        val localReports = listOf(
+            BioReportEntity(
+                id = 2, formId = 2L, date = "2024-11-12",
+                status = false, biomonitor_id = "123", type = "Type B"
+            )
+        )
 
-        coEvery { mockApi.getAllReports() } returns Response.success(mockReports)
+        coEvery { mockApi.getAllReports() } returns Response.success(remoteReports)
+        coEvery { mockRepository.getAllLocalReports() } returns localReports
+
         viewModel.fetchReportsForUser(biomonitorId)
         advanceUntilIdle()
 
-        val bioReports = viewModel.bioReports.value
-        val totalReports = viewModel.totalReports.value
-        val trueReportsCount = viewModel.trueReportsCount.value
-        val falseReportsCount = viewModel.falseReportsCount.value
-        val trueStatusPercentage = viewModel.trueStatusPercentage.value
+        val bioReports = viewModel.bioReports.first()
+        val totalReports = viewModel.totalReports.first()
+        val trueReportsCount = viewModel.trueReportsCount.first()
+        val falseReportsCount = viewModel.falseReportsCount.first()
+        val trueStatusPercentage = viewModel.trueStatusPercentage.first()
 
         assertTrue(bioReports.isEmpty())
         assertEquals(0, totalReports)
