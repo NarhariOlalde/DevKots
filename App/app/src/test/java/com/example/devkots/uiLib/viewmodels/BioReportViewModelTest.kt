@@ -40,6 +40,11 @@ class BioReportViewModelTest {
         Dispatchers.resetMain()
     }
 
+    // Descripción: Verifica que cuando se obtienen reportes válidos desde fuentes remotas y locales,
+    // el estado del ViewModel se actualiza correctamente con los datos combinados.
+    // Escenario: Simula una respuesta exitosa de la API y datos locales relevantes del repositorio.
+    // Aserciones: Comprueba si las variables del estado (bioReports, totalReports, trueReportsCount, etc.)
+    // se actualizan correctamente con los datos combinados de las fuentes.
     @Test
     fun fetchReportsForUser_ValidReports_UpdatesStateCorrectly() = runTest(testDispatcher) {
         val biomonitorId = "123"
@@ -69,10 +74,14 @@ class BioReportViewModelTest {
         assertEquals(3, totalReports)
         assertEquals(2, trueReportsCount)
         assertEquals(1, falseReportsCount)
-        assertEquals(66.67, trueStatusPercentage, 0.01) // Percentage calculation
+        assertEquals(66.67, trueStatusPercentage, 0.01) // Porcentaje calculado
         assertEquals(remoteReports + localReports.map { it.toBioReport() }, bioReports)
     }
 
+    // Descripción: Verifica que cuando la solicitud a la API falla, el ViewModel establece
+    // un mensaje de error y asegura que la lista de reportes está vacía.
+    // Escenario: Simula una respuesta de error de la API (error 404).
+    // Aserciones: Comprueba que el errorMessage contiene el mensaje esperado y que bioReports está vacío.
     @Test
     fun fetchReportsForUser_ApiFailure_SetsErrorMessage() = runTest(testDispatcher) {
         coEvery { mockApi.getAllReports() } returns Response.error(404, mockk(relaxed = true))
@@ -85,6 +94,10 @@ class BioReportViewModelTest {
         assertTrue(viewModel.bioReports.first().isEmpty())
     }
 
+    // Descripción: Verifica que cuando ocurre una excepción durante la solicitud a la API,
+    // el ViewModel establece un mensaje de error apropiado y asegura que la lista de reportes está vacía.
+    // Escenario: Simula que una RuntimeException es lanzada durante la llamada a la API.
+    // Aserciones: Comprueba que el errorMessage contiene el mensaje de la excepción y que bioReports está vacío.
     @Test
     fun fetchReportsForUser_ExceptionThrown_SetsErrorMessage() = runTest(testDispatcher) {
         coEvery { mockApi.getAllReports() } throws RuntimeException("Network error")
@@ -97,6 +110,11 @@ class BioReportViewModelTest {
         assertTrue(viewModel.bioReports.first().isEmpty())
     }
 
+    // Descripción: Verifica que cuando no hay reportes para un biomonitor específico en las fuentes
+    // remotas y locales, el estado del ViewModel refleja correctamente la ausencia de datos.
+    // Escenario: Simula una respuesta exitosa de la API y datos locales, pero ninguno
+    // pertenece al biomonitor especificado.
+    // Aserciones: Comprueba que bioReports está vacío y que las métricas relacionadas están en 0.
     @Test
     fun fetchReportsForUser_NoReportsForBiomonitorId_SetsEmptyState() = runTest(testDispatcher) {
         val biomonitorId = "456"
