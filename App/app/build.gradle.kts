@@ -123,6 +123,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockito.inline.v4110)
     testImplementation(libs.mockk)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
 
     testImplementation("org.mockito:mockito-core:5.0.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")

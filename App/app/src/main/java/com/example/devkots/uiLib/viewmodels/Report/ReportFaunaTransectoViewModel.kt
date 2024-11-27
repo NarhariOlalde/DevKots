@@ -82,19 +82,21 @@ class ReportFaunaTransectoViewModel(
 
     fun updateReport(reportId: Int, updatedReport: FaunaTransectoReport) {
         viewModelScope.launch {
-            loading = true
-            try {
-                Log.d("Update", "Iniciando actualización en la base de datos local")
-                val entity = updatedReport.toEntity(reportId)
-                faunaTransectoReportDao?.updateFaunaTransectoReport(entity)
-                Log.d("Update", "Reporte actualizado localmente")
-                report = updatedReport
-                Log.d("Update", "Estado en memoria actualizado")
-            } catch (e: Exception) {
-                Log.e("Report", "Error al actualizar reporte localmente", e)
-                errorMessage = "Error al actualizar reporte local: ${e.message}"
-            } finally {
-                loading = false
+            if(updatedReport.status) {
+                loading = true
+                try {
+                    Log.d("Update", "Iniciando actualización en la base de datos local")
+                    val entity = updatedReport.toEntity(reportId)
+                    faunaTransectoReportDao?.updateFaunaTransectoReport(entity)
+                    Log.d("Update", "Reporte actualizado localmente")
+                    report = updatedReport
+                    Log.d("Update", "Estado en memoria actualizado")
+                } catch (e: Exception) {
+                    Log.e("Report", "Error al actualizar reporte localmente", e)
+                    errorMessage = "Error al actualizar reporte local: ${e.message}"
+                } finally {
+                    loading = false
+                }
             }
         }
     }
