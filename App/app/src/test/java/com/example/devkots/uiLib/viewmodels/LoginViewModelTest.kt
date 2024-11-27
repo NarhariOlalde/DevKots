@@ -30,9 +30,5 @@ class LoginViewModelTest {
 
         assertNotEquals(newEmail, viewModel.email.first())
         assertNotEquals(newPassword, viewModel.password.first())
-
     }
-
-
-
 }
